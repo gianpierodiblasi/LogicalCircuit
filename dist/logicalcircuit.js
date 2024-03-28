@@ -134,7 +134,7 @@ class LogicalCircuitUI {
       this.#addButton(toolbar, "XOR");
       this.#addButton(toolbar, "NXOR");
       this.#addButton(toolbar, "NOT");
-//      this.#addButton(toolbar, "CLEAR");
+      this.#addButton(toolbar, "CLEAR");
     }
 
     this.#canvas = document.createElement("canvas");
@@ -328,6 +328,7 @@ class LogicalCircuitUI {
 
     switch (operator.type) {
       case "OR":
+      case "AND":
         var radiusY = this.#operator1Height * operator.from.length / 2;
         var width = operator.left + this.#operatorLineWidth;
         var height = operator.top + this.#operator1Height * operator.from.length;
@@ -340,49 +341,35 @@ class LogicalCircuitUI {
 
         var incAngle = Math.PI / (operator.from.length + 1);
         for (var index = 0; index < operator.from.length; index++) {
-          operator.fromKnobCenter.push({
-            "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(incAngle * (index + 1) - Math.PI / 2),
-            "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(incAngle * (index + 1) - Math.PI / 2),
-          });
-
-          this.#drawKnob(null, null, operator.fromKnobCenter[index]);
+          if (operator.type === "OR") {
+            var angle = incAngle * (index + 1) - Math.PI / 2;
+            operator.fromKnobCenter.push({
+              "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle),
+              "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(angle),
+            });
+          } else {
+            operator.fromKnobCenter.push({
+              "x": operator.left - this.#knobRadius,
+              "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
+            });
+          }
+          operator.fromKnobPath.push(this.#drawKnob(null, null, operator.fromKnobCenter[index]));
         }
 
-        operator.symbolPath.moveTo(width, height);
-        operator.symbolPath.lineTo(operator.left, height);
-        operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
-        operator.symbolPath.lineTo(width, operator.top);
-        operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
-        operator.symbolSize = {
-          "width": this.#operatorLineWidth + this.#operatorRadiusX,
-          "height": this.operator1Height * operator.from.length
-        };
-        break;
-      case "AND":
-        var radiusY = this.#operator1Height * operator.from.length / 2;
-        var width = operator.left + this.#operatorLineWidth;
-        var height = operator.top + this.#operator1Height * operator.from.length;
-        var centerTop = operator.top + radiusY;
-
-        operator.outputKnobCenter = {
-          "x": width + this.#operatorRadiusX + this.#knobRadius,
-          "y": centerTop
-        };
-
-        for (var index = 0; index < operator.from.length; index++) {
-          operator.fromKnobCenter.push({
-            "x": operator.left - this.#knobRadius,
-            "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
-          });
-
-          this.#drawKnob(null, null, operator.fromKnobCenter[index]);
+        if (operator.type === "OR") {
+          operator.symbolPath.moveTo(width, height);
+          operator.symbolPath.lineTo(operator.left, height);
+          operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
+          operator.symbolPath.lineTo(width, operator.top);
+          operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
+        } else {
+          operator.symbolPath.moveTo(width, height);
+          operator.symbolPath.lineTo(operator.left, height);
+          operator.symbolPath.lineTo(operator.left, operator.top);
+          operator.symbolPath.lineTo(width, operator.top);
+          operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
         }
 
-        operator.symbolPath.moveTo(width, height);
-        operator.symbolPath.lineTo(operator.left, height);
-        operator.symbolPath.lineTo(operator.left, operator.top);
-        operator.symbolPath.lineTo(width, operator.top);
-        operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
         operator.symbolSize = {
           "width": this.#operatorLineWidth + this.#operatorRadiusX,
           "height": this.operator1Height * operator.from.length
