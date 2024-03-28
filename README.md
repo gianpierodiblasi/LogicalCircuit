@@ -52,7 +52,7 @@ var logicalCircuit = new LogicalCircuit();
   - input
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- add<Operator>(name): adds an operator node
+- add\<Operator>(name): adds an operator node
   - input
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
