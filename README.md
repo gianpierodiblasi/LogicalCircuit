@@ -31,7 +31,7 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
   }]
 }
 ```
-The *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property.
+The *inputs* array represents the input parameters, the *operators* array represents the circuit and finally the *output* array represents the output parameters; the *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property.
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
