@@ -44,22 +44,22 @@ var logicalCircuit = new LogicalCircuit();
 ```
 
 #### methods
-- addInput(name): adds an input node
+- *addInput(name)*: adds an input node
   - input
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- addOutput(name): adds an output node
+- *addOutput(name)*: adds an output node
   - input
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- add\<Operator>(): adds an operator node (an operator is always added)
+- *add\<Operator>()*: adds an operator node (an operator is always added)
   - input: NOTHING
   - output: the unique name assigned to the operator (STRING)
-- purgeName(name): an utility method to purge a name
+- *purgeName(name)*: an utility method to purge a name
   - input:
     - name: the name (STRING)
   - output: the purged name (STRING)
-- isNameAlreadyUsed(name): an utility method to check if a name is already used
+- *isNameAlreadyUsed(name)*: an utility method to check if a name is already used
   - input:
     - name: the name (STRING)
   - output: true if the name is already used, false otherwise (BOOLEAN)
@@ -157,19 +157,19 @@ where:
 }
 ```
 #### methods
-- addInput(name, top, left): adds an input node
+- *addInput(name, top, left)*: adds an input node
   - input
     - name: the node name (STRING)
     - top: the top coordinate of the node (NUMBER)
     - left: the left coordinate of the node (NUMBER)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- addOutput(name, top, left): adds an output node
+- *addOutput(name, top, left)*: adds an output node
   - input
     - name: the node name (STRING)
     - top: the top coordinate of the node (NUMBER)
     - left: the left coordinate of the node (NUMBER)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- add\<Operator>(top, left): adds an operator node (an operator is always added)
+- *add\<Operator>(top, left)*: adds an operator node (an operator is always added)
   - input:
     - top: the top coordinate of the node (NUMBER)
     - left: the left coordinate of the node (NUMBER)
