@@ -4,8 +4,9 @@ A JavaScript API to (visually) manage logical circuits.
 ## Description
 This API provides two classes to (visually) manage logical circuits; a demo is available [here](https://gianpierodiblasi.github.io/LogicalCircuit/).
 
+### LogicalCircuit
 The *LogicalCircuit* class can be used to manage a logical circuit; the following JSON describes the structure used by the class to manage the circuit.
-```javascript
+```json
 {
   "inputs": [{
     "name": "x"
@@ -33,10 +34,32 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
 ```
 **Notes:**
 - the *inputs* array represents the input parameters, the *operators* array represents the circuit and finally the *output* array represents the output parameters
-- the *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property.
+- the *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property
+- the managed operators are OR, NOR, AND, NAND, XOR, NXOR, NOT
 
-The *LogicalCircuitUI* class can be used to visually manage a logical circuit; it uses an enhanced JSON structure.
+#### constructor
+The constructor can be used to create a new *LogicalCircuit* as follows:
 ```javascript
+var logicalCircuit = new LogicalCircuit();
+```
+
+#### methods
+- addInput(name): adds an input node
+  - input
+    - name: the node name (STRING)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+- addOutput(name): adds an output node
+  - input
+    - name: the node name (STRING)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+- add<Operator>(name): adds an operator node
+  - input
+    - name: the node name (STRING)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+
+### LogicalCircuitUI
+The *LogicalCircuitUI* class can be used to visually manage a logical circuit; it uses an enhanced JSON structure.
+```json
 {
   "inputs": [{
     "name": "x",
