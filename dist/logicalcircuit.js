@@ -353,18 +353,17 @@ class LogicalCircuitUI {
               "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
             });
           }
+          
           operator.fromKnobPath.push(this.#drawKnob(null, null, operator.fromKnobCenter[index]));
         }
 
+        operator.symbolPath.moveTo(width, height);
+        operator.symbolPath.lineTo(operator.left, height);
         if (operator.type === "OR") {
-          operator.symbolPath.moveTo(width, height);
-          operator.symbolPath.lineTo(operator.left, height);
           operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
           operator.symbolPath.lineTo(width, operator.top);
           operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
         } else {
-          operator.symbolPath.moveTo(width, height);
-          operator.symbolPath.lineTo(operator.left, height);
           operator.symbolPath.lineTo(operator.left, operator.top);
           operator.symbolPath.lineTo(width, operator.top);
           operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
@@ -409,10 +408,6 @@ class LogicalCircuitUI {
     }
 
     this.#drawKnob(operator, "outputKnobPath", "outputKnobCenter");
-
-    this.#ctx.fillStyle = "white";
-    this.#ctx.fill(operator.symbolPath);
-    this.#ctx.fillStyle = "black";
     this.#ctx.stroke(operator.symbolPath);
   }
 
