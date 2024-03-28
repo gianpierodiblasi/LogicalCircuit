@@ -100,6 +100,13 @@ class LogicalCircuitUI {
   #canvas;
   #ctx;
 
+  #knobRadius = 5;
+
+  #inputGap = 20;
+  #inputHeight = 40;
+  #outputGap = 20;
+  #outputHeight = 40;
+
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
 
@@ -114,8 +121,8 @@ class LogicalCircuitUI {
       toolbar.classList.add("LogicalCircuitUI_Toolbar");
       container.append(toolbar);
 
-      this.#addButtonAndText(toolbar, "IN");
-      this.#addButtonAndText(toolbar, "OUT");
+      this.#addButtonAndText(toolbar, "IN", (event, name) => this.addInput(name, 10, 10));
+      this.#addButtonAndText(toolbar, "OUT", (event, name) => this.addOutput(name, 10, 10));
       this.#addButton(toolbar, "OR");
       this.#addButton(toolbar, "NOR");
       this.#addButton(toolbar, "AND");
@@ -140,7 +147,7 @@ class LogicalCircuitUI {
     this.#draw();
   }
 
-  #addButtonAndText(toolbar, label) {
+  #addButtonAndText(toolbar, label, listener) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_TextContainer");
     toolbar.append(div);
@@ -157,6 +164,7 @@ class LogicalCircuitUI {
     var button = document.createElement("button");
     button.textContent = label;
     button.disabled = true;
+    button.onclick = (event) => listener(event, text.value);
     div.append(button);
 
   }
@@ -245,6 +253,9 @@ class LogicalCircuitUI {
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
     this.#drawTrash();
+
+    this.#logicalCircuit.inputs.forEach(input => this.#drawInput(input));
+    this.#logicalCircuit.outputs.forEach(output => this.#drawOutput(output));
   }
 
   #drawTrash() {
@@ -264,5 +275,52 @@ class LogicalCircuitUI {
     this.#ctx.stroke();
     this.#ctx.lineWidth = 2;
     this.#ctx.strokeStyle = "black";
+  }
+
+  #drawInput(input) {
+    var width = this.#ctx.measureText(input.name).width + this.#inputGap;
+    var centerTop = input.top + this.#inputHeight / 2;
+
+    input.knobCenter = {
+      "x": input.left + width + this.#knobRadius,
+      "y": centerTop
+    };
+
+    this.#drawText(input, width, this.#inputHeight, this.#inputGap);
+    this.#drawKnob(input);
+  }
+
+  #drawOutput(output) {
+    var width = this.#ctx.measureText(output.name).width + this.#outputGap;
+    var centerTop = output.top + this.#outputHeight / 2;
+
+    output.knobCenter = {
+      "x": output.left - this.#knobRadius,
+      "y": centerTop
+    };
+
+    this.#drawText(output, width, this.#outputHeight, this.#outputGap);
+    this.#drawKnob(output);
+  }
+
+  #drawText(node, width, height, gap) {
+    node.symbolPath = new Path2D();
+    node.symbolPath.rect(node.left, node.top, width, height);
+    node.symbolSize = {
+      "width": width,
+      "height": height
+    };
+    this.#ctx.stroke(node.symbolPath);
+    this.#ctx.fillText(node.name, node.left + gap / 2, node.knobCenter.y);
+  }
+
+  #drawKnob(node) {
+    node.knobPath = new Path2D();
+    node.knobPath.moveTo(node.knobCenter.x, node.knobCenter.y - this.#knobRadius);
+    node.knobPath.lineTo(node.knobCenter.x + this.#knobRadius, node.knobCenter.y);
+    node.knobPath.lineTo(node.knobCenter.x, node.knobCenter.y + this.#knobRadius);
+    node.knobPath.lineTo(node.knobCenter.x - this.#knobRadius, node.knobCenter.y);
+    node.knobPath.closePath();
+    this.#ctx.stroke(node.knobPath);
   }
 }

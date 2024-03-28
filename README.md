@@ -71,11 +71,19 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
   "inputs": [{
     "name": "x",
     "top": 10,
-    "left": 10
+    "left": 10,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "knobPath": Path2D,
+    "knobCenter": {"x": 115, "y": 30}
   }, {
     "name": "y",
     "top": 100,
-    "left": 10
+    "left": 10,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "knobPath": Path2D,
+    "knobCenter": {"x": 115, "y": 120}
   }],
   "operators": [{
     "name": "1",
@@ -100,12 +108,20 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
     "name": "out1",
     "from": "12",
     "top": 10,
-    "left": 300
+    "left": 300,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "knobPath": Path2D,
+    "knobCenter": {"x": 295, "y": 30}
   }]
 }
 ```
 **Notes:**
 - the *(top, left)* parameters represent the position of the logical operator
+- the *symbolPath* parameter is the Path2D object representing the node
+- the *symbolSize* parameter is the size of the *symbolPath* containing rectangle
+- the *knobPath* parameter is the Path2D of the knob used to connect the nodes
+- the *knobCenter* parameter is the center of the knob used to connect the nodes
 
 #### constructor
 The constructor can be used to create a new *LogicalCircuitUI* as follows:
