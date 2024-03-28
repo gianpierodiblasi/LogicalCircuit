@@ -2,7 +2,7 @@
 A JavaScript API to (visually) manage logical circuits.
 
 ## Description
-This API provides two classes to (visually) manage logical circuits.
+This API provides two classes to (visually) manage logical circuits; a demo is available [here](https://gianpierodiblasi.github.io/LogicalCircuit/).
 
 The *LogicalCircuit* class can be used to manage a logical circuit; the following JSON describes the structure used by the class to manage the circuit.
 ```javascript
