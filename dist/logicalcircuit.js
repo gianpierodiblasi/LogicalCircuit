@@ -9,7 +9,7 @@ class LogicalCircuit {
   }
 
   addInput(name) {
-    name = this.#getName(name);
+    name = this.#purgeName(name);
     if (!name || this.#isNameAlreadyUsed(name)) {
       return false;
     } else {
@@ -19,7 +19,7 @@ class LogicalCircuit {
   }
 
   addOutput(name) {
-    name = this.#getName(name);
+    name = this.#purgeName(name);
     if (!name || this.#isNameAlreadyUsed(name)) {
       return false;
     } else {
@@ -28,49 +28,49 @@ class LogicalCircuit {
     }
   }
 
-  addOR(name) {
-    this.#addOperator(name, "OR", ["", ""]);
-  }
-  
-  addNOR(name) {
-    this.#addOperator(name, "NOR", ["", ""]);
-  }
-  
-  addAND(name) {
-    this.#addOperator(name, "AND", ["", ""]);
-  }
-  
-  addNAND(name) {
-    this.#addOperator(name, "NAND", ["", ""]);
-  }
-  
-  addXOR(name) {
-    this.#addOperator(name, "XOR", ["", ""]);
-  }
-  
-  addNXOR(name) {
-    this.#addOperator(name, "NXOR", ["", ""]);
-  }
-  
-  addNOT(name) {
-    this.#addOperator(name, "NOT", [""]);
+  addOR() {
+    return this.#addOperator("OR", ["", ""]);
   }
 
-  #addOperator(name, operator, from) {
-    name = this.#getName(name);
-    if (!name || this.#isNameAlreadyUsed(name)) {
-      return false;
-    } else {
-      this.#structure.operators.push({
-        "name": name,
-        "type": operator,
-        "from": from
-      });
-      return true;
-    }
+  addNOR() {
+    return this.#addOperator("NOR", ["", ""]);
   }
 
-  #getName(name) {
+  addAND() {
+    return this.#addOperator("AND", ["", ""]);
+  }
+
+  addNAND() {
+    return this.#addOperator("NAND", ["", ""]);
+  }
+
+  addXOR() {
+    return this.#addOperator("XOR", ["", ""]);
+  }
+
+  addNXOR() {
+    return this.#addOperator("NXOR", ["", ""]);
+  }
+
+  addNOT() {
+    return this.#addOperator("NOT", [""]);
+  }
+
+  #getUniqueName() {
+    return "LogicalCircuit_Operator_" + new Date().getTime();
+  }
+
+  #addOperator(operator, from) {
+    var name = this.#getUniqueName();
+    this.#structure.operators.push({
+      "name": name,
+      "type": operator,
+      "from": from
+    });
+    return name;
+  }
+
+  #purgeName(name) {
     name = name === 0 ? "0" : name;
     name = name ? "" + name : "";
     return name.trim();
@@ -84,7 +84,46 @@ class LogicalCircuit {
 }
 
 class LogicalCircuitUI {
+  #logicalCircuit;
+
   constructor() {
+    this.#logicalCircuit = new LogicalCircuit();
+  }
+
+  addInput(name, top, left) {
+    var added = this.#logicalCircuit.addInput(name);
+
+  }
+
+  addOutput(name, top, left) {
+
+  }
+
+  addOR(top, left) {
+
+  }
+
+  addNOR(top, left) {
+
+  }
+
+  addAND(top, left) {
+
+  }
+
+  addNAND(top, left) {
+
+  }
+
+  addXOR(top, left) {
+
+  }
+
+  addNXOR(top, left) {
+
+  }
+
+  addNOT(top, left) {
 
   }
 }
