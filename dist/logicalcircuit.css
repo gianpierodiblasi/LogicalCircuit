@@ -1,3 +1,22 @@
+.LogicalCircuitUI_Toolbar {
+  display: flex;
+  margin-bottom: 5px;
+}
+.LogicalCircuitUI_Toolbar > * {
+  margin-right: 5px;
+}
+.LogicalCircuitUI_Toolbar > button {
+  min-width: 60px;
+}
+
+.LogicalCircuitUI_TextContainer {
+  display: flex;
+  flex-direction: column;
+}
+.LogicalCircuitUI_TextContainer > input[type=text] {
+  width: 60px;
+}
+
 .LogicalCircuitUI_Canvas {
   border: 1px solid black;
 }

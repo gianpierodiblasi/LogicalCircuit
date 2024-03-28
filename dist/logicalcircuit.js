@@ -21,8 +21,8 @@ class LogicalCircuit {
   }
 
   addInput(name) {
-    name = this.#purgeName(name);
-    if (!name || this.#isNameAlreadyUsed(name)) {
+    name = this.purgeName(name);
+    if (!name || this.isNameAlreadyUsed(name)) {
       return false;
     } else {
       this.#structure.inputs.push({"name": name});
@@ -31,8 +31,8 @@ class LogicalCircuit {
   }
 
   addOutput(name) {
-    name = this.#purgeName(name);
-    if (!name || this.#isNameAlreadyUsed(name)) {
+    name = this.purgeName(name);
+    if (!name || this.isNameAlreadyUsed(name)) {
       return false;
     } else {
       this.#structure.outputs.push({"name": name});
@@ -82,13 +82,13 @@ class LogicalCircuit {
     return name;
   }
 
-  #purgeName(name) {
+  purgeName(name) {
     name = name === 0 ? "0" : name;
     name = name ? "" + name : "";
     return name.trim();
   }
 
-  #isNameAlreadyUsed(name) {
+  isNameAlreadyUsed(name) {
     return !!this.#structure.inputs.find(input => input.name === name) ||
             !!this.#structure.operators.find(operator => operator.name === name) ||
             !!this.#structure.outputs.find(output => output.name === name);
@@ -103,11 +103,33 @@ class LogicalCircuitUI {
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
 
+    try {
+      options.showToolbar;
+    } catch (exception) {
+      options = {};
+    }
+
+    if (options.showToolbar) {
+      var toolbar = document.createElement("div");
+      toolbar.classList.add("LogicalCircuitUI_Toolbar");
+      container.append(toolbar);
+
+      this.#addButtonAndText(toolbar, "IN");
+      this.#addButtonAndText(toolbar, "OUT");
+      this.#addButton(toolbar, "OR");
+      this.#addButton(toolbar, "NOR");
+      this.#addButton(toolbar, "AND");
+      this.#addButton(toolbar, "NAND");
+      this.#addButton(toolbar, "XOR");
+      this.#addButton(toolbar, "NXOR");
+      this.#addButton(toolbar, "NOT");
+      this.#addButton(toolbar, "CLEAR");
+    }
+
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
     this.#canvas.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
     this.#canvas.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
-
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
@@ -116,6 +138,33 @@ class LogicalCircuitUI {
     this.#ctx.lineWidth = 2;
     this.#ctx.lineJoin = "round";
     this.#draw();
+  }
+
+  #addButtonAndText(toolbar, label) {
+    var div = document.createElement("div");
+    div.classList.add("LogicalCircuitUI_TextContainer");
+    toolbar.append(div);
+
+    var text = document.createElement("input");
+    text.type = "text";
+    div.append(text);
+
+    text.oninput = (event) => {
+      var name = this.#logicalCircuit.purgeName(text.value);
+      button.disabled = !name || this.#logicalCircuit.isNameAlreadyUsed(name);
+    };
+
+    var button = document.createElement("button");
+    button.textContent = label;
+    button.disabled = true;
+    div.append(button);
+
+  }
+
+  #addButton(toolbar, label) {
+    var button = document.createElement("button");
+    button.textContent = label;
+    toolbar.append(button);
   }
 
   addInput(name, top, left) {

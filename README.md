@@ -55,6 +55,14 @@ var logicalCircuit = new LogicalCircuit();
 - add\<Operator>(): adds an operator node (an operator is always added)
   - input: NOTHING
   - output: the unique name assigned to the operator (STRING)
+- purgeName(name): an utility method to purge a name
+  - input:
+    - name: the name (STRING)
+  - output: the purged name (STRING)
+- isNameAlreadyUsed(name): an utility method to check if a name is already used
+  - input:
+    - name: the name (STRING)
+  - output: true if the name is already used, false otherwise (BOOLEAN)
 
 ### LogicalCircuitUI
 The *LogicalCircuitUI* class can be used to visually manage a logical circuit; it uses an enhanced JSON structure.
@@ -111,7 +119,7 @@ where:
 {
   "width": 800, // the canvas width (default: 800)
   "height": 600, // the canvas height (default: 600)
-  "showToolbar": true, // true to show a toolbar to manage the circuit, false otherwise (default: true)
+  "showToolbar": false, // true to show a toolbar to manage the circuit, false otherwise (default: false)
 }
 ```
 #### methods
