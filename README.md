@@ -182,7 +182,7 @@ where:
   - output: NOTHING
 
 ## How To Use
-The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder.
+The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
