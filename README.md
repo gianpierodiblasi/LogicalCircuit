@@ -63,6 +63,9 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name (STRING)
   - output: true if the name is already used, false otherwise (BOOLEAN)
+- *clear()*: clears the logical circuit
+  - input: NOTHING
+  - output: NOTHING
 
 ### LogicalCircuitUI
 The *LogicalCircuitUI* class can be used to visually manage a logical circuit; it uses an enhanced JSON structure.
@@ -174,6 +177,9 @@ where:
     - top: the top coordinate of the node (NUMBER)
     - left: the left coordinate of the node (NUMBER)
   - output: the unique name assigned to the operator (STRING)
+- *clear()*: clears the logical circuit
+  - input: NOTHING
+  - output: NOTHING
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).

@@ -68,6 +68,12 @@ class LogicalCircuit {
     return this.#addOperator("NOT", [""]);
   }
 
+  clear() {
+    this.#structure.inputs = [];
+    this.#structure.operators = [];
+    this.#structure.outputs = [];
+  }
+
   #getUniqueName() {
     return "LogicalCircuit_Operator_" + new Date().getTime();
   }
@@ -135,7 +141,7 @@ class LogicalCircuitUI {
       this.#addButton(toolbar, "XOR");
       this.#addButton(toolbar, "NXOR");
       this.#addButton(toolbar, "NOT");
-      this.#addButton(toolbar, "CLEAR");
+      this.#addButton(toolbar, "CLEAR", (event) => this.clear());
     }
 
     this.#canvas = document.createElement("canvas");
@@ -174,10 +180,10 @@ class LogicalCircuitUI {
 
   }
 
-  #addButton(toolbar, label) {
+  #addButton(toolbar, label, listener) {
     var button = document.createElement("button");
     button.textContent = label;
-    button.onclick = (event) => this["add" + label](10, 10);
+    button.onclick = listener ? listener : (event) => this["add" + label](10, 10);
     toolbar.append(button);
   }
 
@@ -246,6 +252,11 @@ class LogicalCircuitUI {
     this.#addPosition(this.#logicalCircuit.operators, name, top, left);
     this.#draw();
     return name;
+  }
+
+  clear() {
+    this.#logicalCircuit.clear();
+    this.#draw();
   }
 
   #addPosition(array, name, top, left) {
