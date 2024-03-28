@@ -4,7 +4,7 @@ A JavaScript API to (visually) manage logical circuits.
 ## Description
 This API provides two classes to (visually) manage logical circuits.
 
-The *LogicalCircuit* class can be used to manage a logicalCircuit; the following JSON describes the structure used by the class to manage the circuit.
+The *LogicalCircuit* class can be used to manage a logical circuit; the following JSON describes the structure used by the class to manage the circuit.
 ```javascript
 {
   "inputs": [{
@@ -31,6 +31,7 @@ The *LogicalCircuit* class can be used to manage a logicalCircuit; the following
   }]
 }
 ```
+The *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property.
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
