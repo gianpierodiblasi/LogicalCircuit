@@ -85,45 +85,86 @@ class LogicalCircuit {
 
 class LogicalCircuitUI {
   #logicalCircuit;
+  #canvas;
 
-  constructor() {
+  constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
   }
 
   addInput(name, top, left) {
     var added = this.#logicalCircuit.addInput(name);
-
+    if (added) {
+      this.#addPosition(this.#logicalCircuit.#inputs, name, top, left);
+      this.#draw();
+    }
+    return added;
   }
 
   addOutput(name, top, left) {
-
+    var added = this.#logicalCircuit.addOutput(name);
+    if (added) {
+      this.#addPosition(this.#logicalCircuit.#output, name, top, left);
+      this.#draw();
+    }
+    return added;
   }
 
   addOR(top, left) {
-
+    var name = this.#logicalCircuit.addOR();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addNOR(top, left) {
-
+    var name = this.#logicalCircuit.addNOR();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addAND(top, left) {
-
+    var name = this.#logicalCircuit.addAND();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addNAND(top, left) {
-
+    var name = this.#logicalCircuit.addNAND();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addXOR(top, left) {
-
+    var name = this.#logicalCircuit.addXOR();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addNXOR(top, left) {
-
+    var name = this.#logicalCircuit.addNXOR();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
   }
 
   addNOT(top, left) {
+    var name = this.#logicalCircuit.addNOT();
+    this.#addPosition(this.#logicalCircuit.#operator, name, top, left);
+    this.#draw();
+    return name;
+  }
+
+  #addPosition(array, name, top, left) {
+    var found = array.find(input => input.name === name);
+    found.top = isNaN(top) || top < 0 || top > this.#canvas.height ? 10 : top;
+    found.left = isNaN(left) || left < 0 || left > this.#canvas.width ? 10 : left;
+  }
+
+  #draw() {
 
   }
 }

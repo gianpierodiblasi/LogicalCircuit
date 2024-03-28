@@ -52,10 +52,9 @@ var logicalCircuit = new LogicalCircuit();
   - input
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- add\<Operator>(name): adds an operator node
-  - input
-    - name: the node name (STRING)
-  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+- add\<Operator>(): adds an operator node (an operator is always added)
+  - input: NOTHING
+  - output: the unique name assigned to the operator (STRING)
 
 ### LogicalCircuitUI
 The *LogicalCircuitUI* class can be used to visually manage a logical circuit; it uses an enhanced JSON structure.
@@ -99,6 +98,40 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
 ```
 **Notes:**
 - the *(top, left)* parameters represent the position of the logical operator
+
+#### constructor
+The constructor can be used to create a new *LogicalCircuitUI* as follows:
+```javascript
+var logicalCircuitUI = new LogicalCircuitUI(container, options);
+```
+where:
+- *container* is the (div) element where to add the UI
+- *options* is a JSON with the following structure:
+```
+{
+  "width": 800, // the canvas width (default: 800)
+  "height": 600, // the canvas height (default: 600)
+  "showToolbar": true, // true to show a toolbar to manage the circuit, false otherwise (default: true)
+}
+```
+#### methods
+- addInput(name, top, left): adds an input node
+  - input
+    - name: the node name (STRING)
+    - top: the top coordinate on the node (NUMBER)
+    - left: the left coordinate on the node (NUMBER)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+- addOutput(name, top, left): adds an output node
+  - input
+    - name: the node name (STRING)
+    - top: the top coordinate on the node (NUMBER)
+    - left: the left coordinate on the node (NUMBER)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+- add\<Operator>(top, left): adds an operator node (an operator is always added)
+  - input:
+    - top: the top coordinate on the node (NUMBER)
+    - left: the left coordinate on the node (NUMBER)
+  - output: the unique name assigned to the operator (STRING)
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
