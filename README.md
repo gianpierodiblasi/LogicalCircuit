@@ -107,7 +107,7 @@ var logicalCircuitUI = new LogicalCircuitUI(container, options);
 where:
 - *container* is the (div) element where to add the UI
 - *options* is a JSON with the following structure:
-```
+```json
 {
   "width": 800, // the canvas width (default: 800)
   "height": 600, // the canvas height (default: 600)
@@ -118,19 +118,19 @@ where:
 - addInput(name, top, left): adds an input node
   - input
     - name: the node name (STRING)
-    - top: the top coordinate on the node (NUMBER)
-    - left: the left coordinate on the node (NUMBER)
+    - top: the top coordinate of the node (NUMBER)
+    - left: the left coordinate of the node (NUMBER)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
 - addOutput(name, top, left): adds an output node
   - input
     - name: the node name (STRING)
-    - top: the top coordinate on the node (NUMBER)
-    - left: the left coordinate on the node (NUMBER)
+    - top: the top coordinate of the node (NUMBER)
+    - left: the left coordinate of the node (NUMBER)
   - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
 - add\<Operator>(top, left): adds an operator node (an operator is always added)
   - input:
-    - top: the top coordinate on the node (NUMBER)
-    - left: the left coordinate on the node (NUMBER)
+    - top: the top coordinate of the node (NUMBER)
+    - left: the left coordinate of the node (NUMBER)
   - output: the unique name assigned to the operator (STRING)
 
 ## Donate
