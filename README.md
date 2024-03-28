@@ -90,19 +90,37 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
     "type": "AND",
     "from": ["x", "y"],
     "top": 10,
-    "left": 100
+    "left": 100,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "fromKnobPath": [Path2D, Path2D],
+    "fromKnobCenter": [{"x": 0, "y": 0}, {"x": 0, "y": 0}],
+    "outputKnobPath": Path2D,
+    "outputKnobCenter": {"x": 0, "y": 0}
   }, {
     "name": "2",
     "type": "OR",
     "from": ["x", "y"],
     "top": 100,
-    "left": 100
+    "left": 100,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "fromKnobPath": [Path2D, Path2D],
+    "fromKnobCenter": [{"x": 0, "y": 0}, {"x": 0, "y": 0}],
+    "outputKnobPath": Path2D,
+    "outputKnobCenter": {"x": 0, "y": 0}
   }, {
     "name": "12",
     "type": "XOR",
     "from": ["1", "2"],
     "top": 10,
-    "left": 200
+    "left": 200,
+    "symbolPath": Path2D,
+    "symbolSize": {"width": 100, "height": 40},
+    "fromKnobPath": [Path2D, Path2D],
+    "fromKnobCenter": [{"x": 0, "y": 0}, {"x": 0, "y": 0}],
+    "outputKnobPath": Path2D,
+    "outputKnobCenter": {"x": 0, "y": 0}
   }],
   "outputs": [{
     "name": "out1",
@@ -120,8 +138,8 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
 - the *(top, left)* parameters represent the position of the logical operator
 - the *symbolPath* parameter is the Path2D object representing the node
 - the *symbolSize* parameter is the size of the *symbolPath* containing rectangle
-- the *knobPath* parameter is the Path2D of the knob used to connect the nodes
-- the *knobCenter* parameter is the center of the knob used to connect the nodes
+- the *knobPath*, *fromKnobPath* and *outputKnobPath* parameters are the Path2Ds of the knobs used to connect the nodes
+- the *knobCenter*, *fromKnobCenter* and *outputKnobCenter* parameters are the centers of the knobs used to connect the nodes
 
 #### constructor
 The constructor can be used to create a new *LogicalCircuitUI* as follows:

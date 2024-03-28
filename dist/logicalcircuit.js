@@ -107,6 +107,10 @@ class LogicalCircuitUI {
   #outputGap = 20;
   #outputHeight = 40;
 
+  #operatorRadiusX = 20;
+  #operatorLineWidth = 30;
+  #operator1Height = 20;
+
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
 
@@ -130,7 +134,7 @@ class LogicalCircuitUI {
       this.#addButton(toolbar, "XOR");
       this.#addButton(toolbar, "NXOR");
       this.#addButton(toolbar, "NOT");
-      this.#addButton(toolbar, "CLEAR");
+//      this.#addButton(toolbar, "CLEAR");
     }
 
     this.#canvas = document.createElement("canvas");
@@ -172,6 +176,7 @@ class LogicalCircuitUI {
   #addButton(toolbar, label) {
     var button = document.createElement("button");
     button.textContent = label;
+    button.onclick = (event) => this["add" + label](10, 10);
     toolbar.append(button);
   }
 
@@ -256,6 +261,7 @@ class LogicalCircuitUI {
 
     this.#logicalCircuit.inputs.forEach(input => this.#drawInput(input));
     this.#logicalCircuit.outputs.forEach(output => this.#drawOutput(output));
+    this.#logicalCircuit.operators.forEach(operator => this.#drawOperator(operator));
   }
 
   #drawTrash() {
@@ -287,7 +293,7 @@ class LogicalCircuitUI {
     };
 
     this.#drawText(input, width, this.#inputHeight, this.#inputGap);
-    this.#drawKnob(input);
+    this.#drawKnob(input, "knobPath", "knobCenter");
   }
 
   #drawOutput(output) {
@@ -300,7 +306,7 @@ class LogicalCircuitUI {
     };
 
     this.#drawText(output, width, this.#outputHeight, this.#outputGap);
-    this.#drawKnob(output);
+    this.#drawKnob(output, "knobPath", "knobCenter");
   }
 
   #drawText(node, width, height, gap) {
@@ -314,13 +320,134 @@ class LogicalCircuitUI {
     this.#ctx.fillText(node.name, node.left + gap / 2, node.knobCenter.y);
   }
 
-  #drawKnob(node) {
-    node.knobPath = new Path2D();
-    node.knobPath.moveTo(node.knobCenter.x, node.knobCenter.y - this.#knobRadius);
-    node.knobPath.lineTo(node.knobCenter.x + this.#knobRadius, node.knobCenter.y);
-    node.knobPath.lineTo(node.knobCenter.x, node.knobCenter.y + this.#knobRadius);
-    node.knobPath.lineTo(node.knobCenter.x - this.#knobRadius, node.knobCenter.y);
-    node.knobPath.closePath();
-    this.#ctx.stroke(node.knobPath);
+  #drawOperator(operator) {
+    operator.symbolPath = new Path2D();
+    operator.fromKnobPath = [];
+    operator.fromKnobCenter = [];
+    operator.outputKnobPath = new Path2D();
+
+    switch (operator.type) {
+      case "OR":
+        var radiusY = this.#operator1Height * operator.from.length / 2;
+        var width = operator.left + this.#operatorLineWidth;
+        var height = operator.top + this.#operator1Height * operator.from.length;
+        var centerTop = operator.top + radiusY;
+
+        operator.outputKnobCenter = {
+          "x": width + this.#operatorRadiusX + this.#knobRadius,
+          "y": centerTop
+        };
+
+        var incAngle = Math.PI / (operator.from.length + 1);
+        for (var index = 0; index < operator.from.length; index++) {
+          operator.fromKnobCenter.push({
+            "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(incAngle * (index + 1) - Math.PI / 2),
+            "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(incAngle * (index + 1) - Math.PI / 2),
+          });
+
+          this.#drawKnob(null, null, operator.fromKnobCenter[index]);
+        }
+
+        operator.symbolPath.moveTo(width, height);
+        operator.symbolPath.lineTo(operator.left, height);
+        operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
+        operator.symbolPath.lineTo(width, operator.top);
+        operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
+        operator.symbolSize = {
+          "width": this.#operatorLineWidth + this.#operatorRadiusX,
+          "height": this.operator1Height * operator.from.length
+        };
+        break;
+      case "AND":
+        var radiusY = this.#operator1Height * operator.from.length / 2;
+        var width = operator.left + this.#operatorLineWidth;
+        var height = operator.top + this.#operator1Height * operator.from.length;
+        var centerTop = operator.top + radiusY;
+
+        operator.outputKnobCenter = {
+          "x": width + this.#operatorRadiusX + this.#knobRadius,
+          "y": centerTop
+        };
+
+        for (var index = 0; index < operator.from.length; index++) {
+          operator.fromKnobCenter.push({
+            "x": operator.left - this.#knobRadius,
+            "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
+          });
+
+          this.#drawKnob(null, null, operator.fromKnobCenter[index]);
+        }
+
+        operator.symbolPath.moveTo(width, height);
+        operator.symbolPath.lineTo(operator.left, height);
+        operator.symbolPath.lineTo(operator.left, operator.top);
+        operator.symbolPath.lineTo(width, operator.top);
+        operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
+        operator.symbolSize = {
+          "width": this.#operatorLineWidth + this.#operatorRadiusX,
+          "height": this.operator1Height * operator.from.length
+        };
+        break;
+//    case "NOT":
+//      var width = operator.left + operatorLineWidth + operatorRadiusX;
+//      var height = operator.top + 2 * operator1Height;
+//      var radiusY = operator1Height;
+//      var centerH = operator.top + radiusY;
+//
+//      operator.outputKnobCenter = {
+//        "x": width + knobRadius,
+//        "y": centerH
+//      };
+//      operator.outputPath.arc(operator.outputKnobCenter.x, operator.outputKnobCenter.y, knobRadius, 0, 2 * Math.PI);
+//
+//      operator.inputKnobCenter.push({
+//        "x": operator.left - knobRadius,
+//        "y": centerH
+//      });
+//
+//      operator.inputPath.push(new Path2D());
+//      operator.inputPath[0].arc(operator.inputKnobCenter[0].x, operator.inputKnobCenter[0].y, knobRadius, 0, 2 * Math.PI);
+//      ctx.stroke(operator.inputPath[0]);
+//
+//      operator.symbolPath = new Path2D();
+//      operator.symbolPath.moveTo(operator.left, operator.top);
+//      operator.symbolPath.lineTo(width, centerH);
+//      operator.symbolPath.lineTo(operator.left, height);
+//      operator.symbolPath.closePath();
+//      operator.symbolSize = {
+//        "width": operatorLineWidth + operatorRadiusX,
+//        "height": 2 * operator1Height
+//      };
+//      break;
+    }
+
+    this.#drawKnob(operator, "outputKnobPath", "outputKnobCenter");
+
+    this.#ctx.fillStyle = "white";
+    this.#ctx.fill(operator.symbolPath);
+    this.#ctx.fillStyle = "black";
+    this.#ctx.stroke(operator.symbolPath);
+  }
+
+  #drawKnob(node, knobPath, knobCenter) {
+    if (node) {
+      node[knobPath] = new Path2D();
+      node[knobPath].moveTo(node[knobCenter].x, node[knobCenter].y - this.#knobRadius);
+      node[knobPath].lineTo(node[knobCenter].x + this.#knobRadius, node[knobCenter].y);
+      node[knobPath].lineTo(node[knobCenter].x, node[knobCenter].y + this.#knobRadius);
+      node[knobPath].lineTo(node[knobCenter].x - this.#knobRadius, node[knobCenter].y);
+      node[knobPath].closePath();
+      this.#ctx.stroke(node[knobPath]);
+    } else {
+      var path = new Path2D();
+      path.moveTo(knobCenter.x, knobCenter.y - this.#knobRadius);
+      path.lineTo(knobCenter.x + this.#knobRadius, knobCenter.y);
+      path.lineTo(knobCenter.x, knobCenter.y + this.#knobRadius);
+      path.lineTo(knobCenter.x - this.#knobRadius, knobCenter.y);
+      path.closePath();
+      this.#ctx.stroke(path);
+      return path;
+    }
+
   }
 }
