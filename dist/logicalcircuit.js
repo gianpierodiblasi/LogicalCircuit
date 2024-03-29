@@ -72,6 +72,19 @@ class LogicalCircuit {
     return this.#addOperator("NOT", [""]);
   }
 
+  remove(name) {
+    if (this.#structure.inputs.find(input => input.name === name)) {
+      this.#structure.inputs = this.#structure.inputs.filter(input => input.name !== name);
+    } else if (this.#structure.operators.find(operator => operator.name === name)) {
+      this.#structure.operators = this.#structure.operators.filter(operator => operator.name !== name);
+    } else if (this.#structure.outputs.find(output => output.name === name)) {
+      this.#structure.outputs = this.#structure.outputs.filter(output => output.name !== name);
+    }
+
+    this.#structure.operators.forEach(operator => operator.from = operator.from.map(element => element === name ? "" : element));
+    this.#structure.outputs.forEach(output => output.from = output.from === name ? "" : output.from);
+  }
+
   clear() {
     this.#structure.inputs = [];
     this.#structure.operators = [];
@@ -125,18 +138,13 @@ class LogicalCircuitUI {
 
   #currentEvent;
   #pressedEvent;
-  #onSymbolPressed;
 
   #onMouse = {"object": null, "reference": "", "index": -1};
   #onKnob = {"object": null, "reference": "", "index": -1, pressed: false};
-
+  #onArrow = {"direction": "", selected: false};
+  #onSymbol = {"pressed": false, "offsetX": 0, "offsetY": 0};
 //var operatorOrControlX = 15;
 //var operatorOrControlY = 20;
-//
-
-//var shapeOffset;
-
-//var selectedArrow;
 
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
@@ -280,6 +288,11 @@ class LogicalCircuitUI {
     this.#addPosition(this.#logicalCircuit.operators, name, top, left);
     this.#draw();
     return name;
+  }
+
+  remove(name) {
+    this.#logicalCircuit.remove(name);
+    this.#draw();
   }
 
   clear() {
@@ -588,7 +601,7 @@ class LogicalCircuitUI {
 //        ctx.fillStyle = "black";
 //        ctx.font = "24px sans-serif";
 //
-//        selectedArrow = currentEvent.offsetY < this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2 ? "UP" : "DOWN";
+//        onArrow.direction = currentEvent.offsetY < this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2 ? "UP" : "DOWN";
 //        canvas.style.cursor = currentEvent.offsetX > this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 2 ? "move" : "pointer";
       } else {
         this.#canvas.style.cursor = "move";
@@ -596,8 +609,8 @@ class LogicalCircuitUI {
 
       this.#ctx.lineWidth = 4;
 
-      if (this.#onSymbolPressed) {
-//        this.#ctx..strokeStyle = intersects(canvas.width, canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height) ? "red" : "green";
+      if (this.#onSymbol.pressed) {
+        this.#ctx.strokeStyle = this.#intersects(this.#canvas.width, this.#canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height) ? "red" : "green";
       } else {
         this.#ctx.strokeStyle = ["fromKnobConnectorPath", "knobConnectorPath"].indexOf(this.#onMouse.reference) !== -1 ? "red" : "green";
       }
@@ -608,12 +621,34 @@ class LogicalCircuitUI {
     }
   }
 
+  #intersects(cx, cy, radius, rx, ry, rw, rh) {
+    var testX = cx;
+    var testY = cy;
+
+    if (cx < rx) {
+      testX = rx;
+    } else if (cx > rx + rw) {
+      testX = rx + rw;
+    }
+    if (cy < ry) {
+      testY = ry;
+    } else if (cy > ry + rh) {
+      testY = ry + rh;
+    }
+
+    var distX = cx - testX;
+    var distY = cy - testY;
+    var distance = Math.sqrt((distX * distX) + (distY * distY));
+
+    return distance <= radius;
+  }
+
   #onMouseMove(event) {
     this.#currentEvent = event;
 
-    if (this.#onSymbolPressed) {
-//    this.#onMouse.object.top = event.offsetY - shapeOffset.y;
-//    this.#onMouse.object.left = event.offsetX - shapeOffset.x;
+    if (this.#onSymbol.pressed) {
+      this.#onMouse.object.top = event.offsetY - this.#onSymbol.offsetY;
+      this.#onMouse.object.left = event.offsetX - this.#onSymbol.offsetX;
     } else if (this.#onKnob.pressed) {
 //    currentEvent = event;
 //    this.#onKnob.object = null;
@@ -717,8 +752,8 @@ class LogicalCircuitUI {
         this.#pressedEvent = event;
         break;
       case "symbolPath":
-//      if (canvas.style.cursor === "pointer") {
-//        switch (selectedArrow) {
+        if (this.#onArrow.selected) {
+//        switch (onArrow.direction) {
 //          case "UP":
 //            if (this.#onMouse.object.from.length > 2) {
 //              var index = this.#onMouse.object.from.indexOf("");
@@ -736,13 +771,11 @@ class LogicalCircuitUI {
 //            break;
 //        }
 //        draw();
-//      } else {
-//        onSymbolPressed = true;
-//        shapeOffset = {
-//          "x": event.offsetX - this.#onMouse.object.left,
-//          "y": event.offsetY - this.#onMouse.object.top
-//        };
-//      }
+        } else {
+          this.#onSymbol.pressed = true;
+          this.#onSymbol.offsetX = event.offsetX - this.#onMouse.object.left;
+          this.#onSymbol.offsetY = event.offsetY - this.#onMouse.object.top;
+        }
         break;
       case "fromKnobConnectorPath":
       case "knobConnectorPath":
@@ -761,6 +794,17 @@ class LogicalCircuitUI {
   }
 
   #onMouseUp(event) {
+    if (this.#onMouse.object && this.#onSymbol.pressed &&
+            this.#intersects(this.#canvas.width, this.#canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height)) {
+      this.remove(this.#onMouse.object.name);
+//  } else if (onKnobPressed && onKnobObject &&
+//          isConnectionValid(this.#onMouse.object, onMouseReference, onKnobObject, onKnobReference) &&
+//          !isLoop(this.#onMouse.object, onMouseReference, onKnobObject, onKnobReference)) {
+//    createConnection(this.#onMouse.object, onMouseReference, onMouseIndex, onKnobObject, onKnobReference, onKnobIndex);
+    }
 
+    this.#onSymbol.pressed = false;
+    this.#onKnob.pressed = false;
+    this.#draw();
   }
 }

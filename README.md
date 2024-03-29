@@ -67,6 +67,10 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name (STRING)
   - output: true if the name is already used, false otherwise (BOOLEAN)
+- *remove(name)*: removes a node
+  - input
+    - name: the node name (STRING)
+  - output: NOTHING
 - *clear()*: clears the logical circuit
   - input: NOTHING
   - output: NOTHING
@@ -189,6 +193,10 @@ where:
     - top: the top coordinate of the node (NUMBER)
     - left: the left coordinate of the node (NUMBER)
   - output: the unique name assigned to the operator (STRING)
+- *remove(name)*: removes a node
+  - input
+    - name: the node name (STRING)
+  - output: NOTHING
 - *clear()*: clears the logical circuit
   - input: NOTHING
   - output: NOTHING
