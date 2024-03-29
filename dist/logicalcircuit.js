@@ -72,6 +72,25 @@ class LogicalCircuit {
     return this.#addOperator("NOT", [""]);
   }
 
+  incOperatorInput(name) {
+    var found = this.#structure.operators.find(operator => operator.name === name);
+    if (found) {
+      found.from.push("");
+    }
+  }
+
+  decOperatorInput(name) {
+    var found = this.#structure.operators.find(operator => operator.name === name);
+    if (found) {
+      var index = found.from.indexOf("");
+      if (index !== -1) {
+        found.from.splice(index, 1);
+      } else {
+        found.from.pop();
+      }
+    }
+  }
+
   isConnectionValid(startName, isStartSource, endName, isEndSource) {
     return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
   }
@@ -534,7 +553,7 @@ class LogicalCircuitUI {
           case "XOR":
             operator.symbolSize = {
               "width": this.#operatorLineWidth + this.#operatorRadiusX,
-              "height": this.operator1Height * operator.from.length
+              "height": this.#operator1Height * operator.from.length
             };
             break;
           case "NOR":
@@ -546,7 +565,7 @@ class LogicalCircuitUI {
 
             operator.symbolSize = {
               "width": this.#operatorLineWidth + this.#operatorRadiusX + 2 * this.#notRadius,
-              "height": this.operator1Height * operator.from.length
+              "height": this.#operator1Height * operator.from.length
             };
             break;
         }
@@ -637,27 +656,26 @@ class LogicalCircuitUI {
     } else {
       if (this.#onMouse.reference !== "symbolPath") {
       } else if (this.#logicalCircuit.operators.find(operator => operator === this.#onMouse.object) && this.#onMouse.object.type !== "NOT") {
-//        var gapX = this.#onMouse.object.type === "AND" ? 5 : 15;
-//        var gapY = (this.#onMouse.object.type === "AND" ? 3 : (3.7 * this.#onMouse.object.from.length));
-//        var gapArrow = this.#onMouse.object.type === "AND" ? 0 : 2;
-//
-//        ctx.beginPath();
-//        ctx.moveTo(this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 2, this.#onMouse.object.top + gapY);
-//        ctx.lineTo(this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 2, this.#onMouse.object.top + this.#onMouse.object.symbolSize.height - gapY);
-//        ctx.moveTo(this.#onMouse.object.left + gapX, this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2);
-//        ctx.lineTo(this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 2, this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2);
-//        ctx.stroke();
-//
-//        ctx.font = "12px sans-serif";
-//        ctx.fillStyle = this.#onMouse.object.from.length > 2 ? "green" : "red";
-//        ctx.fillText("\u{02191}", this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 4 + gapArrow, this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 4);
-//        ctx.fillStyle = this.#onMouse.object.from.length < 6 ? "green" : "red";
-//        ctx.fillText("\u{02193}", this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 4 + gapArrow, this.#onMouse.object.top + 3 * this.#onMouse.object.symbolSize.height / 4);
-//        ctx.fillStyle = "black";
-//        ctx.font = "24px sans-serif";
-//
-//        onArrow.direction = currentEvent.offsetY < this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2 ? "UP" : "DOWN";
-//        canvas.style.cursor = currentEvent.offsetX > this.#onMouse.object.left + this.#onMouse.object.symbolSize.width / 2 ? "move" : "pointer";
+        var arrowX = this.#onMouse.object.left + 3 * this.#onMouse.object.symbolSize.width / 5;
+        var arrowUP = this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 4;
+        var arrowDOWN = this.#onMouse.object.top + 3 * this.#onMouse.object.symbolSize.height / 4;
+
+        this.#ctx.font = "12px sans-serif";
+        var width = this.#ctx.measureText("\u{02191}").width;
+        this.#ctx.fillStyle = this.#onMouse.object.from.length > 2 ? "black" : "red";
+        this.#ctx.fillText("\u{02191}", arrowX, arrowUP);
+        this.#ctx.fillStyle = this.#onMouse.object.from.length < 6 ? "black" : "red";
+        this.#ctx.fillText("\u{02193}", arrowX, arrowDOWN);
+        this.#ctx.fillStyle = "black";
+        this.#ctx.font = "24px sans-serif";
+
+        var path = new Path2D();
+        path.rect(arrowX - 2, this.#onMouse.object.top + 3, width + 4, this.#onMouse.object.symbolSize.height - 6);
+        this.#ctx.stroke(path);
+
+        this.#onArrow.selected = this.#ctx.isPointInPath(path, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+        this.#onArrow.direction = this.#currentEvent.offsetY < this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2 ? "UP" : "DOWN";
+        this.#canvas.style.cursor = this.#onArrow.selected ? "pointer" : "move";
       } else {
         this.#canvas.style.cursor = "move";
       }
@@ -807,7 +825,7 @@ class LogicalCircuitUI {
           this.#onMouse.object = operator;
           this.#onMouse.reference = "outputKnobPath";
         }
-        
+
         operator.fromKnobPath.forEach((path, index) => {
           if (!this.#onMouse.object && this.#ctx.isPointInPath(path, event.offsetX, event.offsetY)) {
             this.#onMouse.object = operator;
@@ -823,7 +841,7 @@ class LogicalCircuitUI {
             this.#onMouse.index = index;
           }
         });
-        
+
         if (!this.#onMouse.object && this.#ctx.isPointInPath(operator.symbolPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = operator;
           this.#onMouse.reference = "symbolPath";
@@ -863,24 +881,22 @@ class LogicalCircuitUI {
         break;
       case "symbolPath":
         if (this.#onArrow.selected) {
-//        switch (onArrow.direction) {
-//          case "UP":
-//            if (this.#onMouse.object.from.length > 2) {
-//              var index = this.#onMouse.object.from.indexOf("");
-//              if (index !== -1) {
-//                this.#onMouse.object.from.splice(index, 1);
-//              } else {
-//                this.#onMouse.object.from.pop();
-//              }
-//            }
-//            break;
-//          case "DOWN":
-//            if (this.#onMouse.object.from.length < 6) {
-//              this.#onMouse.object.from.push("");
-//            }
-//            break;
-//        }
-//        draw();
+          switch (this.#onArrow.direction) {
+            case "UP":
+              if (this.#onMouse.object.from.length > 2) {
+                this.#logicalCircuit.decOperatorInput(this.#onMouse.object.name);
+                this.#onMouse.object.top += this.#operator1Height / 2;
+              }
+              break;
+            case "DOWN":
+              if (this.#onMouse.object.from.length < 6) {
+                this.#logicalCircuit.incOperatorInput(this.#onMouse.object.name);
+                this.#onMouse.object.top -= this.#operator1Height / 2;
+              }
+              break;
+          }
+
+          this.#draw();
         } else {
           this.#onSymbol.pressed = true;
           this.#onSymbol.offsetX = event.offsetX - this.#onMouse.object.left;

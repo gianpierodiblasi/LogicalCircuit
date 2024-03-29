@@ -59,6 +59,14 @@ var logicalCircuit = new LogicalCircuit();
 - *add\<Operator>()*: adds an operator node (an operator is always added)
   - input: NOTHING
   - output: the unique name assigned to the operator (STRING)
+- *incOperatorInput(name)*: increments the number of inputs in an operator
+  - input
+    - name: the operator name (STRING)
+  - output: NOTHING
+- *decOperatorInput(name)*: decrements the number of inputs in an operator
+  - input
+    - name: the operator name (STRING)
+  - output: NOTHING
 - *purgeName(name)*: an utility method to purge a name
   - input:
     - name: the name (STRING)
