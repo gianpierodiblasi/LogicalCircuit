@@ -656,7 +656,19 @@ class LogicalCircuitUI {
     } else {
       if (this.#onMouse.reference !== "symbolPath") {
       } else if (this.#logicalCircuit.operators.find(operator => operator === this.#onMouse.object) && this.#onMouse.object.type !== "NOT") {
-        var arrowX = this.#onMouse.object.left + 3 * this.#onMouse.object.symbolSize.width / 5;
+        var arrowX;
+        switch (this.#onMouse.object.type) {
+          case "OR":
+          case "AND":
+          case "XOR":
+            arrowX = this.#onMouse.object.left + 3 * this.#onMouse.object.symbolSize.width / 5;
+            break;
+          case "NOR":
+          case "NAND":
+          case "NXOR":
+            arrowX = this.#onMouse.object.left + 3 * this.#onMouse.object.symbolSize.width / 5 - this.#notRadius;
+        }
+
         var arrowUP = this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 4;
         var arrowDOWN = this.#onMouse.object.top + 3 * this.#onMouse.object.symbolSize.height / 4;
 
