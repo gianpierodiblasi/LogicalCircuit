@@ -7,7 +7,7 @@
     <link href="dist/logicalcircuit.css" rel="stylesheet">
     <script src="dist/logicalcircuit.js"></script>
     <script>
-      var circuit = {
+      var circuit1 = {
         "inputs": [{
             "name": "x", "top": 10, "left": 10
           }, {
@@ -23,13 +23,52 @@
         "outputs": [{"name": "out1", "from": "12", "top": 55, "left": 300}]
       };
 
+      var circuit2 = {
+        "inputs": [{
+            "name": "x", "top": 10, "left": 10
+          }, {
+            "name": "yy", "top": 100, "left": 10
+          }, {
+            "name": "aaa", "top": 200, "left": 10
+          }, {
+            "name": "bbbb", "top": 300, "left": 10
+          }],
+        "operators": [{
+            "name": "1", "type": "AND", "from": ["x", "yy"], "top": 10, "left": 200
+          }, {
+            "name": "11", "type": "AND", "from": ["x", "yy", "bbbb"], "top": 100, "left": 200
+          }, {
+            "name": "2", "type": "OR", "from": ["aaa", "bbbb", "x"], "top": 200, "left": 230
+          }, {
+            "name": "22", "type": "OR", "from": ["bbbb", "x"], "top": 300, "left": 230
+          }, {
+            "name": "3", "type": "NOT", "from": ["2"], "top": 400, "left": 200
+          }, {
+            "name": "4", "type": "OR", "from": ["1", "3"], "top": 500, "left": 200
+          }],
+        "outputs": [{
+            "name": "out1", "from": "4", "top": 200, "left": 400
+          }, {
+            "name": "output2", "from": "22", "top": 400, "left": 400
+          }]
+      };
+
       window.onload = (event) => {
         var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});
-        logicalCircuitUI.load(circuit);
+        logicalCircuitUI.load(circuit1);
+
+        document.querySelector("#load1").onclick = () => logicalCircuitUI.load(circuit1);
+        document.querySelector("#load2").onclick = () => logicalCircuitUI.load(circuit2);
       };
     </script>
   </head>
   <body>
+    <h1>Logical Circuit</h1>
+    <div>
+      <button id="load1">Load 1</button>
+      <button id="load2">Load 2</button>
+    </div>
+    <hr style="color:gray"/>
     <div id="container"></div>
   </body>
 </html>

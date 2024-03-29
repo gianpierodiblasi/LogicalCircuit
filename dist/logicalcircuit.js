@@ -795,7 +795,8 @@ class LogicalCircuitUI {
         if (!this.#onMouse.object && this.#ctx.isPointInPath(input.knobPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = input;
           this.#onMouse.reference = "knobPath";
-        } else if (!this.#onMouse.object && this.#ctx.isPointInPath(input.symbolPath, event.offsetX, event.offsetY)) {
+        }
+        if (!this.#onMouse.object && this.#ctx.isPointInPath(input.symbolPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = input;
           this.#onMouse.reference = "symbolPath";
         }
@@ -805,25 +806,27 @@ class LogicalCircuitUI {
         if (!this.#onMouse.object && this.#ctx.isPointInPath(operator.outputKnobPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = operator;
           this.#onMouse.reference = "outputKnobPath";
-        } else if (!this.#onMouse.object && this.#ctx.isPointInPath(operator.symbolPath, event.offsetX, event.offsetY)) {
+        }
+        
+        operator.fromKnobPath.forEach((path, index) => {
+          if (!this.#onMouse.object && this.#ctx.isPointInPath(path, event.offsetX, event.offsetY)) {
+            this.#onMouse.object = operator;
+            this.#onMouse.reference = "fromKnobPath";
+            this.#onMouse.index = index;
+          }
+        });
+
+        operator.fromKnobConnectorPath.forEach((path, index) => {
+          if (!this.#onMouse.object && path && this.#ctx.isPointInStroke(path, event.offsetX, event.offsetY)) {
+            this.#onMouse.object = operator;
+            this.#onMouse.reference = "fromKnobConnectorPath";
+            this.#onMouse.index = index;
+          }
+        });
+        
+        if (!this.#onMouse.object && this.#ctx.isPointInPath(operator.symbolPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = operator;
           this.#onMouse.reference = "symbolPath";
-        } else {
-          operator.fromKnobPath.forEach((path, index) => {
-            if (!this.#onMouse.object && this.#ctx.isPointInPath(path, event.offsetX, event.offsetY)) {
-              this.#onMouse.object = operator;
-              this.#onMouse.reference = "fromKnobPath";
-              this.#onMouse.index = index;
-            }
-          });
-
-          operator.fromKnobConnectorPath.forEach((path, index) => {
-            if (!this.#onMouse.object && path && this.#ctx.isPointInStroke(path, event.offsetX, event.offsetY)) {
-              this.#onMouse.object = operator;
-              this.#onMouse.reference = "fromKnobConnectorPath";
-              this.#onMouse.index = index;
-            }
-          });
         }
       });
 
@@ -831,10 +834,12 @@ class LogicalCircuitUI {
         if (!this.#onMouse.object && this.#ctx.isPointInPath(output.knobPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = output;
           this.#onMouse.reference = "knobPath";
-        } else if (!this.#onMouse.object && output.knobConnectorPath && this.#ctx.isPointInStroke(output.knobConnectorPath, event.offsetX, event.offsetY)) {
+        }
+        if (!this.#onMouse.object && output.knobConnectorPath && this.#ctx.isPointInStroke(output.knobConnectorPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = output;
           this.#onMouse.reference = "knobConnectorPath";
-        } else if (!this.#onMouse.object && this.#ctx.isPointInPath(output.symbolPath, event.offsetX, event.offsetY)) {
+        }
+        if (!this.#onMouse.object && this.#ctx.isPointInPath(output.symbolPath, event.offsetX, event.offsetY)) {
           this.#onMouse.object = output;
           this.#onMouse.reference = "symbolPath";
         }
