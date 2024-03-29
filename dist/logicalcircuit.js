@@ -72,14 +72,62 @@ class LogicalCircuit {
     return this.#addOperator("NOT", [""]);
   }
 
-  isConnectionValid() {
-    
+  isConnectionValid(startName, isStartSource, endName, isEndSource) {
+    return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
   }
-  
-  createConnection() {
-    
+
+  #isLoop(startName, isStartSource, endName, isEndSource) {
+    if (!isStartSource && isEndSource) {
+      return this.#areConnected(startName, endName);
+    } else if (isStartSource && !isEndSource) {
+      return this.#areConnected(endName, startName);
+    } else {
+      return false;
+    }
   }
-  
+
+  #areConnected(startName, endName) {
+    var operators = this.#structure.operators.filter(operator => operator.from.includes(startName));
+    if (operators.find(operator => operator.name === endName)) {
+      return true;
+    } else {
+      var connected = false;
+      operators.forEach(operator => connected |= this.#areConnected(operator.name, endName));
+      return connected;
+    }
+  }
+
+  addConnection(startName, isStartSource, startIndex, endName, isEndSource, endIndex) {
+    if (!this.isConnectionValid(startName, isStartSource, endName, isEndSource)) {
+    } else if (isStartSource) {
+      this.#privateAddConnection(startName, endName, endIndex);
+    } else if (isEndSource) {
+      this.#privateAddConnection(endName, startName, startIndex);
+    }
+  }
+
+  #privateAddConnection(start, end, index) {
+    var found1 = this.#structure.operators.find(operator => operator.name === end);
+    var found2 = this.#structure.outputs.find(output => output.name === end);
+
+    if (found1) {
+      found1.from[index] = start;
+    } else if (found2) {
+      found2.from = start;
+    }
+  }
+
+  removeConnection(name, index) {
+    var found1 = this.#structure.operators.find(operator => operator.name === name);
+    var found2 = this.#structure.outputs.find(output => output.name === name);
+
+    if (found1) {
+      found1.from[index] = "";
+    } else if (found2) {
+      found2.from = "";
+    }
+  }
+
   remove(name) {
     if (this.#structure.inputs.find(input => input.name === name)) {
       this.#structure.inputs = this.#structure.inputs.filter(input => input.name !== name);
@@ -151,8 +199,6 @@ class LogicalCircuitUI {
   #onKnob = {"object": null, "reference": "", "index": -1, pressed: false};
   #onArrow = {"direction": "", selected: false};
   #onSymbol = {"pressed": false, "offsetX": 0, "offsetY": 0};
-//var operatorOrControlX = 15;
-//var operatorOrControlY = 20;
 
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
@@ -621,7 +667,7 @@ class LogicalCircuitUI {
       if (this.#onSymbol.pressed) {
         this.#ctx.strokeStyle = this.#intersects(this.#canvas.width, this.#canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height) ? "red" : "green";
       } else {
-        this.#ctx.strokeStyle = ["fromKnobConnectorPath", "knobConnectorPath"].indexOf(this.#onMouse.reference) !== -1 ? "red" : "green";
+        this.#ctx.strokeStyle = ["fromKnobConnectorPath", "knobConnectorPath"].includes(this.#onMouse.reference) ? "red" : "green";
       }
       this.#ctx.stroke(this.#onMouse.index === -1 ? this.#onMouse.object[this.#onMouse.reference] : this.#onMouse.object[this.#onMouse.reference][this.#onMouse.index]);
 
@@ -661,11 +707,47 @@ class LogicalCircuitUI {
 
       if (this.#onKnob.object) {
         this.#ctx.lineWidth = 4;
-//        this.#ctx.strokeStyle = this.#isConnectionValid(onMouseObject, onMouseReference, this.#onKnob.object, this.#onKnob.reference) && !isLoop(onMouseObject, onMouseReference, this.#onKnob.object, this.#onKnob.reference) ? "green" : "orange";
+        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.object, this.#onMouse.reference, this.#onKnob.object, this.#onKnob.reference) ? "green" : "orange";
         this.#ctx.stroke(this.#onKnob.index === -1 ? this.#onKnob.object[this.#onKnob.reference] : this.#onKnob.object[this.#onKnob.reference][this.#onKnob.index]);
         this.#ctx.lineWidth = 2;
         this.#ctx.strokeStyle = "black";
       }
+    }
+  }
+
+  #isConnectionValid(objStart, refStart, objEnd, refEnd) {
+    var isSource = {
+      "start": this.#isSource(objStart, refStart),
+      "end": this.#isSource(objEnd, refEnd),
+    };
+    return this.#logicalCircuit.isConnectionValid(objStart.name, isSource.start, objEnd.name, isSource.end);
+  }
+
+  #addConnection(objStart, refStart, indexStart, objEnd, refEnd, indexEnd) {
+    var isSource = {
+      "start": this.#isSource(objStart, refStart),
+      "end": this.#isSource(objEnd, refEnd),
+    };
+    this.#logicalCircuit.addConnection(objStart.name, isSource.start, indexStart, objEnd.name, isSource.end, indexEnd);
+  }
+
+  #removeConnection(obj, ref, index) {
+    this.#logicalCircuit.removeConnection(obj.name, index);
+
+    if (index === -1) {
+      obj[ref] = null;
+    } else {
+      obj[ref][index] = null;
+    }
+  }
+
+  #isSource(obj, ref) {
+    if (ref === "knobPath") {
+      return !!this.#logicalCircuit.inputs.find(input => input.name === obj.name);
+    } else if (ref === "fromKnobPath") {
+      return false;
+    } else if (ref === "outputKnobPath") {
+      return true;
     }
   }
 
@@ -802,14 +884,7 @@ class LogicalCircuitUI {
         break;
       case "fromKnobConnectorPath":
       case "knobConnectorPath":
-        if (this.#onMouse.index === -1) {
-          this.#onMouse.object[this.#onMouse.reference] = null;
-          this.#onMouse.object.from = "";
-        } else {
-          this.#onMouse.object[this.#onMouse.reference][this.#onMouse.index] = null;
-          this.#onMouse.object.from[this.#onMouse.index] = "";
-        }
-
+        this.#removeConnection(this.#onMouse.object, this.#onMouse.reference, this.#onMouse.index);
         this.#onMouse = {"object": null, "reference": "", "index": -1};
         this.#draw();
         break;
@@ -820,10 +895,9 @@ class LogicalCircuitUI {
     if (this.#onMouse.object && this.#onSymbol.pressed &&
             this.#intersects(this.#canvas.width, this.#canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height)) {
       this.remove(this.#onMouse.object.name);
-//  } else if (onKnobPressed && this.#onKnob.object &&
-//          isConnectionValid(this.#onMouse.object, onMouseReference, this.#onKnob.object, this.#onKnob.reference) &&
-//          !isLoop(this.#onMouse.object, onMouseReference, this.#onKnob.object, this.#onKnob.reference)) {
-//    createConnection(this.#onMouse.object, onMouseReference, onMouseIndex, this.#onKnob.object, this.#onKnob.reference, this.#onKnob.index);
+    } else if (this.#onKnob.pressed && this.#onKnob.object &&
+            this.#isConnectionValid(this.#onMouse.object, this.#onMouse.reference, this.#onKnob.object, this.#onKnob.reference)) {
+      this.#addConnection(this.#onMouse.object, this.#onMouse.reference, this.#onMouse.index, this.#onKnob.object, this.#onKnob.reference, this.#onKnob.index);
     }
 
     this.#onSymbol.pressed = false;
