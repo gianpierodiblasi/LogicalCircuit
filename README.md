@@ -47,7 +47,7 @@ var logicalCircuit = new LogicalCircuit();
 - *load(circuit)*: loads a circuit, no check is done on the correctness of the JSON object
   - input
     - circuit: the circuit, represented by a JSON as described above (JSON)
-  output: NOTHING
+  - output: NOTHING
 - *addInput(name)*: adds an input node
   - input
     - name: the node name (STRING)
@@ -139,7 +139,8 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
     "symbolPath": Path2D,
     "symbolSize": {"width": 100, "height": 40},
     "knobPath": Path2D,
-    "knobCenter": {"x": 295, "y": 30}
+    "knobCenter": {"x": 295, "y": 30},
+    "knobConnectorPath": Path2D
   }]
 }
 ```
@@ -149,7 +150,7 @@ The *LogicalCircuitUI* class can be used to visually manage a logical circuit; i
 - the *symbolSize* parameter is the size of the *symbolPath* containing rectangle
 - the *knobPath*, *fromKnobPath* and *outputKnobPath* parameters are the Path2Ds of the knobs used to connect the nodes
 - the *knobCenter*, *fromKnobCenter* and *outputKnobCenter* parameters are the centers of the knobs used to connect the nodes
-- the *fromKnobConnectorPath* parameters are the Path2Ds of the lines used to connect the nodes
+- the *fromKnobConnectorPath* and *knobConnectorPath* parameters are the Path2Ds of the lines used to connect the nodes
 
 #### constructor
 The constructor can be used to create a new *LogicalCircuitUI* as follows:
@@ -170,7 +171,7 @@ where:
 - *load(circuit)*: loads a circuit, no check is done on the correctness of the JSON object
   - input
     - circuit: the circuit, represented by a JSON as described above; the properties *\*Path*, *\*Size* and *\*Center* are not considered (JSON)
-  output: NOTHING
+  - output: NOTHING
 - *addInput(name, top, left)*: adds an input node
   - input
     - name: the node name (STRING)
