@@ -6,7 +6,28 @@
     <link rel="icon" type="image/png" href="or.png">
     <link href="dist/logicalcircuit.css" rel="stylesheet">
     <script src="dist/logicalcircuit.js"></script>
-    <script>window.onload = (event) => new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});</script>
+    <script>
+      var circuit = {
+        "inputs": [{
+            "name": "x", "top": 10, "left": 10
+          }, {
+            "name": "y", "top": 100, "left": 10
+          }],
+        "operators": [{
+            "name": "1", "type": "AND", "from": ["x", "y"], "top": 10, "left": 100
+          }, {
+            "name": "2", "type": "OR", "from": ["x", "y"], "top": 100, "left": 100
+          }, {
+            "name": "12", "type": "XOR", "from": ["1", "2"], "top": 55, "left": 200
+          }],
+        "outputs": [{"name": "out1", "from": "12", "top": 55, "left": 300}]
+      };
+
+      window.onload = (event) => {
+        var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});
+        logicalCircuitUI.load(circuit);
+      };
+    </script>
   </head>
   <body>
     <div id="container"></div>

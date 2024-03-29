@@ -8,6 +8,10 @@ class LogicalCircuit {
   constructor() {
   }
 
+  load(circuit) {
+    this.#structure = JSON.parse(JSON.stringify(circuit));
+  }
+
   get inputs() {
     return this.#structure.inputs;
   }
@@ -119,6 +123,22 @@ class LogicalCircuitUI {
   #operator1Height = 20;
   #xorGap = 12;
 
+  #currentEvent;
+  #onSymbolPressed;
+  #onKnobPressed;
+
+  #onMouse = {"object": null, "reference": "", "index": -1};
+
+//var operatorOrControlX = 15;
+//var operatorOrControlY = 20;
+//
+
+//var onKnobObject, onKnobReference, onKnobIndex = -1;
+
+//var shapeOffset;
+//var pressedEvent, currentEvent;
+//var selectedArrow;
+
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
 
@@ -149,6 +169,9 @@ class LogicalCircuitUI {
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
     this.#canvas.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
     this.#canvas.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
+    this.#canvas.onmousemove = this.#onMouseMove;
+    this.#canvas.onmousedown = this.#onMouseDown;
+    this.#canvas.onmouseup = this.#onMouseUp;
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
@@ -156,6 +179,11 @@ class LogicalCircuitUI {
     this.#ctx.textBaseline = "middle";
     this.#ctx.lineWidth = 2;
     this.#ctx.lineJoin = "round";
+    this.#draw();
+  }
+
+  load(circuit) {
+    this.#logicalCircuit.load(circuit);
     this.#draw();
   }
 
@@ -275,6 +303,9 @@ class LogicalCircuitUI {
     this.#logicalCircuit.inputs.forEach(input => this.#drawInput(input));
     this.#logicalCircuit.outputs.forEach(output => this.#drawOutput(output));
     this.#logicalCircuit.operators.forEach(operator => this.#drawOperator(operator));
+
+    this.#logicalCircuit.operators.forEach(operator => this.#drawOperatorConnector(operator));
+    this.#logicalCircuit.outputs.forEach(output => this.#drawOutputConnector(output));
   }
 
   #drawTrash() {
@@ -375,8 +406,6 @@ class LogicalCircuitUI {
           switch (operator.type) {
             case "OR":
             case "NOR":
-            case "XOR":
-            case "NXOR":
               var angle = incAngle * (index + 1) - Math.PI / 2;
               operator.fromKnobCenter.push({
                 "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle),
@@ -388,6 +417,14 @@ class LogicalCircuitUI {
               operator.fromKnobCenter.push({
                 "x": operator.left - this.#knobRadius,
                 "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
+              });
+              break;
+            case "XOR":
+            case "NXOR":
+              var angle = incAngle * (index + 1) - Math.PI / 2;
+              operator.fromKnobCenter.push({
+                "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle) - this.#xorGap,
+                "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(angle),
               });
               break;
           }
@@ -501,6 +538,136 @@ class LogicalCircuitUI {
       this.#ctx.stroke(path);
       return path;
     }
+
+  }
+
+  #drawOperatorConnector(operator) {
+    operator.fromKnobConnectorPath = [];
+    operator.from.forEach((element, index) => operator.fromKnobConnectorPath.push(this.#drawConnector(element, operator.fromKnobCenter[index].x, operator.fromKnobCenter[index].y)));
+  }
+
+  #drawOutputConnector(output) {
+    output.connectorPath = this.#drawConnector(output.from, output.knobCenter.x, output.knobCenter.y);
+  }
+
+  #drawConnector(name, x, y) {
+    var found1 = this.#logicalCircuit.inputs.find(input => input.name === name);
+    var found2 = this.#logicalCircuit.operators.find(operator => operator.name === name);
+
+    if (found1 || found2) {
+      var path = new Path2D();
+      path.moveTo(found1 ? found1.knobCenter.x : found2.outputKnobCenter.x, found1 ? found1.knobCenter.y : found2.outputKnobCenter.y);
+      path.lineTo(x, y);
+      this.#ctx.stroke(path);
+      return path;
+    }
+  }
+
+  #onMouseMove(event) {
+    this.#currentEvent = event;
+
+    if (this.#onSymbolPressed) {
+//    onMouseObject.top = event.offsetY - shapeOffset.y;
+//    onMouseObject.left = event.offsetX - shapeOffset.x;
+    } else if (this.#onKnobPressed) {
+//    currentEvent = event;
+//    onKnobObject = null;
+//    onKnobReference = null;
+//    onKnobIndex = -1;
+//
+//    json.inputs.forEach(input => {
+//      if (!onKnobObject && ctx.isPointInPath(input.path, event.offsetX, event.offsetY)) {
+//        onKnobObject = input;
+//        onKnobReference = "path";
+//      }
+//    });
+//
+//    json.operators.forEach(operator => {
+//      if (!onKnobObject && ctx.isPointInPath(operator.outputPath, event.offsetX, event.offsetY)) {
+//        onKnobObject = operator;
+//        onKnobReference = "outputPath";
+//      }
+//
+//      operator.inputPath.forEach((path, index) => {
+//        if (!onKnobObject && ctx.isPointInPath(path, event.offsetX, event.offsetY)) {
+//          onKnobObject = operator;
+//          onKnobReference = "inputPath";
+//          onKnobIndex = index;
+//        }
+//      });
+//    });
+//
+//    json.outputs.forEach(output => {
+//      if (!onKnobObject && ctx.isPointInPath(output.path, event.offsetX, event.offsetY)) {
+//        onKnobObject = output;
+//        onKnobReference = "path";
+//      }
+//    });
+    } else {
+      this.#onMouse = {"object": null, "reference": "", "index": -1};
+
+      this.#logicalCircuit.inputs.forEach(input => {
+        if (!this.#onMouse.object && this.#ctx.isPointInPath(input.knobPath, event.offsetX, event.offsetY)) {
+          this.#onMouse.object = input;
+          this.#onMouse.reference = "knobPath";
+        }
+        if (!this.#onMouse.object && this.#ctx.isPointInPath(input.symbolPath, event.offsetX, event.offsetY)) {
+          this.#onMouse.object = input;
+          this.#onMouse.reference = "symbolPath";
+        }
+      });
+//
+//    json.operators.forEach(operator => {
+//      if (!onMouseObject && ctx.isPointInPath(operator.outputPath, event.offsetX, event.offsetY)) {
+//        onMouseObject = operator;
+//        onMouseReference = "outputPath";
+//      }
+//      if (!onMouseObject && ctx.isPointInPath(operator.symbolPath, event.offsetX, event.offsetY)) {
+//        onMouseObject = operator;
+//        onMouseReference = "symbolPath";
+//      }
+//
+//      operator.inputPath.forEach((path, index) => {
+//        if (!onMouseObject && ctx.isPointInPath(path, event.offsetX, event.offsetY)) {
+//          onMouseObject = operator;
+//          onMouseReference = "inputPath";
+//          onMouseIndex = index;
+//        }
+//      });
+//
+//      operator.connectorPath.forEach((path, index) => {
+//        if (!onMouseObject && path && ctx.isPointInStroke(path, event.offsetX, event.offsetY)) {
+//          onMouseObject = operator;
+//          onMouseReference = "connectorPath";
+//          onMouseIndex = index;
+//        }
+//      });
+//    });
+//
+//    json.outputs.forEach(output => {
+//      if (!onMouseObject && ctx.isPointInPath(output.path, event.offsetX, event.offsetY)) {
+//        onMouseObject = output;
+//        onMouseReference = "path";
+//      }
+//      if (!onMouseObject && output.connectorPath && ctx.isPointInStroke(output.connectorPath, event.offsetX, event.offsetY)) {
+//        onMouseObject = output;
+//        onMouseReference = "connectorPath";
+//      }
+//      if (!onMouseObject && ctx.isPointInPath(output.symbolPath, event.offsetX, event.offsetY)) {
+//        onMouseObject = output;
+//        onMouseReference = "symbolPath";
+//      }
+//    });
+    }
+
+    this.#draw();
+  }
+
+  #onMouseDown(event) {
+
+  }
+
+  #onMouseUp(event) {
 
   }
 }
