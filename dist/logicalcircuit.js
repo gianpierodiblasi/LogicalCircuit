@@ -117,6 +117,7 @@ class LogicalCircuitUI {
   #operatorRadiusX = 20;
   #operatorLineWidth = 30;
   #operator1Height = 20;
+  #xorGap = 12;
 
   constructor(container, options) {
     this.#logicalCircuit = new LogicalCircuit();
@@ -132,8 +133,8 @@ class LogicalCircuitUI {
       toolbar.classList.add("LogicalCircuitUI_Toolbar");
       container.append(toolbar);
 
-      this.#addButtonAndText(toolbar, "IN", (event, name) => this.addInput(name, 10, 10));
-      this.#addButtonAndText(toolbar, "OUT", (event, name) => this.addOutput(name, 10, 10));
+      this.#addButtonAndText(toolbar, "IN", (event, name) => this.addInput(name, 15, 15));
+      this.#addButtonAndText(toolbar, "OUT", (event, name) => this.addOutput(name, 15, 15));
       this.#addButton(toolbar, "OR");
       this.#addButton(toolbar, "NOR");
       this.#addButton(toolbar, "AND");
@@ -183,7 +184,7 @@ class LogicalCircuitUI {
   #addButton(toolbar, label, listener) {
     var button = document.createElement("button");
     button.textContent = label;
-    button.onclick = listener ? listener : (event) => this["add" + label](10, 10);
+    button.onclick = listener ? listener : (event) => this["add" + label](15, 15);
     toolbar.append(button);
   }
 
@@ -343,6 +344,8 @@ class LogicalCircuitUI {
       case "AND":
       case "NOR":
       case "NAND":
+      case "XOR":
+      case "NXOR":
         var radiusY = this.#operator1Height * operator.from.length / 2;
         var width = operator.left + this.#operatorLineWidth;
         var height = operator.top + this.#operator1Height * operator.from.length;
@@ -351,6 +354,7 @@ class LogicalCircuitUI {
         switch (operator.type) {
           case "OR":
           case "AND":
+          case "XOR":
             operator.outputKnobCenter = {
               "x": width + this.#operatorRadiusX + this.#knobRadius,
               "y": centerTop
@@ -358,6 +362,7 @@ class LogicalCircuitUI {
             break;
           case "NOR":
           case "NAND":
+          case "NXOR":
             operator.outputKnobCenter = {
               "x": width + this.#operatorRadiusX + 2 * this.#notRadius + this.#knobRadius,
               "y": centerTop
@@ -370,6 +375,8 @@ class LogicalCircuitUI {
           switch (operator.type) {
             case "OR":
             case "NOR":
+            case "XOR":
+            case "NXOR":
               var angle = incAngle * (index + 1) - Math.PI / 2;
               operator.fromKnobCenter.push({
                 "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle),
@@ -403,11 +410,22 @@ class LogicalCircuitUI {
             operator.symbolPath.lineTo(width, operator.top);
             operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
             break;
+          case "XOR":
+          case "NXOR":
+            operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
+            operator.symbolPath.lineTo(width, operator.top);
+            operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
+
+            var ellipse = new Path2D();
+            ellipse.ellipse(operator.left - this.#xorGap, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
+            operator.symbolPath.addPath(ellipse);
+            break;
         }
 
         switch (operator.type) {
           case "OR":
           case "AND":
+          case "XOR":
             operator.symbolSize = {
               "width": this.#operatorLineWidth + this.#operatorRadiusX,
               "height": this.operator1Height * operator.from.length
@@ -415,8 +433,10 @@ class LogicalCircuitUI {
             break;
           case "NOR":
           case "NAND":
-            operator.symbolPath.moveTo(width + this.#operatorRadiusX + 2 * this.#notRadius, centerTop);
-            operator.symbolPath.arc(width + this.#operatorRadiusX + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
+          case "NXOR":
+            var arc = new Path2D();
+            arc.arc(width + this.#operatorRadiusX + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
+            operator.symbolPath.addPath(arc);
 
             operator.symbolSize = {
               "width": this.#operatorLineWidth + this.#operatorRadiusX + 2 * this.#notRadius,
@@ -425,37 +445,37 @@ class LogicalCircuitUI {
             break;
         }
         break;
-//    case "NOT":
-//      var width = operator.left + operatorLineWidth + operatorRadiusX;
-//      var height = operator.top + 2 * operator1Height;
-//      var radiusY = operator1Height;
-//      var centerH = operator.top + radiusY;
-//
-//      operator.outputKnobCenter = {
-//        "x": width + knobRadius,
-//        "y": centerH
-//      };
-//      operator.outputPath.arc(operator.outputKnobCenter.x, operator.outputKnobCenter.y, knobRadius, 0, 2 * Math.PI);
-//
-//      operator.inputKnobCenter.push({
-//        "x": operator.left - knobRadius,
-//        "y": centerH
-//      });
-//
-//      operator.inputPath.push(new Path2D());
-//      operator.inputPath[0].arc(operator.inputKnobCenter[0].x, operator.inputKnobCenter[0].y, knobRadius, 0, 2 * Math.PI);
-//      ctx.stroke(operator.inputPath[0]);
-//
-//      operator.symbolPath = new Path2D();
-//      operator.symbolPath.moveTo(operator.left, operator.top);
-//      operator.symbolPath.lineTo(width, centerH);
-//      operator.symbolPath.lineTo(operator.left, height);
-//      operator.symbolPath.closePath();
-//      operator.symbolSize = {
-//        "width": operatorLineWidth + operatorRadiusX,
-//        "height": 2 * operator1Height
-//      };
-//      break;
+      case "NOT":
+        var width = operator.left + this.#operatorLineWidth + this.#operatorRadiusX;
+        var height = operator.top + 2 * this.#operator1Height;
+        var centerTop = operator.top + this.#operator1Height;
+
+        operator.outputKnobCenter = {
+          "x": width + 2 * this.#notRadius + this.#knobRadius,
+          "y": centerTop
+        };
+
+        operator.fromKnobCenter.push({
+          "x": operator.left - this.#knobRadius,
+          "y": centerTop
+        });
+
+        operator.fromKnobPath.push(this.#drawKnob(null, null, operator.fromKnobCenter[0]));
+
+        operator.symbolPath.moveTo(operator.left, operator.top);
+        operator.symbolPath.lineTo(width, centerTop);
+        operator.symbolPath.lineTo(operator.left, height);
+        operator.symbolPath.closePath();
+
+        var arc = new Path2D();
+        arc.arc(width + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
+        operator.symbolPath.addPath(arc);
+
+        operator.symbolSize = {
+          "width": this.#operatorLineWidth + this.#operatorRadiusX + 2 * this.#notRadius,
+          "height": 2 * this.#operator1Height
+        };
+        break;
     }
 
     this.#drawKnob(operator, "outputKnobPath", "outputKnobCenter");

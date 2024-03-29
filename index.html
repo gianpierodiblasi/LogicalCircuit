@@ -6,11 +6,7 @@
     <link rel="icon" type="image/png" href="or.png">
     <link href="dist/logicalcircuit.css" rel="stylesheet">
     <script src="dist/logicalcircuit.js"></script>
-    <script>
-      window.onload = (event) => {
-        new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});
-      };
-    </script>
+    <script>window.onload = (event) => new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});</script>
   </head>
   <body>
     <div id="container"></div>
