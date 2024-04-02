@@ -35,6 +35,8 @@ class LogicalCircuitUI {
 
   #onMouseLineWidth = 3;
   #onMouseStrokeStyle = "green";
+  #MoveCursor = "move";
+  #pointerCursor = "pointer";
 
   #knobRadius = 5;
   #notRadius = 7;
@@ -163,14 +165,6 @@ class LogicalCircuitUI {
     this.#draw();
   }
 
-  #remove(name) {
-    if (this.#jsonUI[name]) {
-      this.#logicalCircuit.remove(name);
-      delete this.#jsonUI[name];
-      this.#draw();
-    }
-  }
-
   #clear() {
     this.#logicalCircuit.clear();
     this.#jsonUI = {};
@@ -213,6 +207,8 @@ class LogicalCircuitUI {
         case "IN":
           break;
         case "OUT":
+          this.#drawConnector(this.#logicalCircuit.getFrom(property)[0], property, 0);
+          break;
         default:
           this.#logicalCircuit.getFrom(property).forEach((name, index) => this.#drawConnector(name, property, index));
           break;
@@ -436,8 +432,8 @@ class LogicalCircuitUI {
   #drawOnMouse() {
     if (!this.#onMouse.name) {
     } else {
-      //      if (this.#onMouse.reference !== "symbolPath") {
-//      } else if (this.#logicalCircuit.operators.find(operator => operator === this.#onMouse.object) && this.#onMouse.object.type !== "NOT") {
+      if (this.#onMouse.referencePath !== "symbolPath") {
+      } else if (!["IN", "OUT", "NOT"].includes(this.#logicalCircuit.getType(this.#onMouse.name))) {
 //        var arrowX;
 //        switch (this.#onMouse.object.type) {
 //          case "OR":
@@ -469,10 +465,10 @@ class LogicalCircuitUI {
 //
 //        this.#onArrow.selected = this.#ctx.isPointInPath(path, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
 //        this.#onArrow.direction = this.#currentEvent.offsetY < this.#onMouse.object.top + this.#onMouse.object.symbolSize.height / 2 ? "UP" : "DOWN";
-//        this.#canvas.style.cursor = this.#onArrow.selected ? "pointer" : "move";
-//      } else {
-//        this.#canvas.style.cursor = "move";
-//      }
+        this.#canvas.style.cursor = this.#onArrow.selected ? this.#pointerCursor : this.#MoveCursor;
+      } else {
+        this.#canvas.style.cursor = this.#MoveCursor;
+      }
 
       this.#ctx.lineWidth = this.#onMouseLineWidth;
 
@@ -603,20 +599,18 @@ class LogicalCircuitUI {
             }
             break;
           case "OUT":
-            this.#logicalCircuit.getFrom(property).forEach((element, index) => {
-              if (!this.#onMouse.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
-                this.#onMouse.name = property;
-                this.#onMouse.index = index;
-                this.#onMouse.referencePath = "knobPath";
-                this.#onMouse.referenceName = property + "*" + index;
-              }
-              if (!this.#onMouse.name && element && this.#ctx.isPointInStroke(this.#connectorPath[property + "*" + index], event.offsetX, event.offsetY)) {
-                this.#onMouse.name = property;
-                this.#onMouse.index = index;
-                this.#onMouse.referencePath = "connectorPath";
-                this.#onMouse.referenceName = property + "*" + index;
-              }
-            });
+            if (!this.#onMouse.name && this.#ctx.isPointInPath(this.#knobPath[property + "*0"], event.offsetX, event.offsetY)) {
+              this.#onMouse.name = property;
+              this.#onMouse.index = 0;
+              this.#onMouse.referencePath = "knobPath";
+              this.#onMouse.referenceName = property + "*0";
+            }
+            if (!this.#onMouse.name && this.#logicalCircuit.getFrom(property)[0] && this.#ctx.isPointInStroke(this.#connectorPath[property + "*0"], event.offsetX, event.offsetY)) {
+              this.#onMouse.name = property;
+              this.#onMouse.index = 0;
+              this.#onMouse.referencePath = "connectorPath";
+              this.#onMouse.referenceName = property + "*" + 0;
+            }
             break;
           default:
             if (!this.#onMouse.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
@@ -672,8 +666,8 @@ class LogicalCircuitUI {
 //              }
 //              break;
 //          }
-//
-//          this.#draw();
+
+          this.#draw();
         } else {
           this.#onSymbol.pressed = true;
           this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
@@ -689,14 +683,17 @@ class LogicalCircuitUI {
   }
 
   #onMouseUp(event) {
-//    if (this.#onMouse.object && this.#onSymbol.pressed &&
-//            this.#intersects(this.#canvas.width, this.#canvas.height, 80, this.#onMouse.object.left, this.#onMouse.object.top, this.#onMouse.object.symbolSize.width, this.#onMouse.object.symbolSize.height)) {
-//      this.remove(this.#onMouse.object.name);
+    if (this.#onMouse.name && this.#onSymbol.pressed &&
+            this.#intersects(this.#canvas.width, this.#canvas.height, this.#trashLineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height)) {
+      this.#logicalCircuit.remove(this.#onMouse.name);
+      delete this.#jsonUI[this.#onMouse.name];
+      this.#onMouse = {"name": "", "index": -1, "referencePath": "", "referenceName": ""};
+      this.#draw();
 //    } else if (this.#onKnob.pressed && this.#onKnob.object &&
 //            this.#isConnectionValid(this.#onMouse.object, this.#onMouse.reference, this.#onKnob.object, this.#onKnob.reference)) {
 //      this.#addConnection(this.#onMouse.object, this.#onMouse.reference, this.#onMouse.index, this.#onKnob.object, this.#onKnob.reference, this.#onKnob.index);
-//    }
-//
+    }
+
     this.#onSymbol.pressed = false;
     this.#onKnob.event = null;
     this.#draw();
