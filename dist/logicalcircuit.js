@@ -226,4 +226,3 @@ class LogicalCircuit {
     return !!this.#json[name];
   }
 }
-

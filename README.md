@@ -145,6 +145,12 @@ where:
 - *getJSONUI()*: returns the JSON object describing the visual structure used by the class to manage the circuit
   - input : NOTHING
   - output: the JSON object, as described above (JSON)
+- *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input : NOTHING
+  - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *isValid()*: checks if this object represents a set of valid logical circuits
+  - input : NOTHING
+  - output : true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
