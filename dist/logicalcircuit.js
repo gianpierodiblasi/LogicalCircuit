@@ -213,9 +213,9 @@ class LogicalCircuitUI {
       options = {};
     }
 
-      var toolbar = document.createElement("div");
-      toolbar.classList.add("LogicalCircuitUI_Toolbar");
-      container.append(toolbar);
+    var toolbar = document.createElement("div");
+    toolbar.classList.add("LogicalCircuitUI_Toolbar");
+    container.append(toolbar);
 
 //      this.#addButtonAndText(toolbar, "IN", (event, name) => this.addInput(name, 15, 15));
 //      this.#addButtonAndText(toolbar, "OUT", (event, name) => this.addOutput(name, 15, 15));
@@ -244,16 +244,21 @@ class LogicalCircuitUI {
     this.#ctx.lineJoin = "round";
     this.#draw();
   }
-//
-//  load(circuit) {
-//    this.#logicalCircuit.load(circuit);
-//    this.#draw();
-//  }
-//
-//  save() {
-//    return this.#logicalCircuit.save();
-//  }
-//
+
+  setJSONs(json, jsonUI) {
+    this.#logicalCircuit.setJSON(json);
+    this.#jsonUI = JSON.parse(JSON.stringify(jsonUI));
+    this.#draw();
+  }
+
+  getJSON() {
+    return this.#logicalCircuit.getJSON();
+  }
+
+  getJSONUI() {
+    return JSON.parse(JSON.stringify(this.#jsonUI));
+  }
+
 //  getJavaScriptExpression() {
 //    return this.#logicalCircuit.getJavaScriptExpression();
 //  }

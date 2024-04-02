@@ -57,8 +57,8 @@
 
       window.onload = (event) => {
         var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
-        document.querySelector("#load1").onclick = () => logicalCircuitUI.load(json1, jsonUI1);
-        document.querySelector("#load2").onclick = () => logicalCircuitUI.load(json2, jsonUI2);
+        document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
+        document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
       };
     </script>
   </head>
