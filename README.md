@@ -10,9 +10,9 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
 {
   x: {type: "IN"},
   y: {type: "IN"},
-  o1: {"type": "AND", "from": ["x", "y"]},
-  o2: {"type": "OR", "from": ["x", "y"]},
-  o12: {"type": "XOR", "from": ["1", "2"]},
+  o1: {type: "AND", from: ["x", "y"]},
+  o2: {type: "OR", from: ["x", "y"]},
+  o12: {type: "XOR", from: ["1", "2"]},
   out1: {type: "OUT"}
 }
 ```
