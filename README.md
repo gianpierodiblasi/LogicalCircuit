@@ -8,12 +8,12 @@ This API provides two classes to (visually) manage logical circuits; a demo is a
 The *LogicalCircuit* class can be used to manage a logical circuit; the following JSON describes the structure used by the class to manage the circuit.
 ```json
 {
-  x: {type: "IN"},
-  y: {type: "IN"},
-  o1: {type: "AND", from: ["x", "y"]},
-  o2: {type: "OR", from: ["x", "y"]},
-  o12: {type: "XOR", from: ["1", "2"]},
-  out1: {type: "OUT"}
+  "x": {"type": "IN"},
+  "y": {"type": "IN"},
+  "o1": {"type": "AND", "from": ["x", "y"]},
+  "o2": {"type": "OR", "from": ["x", "y"]},
+  "o12": {"type": "XOR", "from": ["1", "2"]},
+  "out1": {"type": "OUT"}
 }
 ```
 **Notes:**
