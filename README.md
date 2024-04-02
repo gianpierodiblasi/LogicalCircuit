@@ -12,7 +12,7 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
   "y": {"type": "IN"},
   "o1": {"type": "AND", "from": ["x", "y"]},
   "o2": {"type": "OR", "from": ["x", "y"]},
-  "o12": {"type": "XOR", "from": ["1", "2"]},
+  "o12": {"type": "XOR", "from": ["o1", "o2"]},
   "out1": {"type": "OUT", "from": "o12"}
 }
 ```
@@ -85,6 +85,10 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name of the node (STRING)
   - output: the type of the node, an empty string if there is no node with this name (STRING)
+- *getFrom(name)*: returns the from property of a node
+  - input:
+    - name: the name of the node (STRING)
+  - output: the from property of the node, an empty string if there is no node with this name or the node is an input node (STRING)
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
     ```javascript
     /[a-zA-Z]+[a-zA-Z0-9]*/g

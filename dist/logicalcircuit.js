@@ -173,6 +173,21 @@ class LogicalCircuit {
     return this.#json[name] ? this.#json[name].type : "";
   }
 
+  getFrom(name) {
+    if (this.#json[name]) {
+      switch (this.#json[name].type) {
+        case "IN":
+          return "";
+        case "OUT":
+          return this.#json[name].from;
+        default:
+          return this.#json[name].from.slice();
+      }
+    } else {
+      return "";
+    }
+  }
+
   isNameValid(name) {
     return typeof name === 'string' ? /[a-zA-Z]+[a-zA-Z0-9]*/g.test(name) : false;
   }
@@ -219,10 +234,10 @@ class LogicalCircuitUI {
   #outputGap = 20;
   #outputHeight = 40;
 
-//  #operatorRadiusX = 20;
-//  #operatorLineWidth = 30;
-//  #operator1Height = 20;
-//  #xorGap = 12;
+  #operatorRadiusLeft = 20;
+  #operatorLineWidth = 30;
+  #operator1Height = 20;
+  #xorGap = 12;
 //
 //  #currentEvent;
 //  #pressedEvent;
@@ -404,7 +419,7 @@ class LogicalCircuitUI {
 //    found.top = isNaN(top) || top < 0 || top > this.#canvas.height ? 10 : top;
 //    found.left = isNaN(left) || left < 0 || left > this.#canvas.width ? 10 : left;
 //  }
-//
+
   #draw() {
     this.#canvas.style.cursor = "default";
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
@@ -412,7 +427,9 @@ class LogicalCircuitUI {
     this.#drawTrash();
 
     for (var property in this.#jsonUI) {
-      switch (this.#logicalCircuit.getType(property)) {
+      var type = this.#logicalCircuit.getType(property);
+
+      switch (type) {
         case "IN":
           this.#drawInput(property);
           break;
@@ -420,13 +437,25 @@ class LogicalCircuitUI {
           this.#drawOutput(property);
           break;
         default:
-          this.#drawOperator(property);
+          this.#drawOperator(property, type);
           break;
       }
     }
 
-//    this.#logicalCircuit.operators.forEach(operator => this.#drawOperatorConnector(operator));
-//    this.#logicalCircuit.outputs.forEach(output => this.#drawOutputConnector(output));
+    for (var property in this.#jsonUI) {
+      var type = this.#logicalCircuit.getType(property);
+
+      switch (type) {
+        case "IN":
+          break;
+        case "OUT":
+          this.#drawConnector(this.#logicalCircuit.getFrom(property), property, -1);
+          break;
+        default:
+          this.#logicalCircuit.getFrom(property).forEach((name, index) => this.#drawConnector(name, property, index));
+          break;
+      }
+    }
 //
 //    this.#drawOnMouse();
 //    this.#drawOnKnob();
@@ -487,203 +516,182 @@ class LogicalCircuitUI {
     this.#ctx.fillText(name, this.#jsonUI[name].left + gap / 2, this.#knobCenter[name].top);
   }
 
-  #drawOperator(operator) {
-//    operator.symbolPath = new Path2D();
-//    operator.fromKnobPath = [];
-//    operator.fromKnobCenter = [];
-//    operator.outputKnobPath = new Path2D();
-//
-//    switch (operator.type) {
-//      case "OR":
-//      case "AND":
-//      case "NOR":
-//      case "NAND":
-//      case "XOR":
-//      case "NXOR":
-//        var radiusY = this.#operator1Height * operator.from.length / 2;
-//        var width = operator.left + this.#operatorLineWidth;
-//        var height = operator.top + this.#operator1Height * operator.from.length;
-//        var centerTop = operator.top + radiusY;
-//
-//        switch (operator.type) {
-//          case "OR":
-//          case "AND":
-//          case "XOR":
-//            operator.outputKnobCenter = {
-//              "x": width + this.#operatorRadiusX + this.#knobRadius,
-//              "y": centerTop
-//            };
-//            break;
-//          case "NOR":
-//          case "NAND":
-//          case "NXOR":
-//            operator.outputKnobCenter = {
-//              "x": width + this.#operatorRadiusX + 2 * this.#notRadius + this.#knobRadius,
-//              "y": centerTop
-//            };
-//            break;
-//        }
-//
-//        var incAngle = Math.PI / (operator.from.length + 1);
-//        for (var index = 0; index < operator.from.length; index++) {
-//          switch (operator.type) {
-//            case "OR":
-//            case "NOR":
-//              var angle = incAngle * (index + 1) - Math.PI / 2;
-//              operator.fromKnobCenter.push({
-//                "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle),
-//                "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(angle),
-//              });
-//              break;
-//            case "AND":
-//            case "NAND":
-//              operator.fromKnobCenter.push({
-//                "x": operator.left - this.#knobRadius,
-//                "y": operator.top + this.#operator1Height / 2 + this.#operator1Height * index
-//              });
-//              break;
-//            case "XOR":
-//            case "NXOR":
-//              var angle = incAngle * (index + 1) - Math.PI / 2;
-//              operator.fromKnobCenter.push({
-//                "x": operator.left + (this.#operatorRadiusX - this.#knobRadius) * Math.cos(angle) - this.#xorGap,
-//                "y": centerTop + (radiusY - this.#knobRadius) * Math.sin(angle),
-//              });
-//              break;
-//          }
-//
-//          operator.fromKnobPath.push(this.#drawKnob(null, null, operator.fromKnobCenter[index]));
-//        }
-//
-//        operator.symbolPath.moveTo(width, height);
-//        operator.symbolPath.lineTo(operator.left, height);
-//        switch (operator.type) {
-//          case "OR":
-//          case "NOR":
-//            operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
-//            operator.symbolPath.lineTo(width, operator.top);
-//            operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
-//            break;
-//          case "AND":
-//          case "NAND":
-//            operator.symbolPath.lineTo(operator.left, operator.top);
-//            operator.symbolPath.lineTo(width, operator.top);
-//            operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
-//            break;
-//          case "XOR":
-//          case "NXOR":
-//            operator.symbolPath.ellipse(operator.left, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
-//            operator.symbolPath.lineTo(width, operator.top);
-//            operator.symbolPath.ellipse(width, centerTop, this.#operatorRadiusX, radiusY, 0, -Math.PI / 2, Math.PI / 2);
-//
-//            var ellipse = new Path2D();
-//            ellipse.ellipse(operator.left - this.#xorGap, centerTop, this.#operatorRadiusX, radiusY, 0, Math.PI / 2, -Math.PI / 2, true);
-//            operator.symbolPath.addPath(ellipse);
-//            break;
-//        }
-//
-//        switch (operator.type) {
-//          case "OR":
-//          case "AND":
-//          case "XOR":
-//            operator.symbolSize = {
-//              "width": this.#operatorLineWidth + this.#operatorRadiusX,
-//              "height": this.#operator1Height * operator.from.length
-//            };
-//            break;
-//          case "NOR":
-//          case "NAND":
-//          case "NXOR":
-//            var arc = new Path2D();
-//            arc.arc(width + this.#operatorRadiusX + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
-//            operator.symbolPath.addPath(arc);
-//
-//            operator.symbolSize = {
-//              "width": this.#operatorLineWidth + this.#operatorRadiusX + 2 * this.#notRadius,
-//              "height": this.#operator1Height * operator.from.length
-//            };
-//            break;
-//        }
-//        break;
-//      case "NOT":
-//        var width = operator.left + this.#operatorLineWidth + this.#operatorRadiusX;
-//        var height = operator.top + 2 * this.#operator1Height;
-//        var centerTop = operator.top + this.#operator1Height;
-//
-//        operator.outputKnobCenter = {
-//          "x": width + 2 * this.#notRadius + this.#knobRadius,
-//          "y": centerTop
-//        };
-//
-//        operator.fromKnobCenter.push({
-//          "x": operator.left - this.#knobRadius,
-//          "y": centerTop
-//        });
-//
-//        operator.fromKnobPath.push(this.#drawKnob(null, null, operator.fromKnobCenter[0]));
-//
-//        operator.symbolPath.moveTo(operator.left, operator.top);
-//        operator.symbolPath.lineTo(width, centerTop);
-//        operator.symbolPath.lineTo(operator.left, height);
-//        operator.symbolPath.closePath();
-//
-//        var arc = new Path2D();
-//        arc.arc(width + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
-//        operator.symbolPath.addPath(arc);
-//
-//        operator.symbolSize = {
-//          "width": this.#operatorLineWidth + this.#operatorRadiusX + 2 * this.#notRadius,
-//          "height": 2 * this.#operator1Height
-//        };
-//        break;
-//    }
-//
-//    this.#drawKnob(operator, "outputKnobPath", "outputKnobCenter");
-//    this.#ctx.stroke(operator.symbolPath);
+  #drawOperator(name, type) {
+    var from = this.#logicalCircuit.getFrom(name);
+
+    this.#symbolPath[name] = new Path2D();
+
+    switch (type) {
+      case "OR":
+      case "AND":
+      case "NOR":
+      case "NAND":
+      case "XOR":
+      case "NXOR":
+        var radiusTop = this.#operator1Height * from.length / 2;
+        var width = this.#jsonUI[name].left + this.#operatorLineWidth;
+        var height = this.#jsonUI[name].top + this.#operator1Height * from.length;
+        var centerTop = this.#jsonUI[name].top + radiusTop;
+
+        switch (type) {
+          case "OR":
+          case "AND":
+          case "XOR":
+            this.#knobCenter[name + "*output"] = {
+              "left": width + this.#operatorRadiusLeft + this.#knobRadius,
+              "top": centerTop
+            };
+            break;
+          case "NOR":
+          case "NAND":
+          case "NXOR":
+            this.#knobCenter[name + "*output"] = {
+              "left": width + this.#operatorRadiusLeft + 2 * this.#notRadius + this.#knobRadius,
+              "top": centerTop
+            };
+            break;
+        }
+
+        var incAngle = Math.PI / (from.length + 1);
+        for (var index = 0; index < from.length; index++) {
+          switch (type) {
+            case "OR":
+            case "NOR":
+              var angle = incAngle * (index + 1) - Math.PI / 2;
+              this.#knobCenter[name + "*" + index] = {
+                "left": this.#jsonUI[name].left + (this.#operatorRadiusLeft - this.#knobRadius) * Math.cos(angle),
+                "top": centerTop + (radiusTop - this.#knobRadius) * Math.sin(angle)
+              };
+              break;
+            case "AND":
+            case "NAND":
+              this.#knobCenter[name + "*" + index] = {
+                "left": this.#jsonUI[name].left - this.#knobRadius,
+                "top": this.#jsonUI[name].top + this.#operator1Height / 2 + this.#operator1Height * index
+              };
+              break;
+            case "XOR":
+            case "NXOR":
+              var angle = incAngle * (index + 1) - Math.PI / 2;
+              this.#knobCenter[name + "*" + index] = {
+                "left": this.#jsonUI[name].left + (this.#operatorRadiusLeft - this.#knobRadius) * Math.cos(angle) - this.#xorGap,
+                "top": centerTop + (radiusTop - this.#knobRadius) * Math.sin(angle)
+              };
+              break;
+          }
+
+          this.#drawKnob(name + "*" + index);
+        }
+
+        this.#symbolPath[name].moveTo(width, height);
+        this.#symbolPath[name].lineTo(this.#jsonUI[name].left, height);
+        switch (type) {
+          case "OR":
+          case "NOR":
+            this.#symbolPath[name].ellipse(this.#jsonUI[name].left, centerTop, this.#operatorRadiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+            this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+            this.#symbolPath[name].ellipse(width, centerTop, this.#operatorRadiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+            break;
+          case "AND":
+          case "NAND":
+            this.#symbolPath[name].lineTo(this.#jsonUI[name].left, this.#jsonUI[name].top);
+            this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+            this.#symbolPath[name].ellipse(width, centerTop, this.#operatorRadiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+            break;
+          case "XOR":
+          case "NXOR":
+            this.#symbolPath[name].ellipse(this.#jsonUI[name].left, centerTop, this.#operatorRadiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+            this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+            this.#symbolPath[name].ellipse(width, centerTop, this.#operatorRadiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+
+            var ellipse = new Path2D();
+            ellipse.ellipse(this.#jsonUI[name].left - this.#xorGap, centerTop, this.#operatorRadiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+            this.#symbolPath[name].addPath(ellipse);
+            break;
+        }
+
+        switch (type) {
+          case "OR":
+          case "AND":
+          case "XOR":
+            this.#symbolSize[name] = {
+              "width": this.#operatorLineWidth + this.#operatorRadiusLeft,
+              "height": this.#operator1Height * from.length
+            };
+            break;
+          case "NOR":
+          case "NAND":
+          case "NXOR":
+            var arc = new Path2D();
+            arc.arc(width + this.#operatorRadiusLeft + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
+            this.#symbolPath[name].addPath(arc);
+
+            this.#symbolSize[name] = {
+              "width": this.#operatorLineWidth + this.#operatorRadiusLeft + 2 * this.#notRadius,
+              "height": this.#operator1Height * from.length
+            };
+            break;
+        }
+        break;
+      case "NOT":
+        var width = this.#jsonUI[name].left + this.#operatorLineWidth + this.#operatorRadiusLeft;
+        var height = this.#jsonUI[name].top + 2 * this.#operator1Height;
+        var centerTop = this.#jsonUI[name].top + this.#operator1Height;
+
+        this.#knobCenter[name + "*output"] = {
+          "left": width + 2 * this.#notRadius + this.#knobRadius,
+          "top": centerTop
+        };
+
+        this.#knobCenter[name + "*0"] = {
+          "left": this.#jsonUI[name].left - this.#knobRadius,
+          "top": centerTop
+        };
+
+        this.#drawKnob(name + "*0");
+
+        this.#symbolPath[name].moveTo(this.#jsonUI[name].left, this.#jsonUI[name].top);
+        this.#symbolPath[name].lineTo(width, centerTop);
+        this.#symbolPath[name].lineTo(this.#jsonUI[name].left, height);
+        this.#symbolPath[name].closePath();
+
+        var arc = new Path2D();
+        arc.arc(width + this.#notRadius, centerTop, this.#notRadius, 0, 2 * Math.PI);
+        this.#symbolPath[name].addPath(arc);
+
+        this.#symbolSize[name] = {
+          "width": this.#operatorLineWidth + this.#operatorRadiusLeft + 2 * this.#notRadius,
+          "height": 2 * this.#operator1Height
+        };
+        break;
+    }
+
+    this.#drawKnob(name + "*output");
+    this.#ctx.stroke(this.#symbolPath[name]);
   }
-//
+
   #drawKnob(name) {
-    if (name) {
-      this.#knobPath[name] = new Path2D();
-      this.#knobPath[name].moveTo(this.#knobCenter[name].left, this.#knobCenter[name].top - this.#knobRadius);
-      this.#knobPath[name].lineTo(this.#knobCenter[name].left + this.#knobRadius, this.#knobCenter[name].top);
-      this.#knobPath[name].lineTo(this.#knobCenter[name].left, this.#knobCenter[name].top + this.#knobRadius);
-      this.#knobPath[name].lineTo(this.#knobCenter[name].left - this.#knobRadius, this.#knobCenter[name].top);
-      this.#knobPath[name].closePath();
-      this.#ctx.stroke(this.#knobPath[name]);
-    } else {
-//      var path = new Path2D();
-//      path.moveTo(knobCenter.x, knobCenter.y - this.#knobRadius);
-//      path.lineTo(knobCenter.x + this.#knobRadius, knobCenter.y);
-//      path.lineTo(knobCenter.x, knobCenter.y + this.#knobRadius);
-//      path.lineTo(knobCenter.x - this.#knobRadius, knobCenter.y);
-//      path.closePath();
-//      this.#ctx.stroke(path);
-//      return path;
+    this.#knobPath[name] = new Path2D();
+    this.#knobPath[name].moveTo(this.#knobCenter[name].left, this.#knobCenter[name].top - this.#knobRadius);
+    this.#knobPath[name].lineTo(this.#knobCenter[name].left + this.#knobRadius, this.#knobCenter[name].top);
+    this.#knobPath[name].lineTo(this.#knobCenter[name].left, this.#knobCenter[name].top + this.#knobRadius);
+    this.#knobPath[name].lineTo(this.#knobCenter[name].left - this.#knobRadius, this.#knobCenter[name].top);
+    this.#knobPath[name].closePath();
+    this.#ctx.stroke(this.#knobPath[name]);
+  }
+
+  #drawConnector(startName, endName, endIndex) {
+    if (startName) {
+      var startCenter = this.#knobCenter[startName] ? this.#knobCenter[startName] : this.#knobCenter[startName + "*output"];
+      var endCenter = endIndex === -1 ? this.#knobCenter[endName] : this.#knobCenter[endName + "*" + endIndex];
+      
+      this.#knobPath[endName + "*" + endIndex + "*connector"] = new Path2D();
+      this.#knobPath[endName + "*" + endIndex + "*connector"].moveTo(startCenter.left, startCenter.top);
+      this.#knobPath[endName + "*" + endIndex + "*connector"].lineTo(endCenter.left, endCenter.top);
+
+      this.#ctx.stroke(this.#knobPath[endName + "*" + endIndex + "*connector"]);
     }
   }
-//
-//  #drawOperatorConnector(operator) {
-//    operator.fromKnobConnectorPath = [];
-//    operator.from.forEach((element, index) => operator.fromKnobConnectorPath.push(this.#drawConnector(element, operator.fromKnobCenter[index].x, operator.fromKnobCenter[index].y)));
-//  }
-//
-//  #drawOutputConnector(output) {
-//    output.knobConnectorPath = this.#drawConnector(output.from, output.knobCenter.x, output.knobCenter.y);
-//  }
-//
-//  #drawConnector(name, x, y) {
-//    var found1 = this.#logicalCircuit.inputs.find(input => input.name === name);
-//    var found2 = this.#logicalCircuit.operators.find(operator => operator.name === name);
-//
-//    if (found1 || found2) {
-//      var path = new Path2D();
-//      path.moveTo(found1 ? found1.knobCenter.x : found2.outputKnobCenter.x, found1 ? found1.knobCenter.y : found2.outputKnobCenter.y);
-//      path.lineTo(x, y);
-//      this.#ctx.stroke(path);
-//      return path;
-//    }
-//  }
 //
 //  #drawOnMouse() {
 //    if (!this.#onMouse.object) {
@@ -888,7 +896,7 @@ class LogicalCircuitUI {
 //          }
 //        });
 //
-//        if (!this.#onMouse.object && this.#ctx.isPointInPath(operator.symbolPath, event.offsetX, event.offsetY)) {
+//        if (!this.#onMouse.object && this.#ctx.isPointInPath(this.#symbolPath[name], event.offsetX, event.offsetY)) {
 //          this.#onMouse.object = operator;
 //          this.#onMouse.reference = "symbolPath";
 //        }
