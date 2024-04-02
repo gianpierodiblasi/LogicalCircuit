@@ -833,6 +833,7 @@ class LogicalCircuitUI {
       delete this.#jsonUI[this.#onMouse.name];
 
       this.#onMouse.name = "";
+      
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     } else if (this.#onKnob.pressed && this.#onKnob.name &&
