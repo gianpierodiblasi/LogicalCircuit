@@ -18,14 +18,37 @@ class LogicalCircuit {
     var expressions = {};
 
     if (this.isValid()) {
-      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(name));
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0]));
     }
 
     return expressions;
   }
 
   #computeExpression(name) {
+    if (this.#json[name].type === "IN") {
+      return name;
+    } else if (this.#json[name].type === "NOT") {
+      return "!(" + this.#computeExpression(this.#json[name].from[0]) + ")";
+    } else {
+      var array = [];
+      this.#json[name].from.forEach(element => array.push("(" + this.#computeExpression(element) + ")"));
 
+      switch (this.#json[name].type) {
+        case "OR":
+          return array.join("||");
+        case "AND":
+          return array.join("&&");
+        case "NOR":
+          return "!(" + array.join("||") + ")";
+        case "NAND":
+          return "!(" + array.join("&&") + ")";
+        case "XOR":
+          return "([" + array.join(",") + "].filter(element=>element).length===1)";
+          break;
+        case "NXOR":
+          return "!([" + array.join(",") + "].filter(element=>element).length===1)";
+      }
+    }
   }
 
   isValid() {
