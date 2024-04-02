@@ -828,7 +828,7 @@ class LogicalCircuitUI {
 
   #onMouseUp(event) {
     if (this.#onMouse.name && this.#onSymbol.pressed &&
-            this.#intersects(this.#canvas.width, this.#canvas.height, this.#trashLineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height)) {
+            this.#intersects(this.#canvas.width, this.#canvas.height, this.#trash.lineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height)) {
       this.#logicalCircuit.remove(this.#onMouse.name);
       delete this.#jsonUI[this.#onMouse.name];
 
