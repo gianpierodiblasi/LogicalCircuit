@@ -1,6 +1,5 @@
 class LogicalCircuit {
-  #json = {
-  }
+  #json = {};
 
   constructor() {
   }
@@ -26,71 +25,98 @@ class LogicalCircuit {
 //  }
 
   addInput(name) {
-    if (this.#isNameValid(name) && this.isNameAlreadyUsed(name)) {
-//      return false;
-    } else {
-//      this.#structure.inputs.push({"name": name});
-//      return true;
-    }
+    return this.#add(name, {"type": "IN"});
   }
 
   addOutput(name) {
-//    name = this.purgeName(name);
-//    if (!name || this.isNameAlreadyUsed(name)) {
-//      return false;
-//    } else {
-//      this.#structure.outputs.push({"name": name});
-//      return true;
-//    }
+    return this.#add(name, {"type": "OUT", "from": ""});
   }
-//
-//  addOR() {
-//    return this.#addOperator("OR", ["", ""]);
-//  }
-//
-//  addNOR() {
-//    return this.#addOperator("NOR", ["", ""]);
-//  }
-//
-//  addAND() {
-//    return this.#addOperator("AND", ["", ""]);
-//  }
-//
-//  addNAND() {
-//    return this.#addOperator("NAND", ["", ""]);
-//  }
-//
-//  addXOR() {
-//    return this.#addOperator("XOR", ["", ""]);
-//  }
-//
-//  addNXOR() {
-//    return this.#addOperator("NXOR", ["", ""]);
-//  }
-//
-//  addNOT() {
-//    return this.#addOperator("NOT", [""]);
-//  }
-//
-//  incOperatorInput(name) {
-//    var found = this.#structure.operators.find(operator => operator.name === name);
-//    if (found) {
-//      found.from.push("");
-//    }
-//  }
-//
-//  decOperatorInput(name) {
-//    var found = this.#structure.operators.find(operator => operator.name === name);
-//    if (found) {
-//      var index = found.from.indexOf("");
-//      if (index !== -1) {
-//        found.from.splice(index, 1);
-//      } else {
-//        found.from.pop();
-//      }
-//    }
-//  }
-//
+
+  addOR() {
+    return this.#addOperator("OR", ["", ""]);
+  }
+
+  addNOR() {
+    return this.#addOperator("NOR", ["", ""]);
+  }
+
+  addAND() {
+    return this.#addOperator("AND", ["", ""]);
+  }
+
+  addNAND() {
+    return this.#addOperator("NAND", ["", ""]);
+  }
+
+  addXOR() {
+    return this.#addOperator("XOR", ["", ""]);
+  }
+
+  addNXOR() {
+    return this.#addOperator("NXOR", ["", ""]);
+  }
+
+  addNOT() {
+    return this.#addOperator("NOT", [""]);
+  }
+
+  #addOperator(operator, from) {
+    var name = this.#getUniqueName();
+    this.#add(name, {"type": operator, "from": from});
+    return name;
+  }
+
+  #add(name, json) {
+    if (this.#isNameValid(name) && !this.isNameAlreadyUsed(name)) {
+      this.#json[name] = json;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  #getUniqueName() {
+    return "LogicalCircuit_Operator_" + new Date().getTime();
+  }
+
+  incConnector(name) {
+    if (this.#json[name] && Array.isArray(this.#json[name].from)) {
+      this.#json[name].from.push("");
+    }
+  }
+
+  decConnector(name) {
+    if (this.#json[name] && Array.isArray(this.#json[name].from) && this.#json[name].type !== "NOT" && this.#json[name].from.length > 2) {
+      var index = this.#json[name].from.indexOf("");
+      if (index !== -1) {
+        this.#json[name].from.splice(index, 1);
+      } else {
+        this.#json[name].from.pop();
+      }
+    }
+  }
+
+  remove(name) {
+    delete this.#json[name];
+
+    for (var property in this.#json) {
+      switch (this.#json[property].type) {
+        case "IN":
+          break;
+        case "OUT":
+          this.#json[property].from = this.#json[property].from === name ? "" : this.#json[property].from;
+          break;
+        default:
+          this.#json[property].from = this.#json[property].from.map(element => element === name ? "" : element);
+          break;
+      }
+    }
+  }
+
+  clear() {
+    this.#json = {};
+  }
+
 //  isConnectionValid(startName, isStartSource, endName, isEndSource) {
 //    return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
 //  }
@@ -147,49 +173,9 @@ class LogicalCircuit {
 //    }
 //  }
 //
-//  remove(name) {
-//    if (this.#structure.inputs.find(input => input.name === name)) {
-//      this.#structure.inputs = this.#structure.inputs.filter(input => input.name !== name);
-//    } else if (this.#structure.operators.find(operator => operator.name === name)) {
-//      this.#structure.operators = this.#structure.operators.filter(operator => operator.name !== name);
-//    } else if (this.#structure.outputs.find(output => output.name === name)) {
-//      this.#structure.outputs = this.#structure.outputs.filter(output => output.name !== name);
-//    }
-//
-//    this.#structure.operators.forEach(operator => operator.from = operator.from.map(element => element === name ? "" : element));
-//    this.#structure.outputs.forEach(output => output.from = output.from === name ? "" : output.from);
-//  }
-//
-//  clear() {
-//    this.#structure.inputs = [];
-//    this.#structure.operators = [];
-//    this.#structure.outputs = [];
-//  }
-//
-//  #getUniqueName() {
-//    return "LogicalCircuit_Operator_" + new Date().getTime();
-//  }
-//
-//  #addOperator(operator, from) {
-//    var name = this.#getUniqueName();
-//    this.#structure.operators.push({
-//      "name": name,
-//      "type": operator,
-//      "from": from
-//    });
-//    return name;
-//  }
-//
-//  purgeName(name) {
-//    name = name === 0 ? "0" : name;
-//    name = name ? "" + name : "";
-//    return name.trim();
-//  }
-//
-
 
   isNameValid(name) {
-    return typeof name === 'string' ? /[a-zA-Z_]+[a-zA-Z0-9]*/g.test(name) : false;
+    return typeof name === 'string' ? /[a-zA-Z]+[a-zA-Z0-9]*/g.test(name) : false;
   }
 
   isNameAlreadyUsed(name) {
