@@ -13,7 +13,7 @@
         "o1": {"type": "AND", "from": ["x", "y"]},
         "o2": {"type": "OR", "from": ["x", "y"]},
         "o12": {"type": "XOR", "from": ["o1", "o2"]},
-        "out1": {"type": "OUT", "from": "o12"}
+        "out1": {"type": "OUT", "from": ["o12"]}
       };
 
       var jsonUI1 = {
@@ -36,8 +36,8 @@
         "o22": {"type": "OR", "from": ["bbbb", "x"]},
         "o3": {"type": "NOT", "from": ["o2"]},
         "o4": {"type": "OR", "from": ["o1", "o3"]},
-        "out1": {"type": "OUT", "from": "o4"},
-        "output2": {"type": "OUT", "from": "o22"}
+        "out1": {"type": "OUT", "from": ["o4"]},
+        "output2": {"type": "OUT", "from": ["o22"]}
       };
 
       var jsonUI2 = {

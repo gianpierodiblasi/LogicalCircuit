@@ -13,7 +13,7 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
   "o1": {"type": "AND", "from": ["x", "y"]},
   "o2": {"type": "OR", "from": ["x", "y"]},
   "o12": {"type": "XOR", "from": ["o1", "o2"]},
-  "out1": {"type": "OUT", "from": "o12"}
+  "out1": {"type": "OUT", "from": ["o12"]}
 }
 ```
 **Notes:**
@@ -58,10 +58,10 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - startName: the name of the starting node (STRING)
     - isStartSource: true if the starting node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
-    - startIndex: the index of the starting node; used to indentify the input position if the starting node is an operator, -1 if the starting node is not an operator (INTEGER)
+    - startIndex: the index of the starting node; used to indentify the input position if necessary (INTEGER)
     - endName: the name of the ending node (STRING)
     - isEndSource: true if the ending node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
-    - endIndex: the index of the ending node; used to indentify the input position if the ending node is an operator, -1 if the starting node is not an operator (INTEGER)
+    - endIndex: the index of the ending node; used to indentify the input position if necessary (INTEGER)
   - output: NOTHING
 - *isConnectionValid(startName, isStartSource, endName, isEndSource)*: checks if a connection is valid
   - input:
@@ -72,7 +72,7 @@ var logicalCircuit = new LogicalCircuit();
   - output: true if the connection is valid, false othewise (BOOLEAN)
 - removeConnection(name, index): removes a connection
     - name: the name of the node (STRING)
-    - index: the index of the node; used to indentify the input position if the node is an operator, -1 if the node is not an operator (INTEGER)
+    - index: the index of the node; used to indentify the input position if necessary (INTEGER)
   - output: NOTHING
 - *remove(name)*: removes a node
   - input
@@ -88,7 +88,7 @@ var logicalCircuit = new LogicalCircuit();
 - *getFrom(name)*: returns the from property of a node
   - input:
     - name: the name of the node (STRING)
-  - output: the from property of the node, an empty string if there is no node with this name or the node is an input node (STRING)
+  - output: the from property of the node, an empty array if there is no node with this name or the node is an input node (STRING)
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
     ```javascript
     /^[a-z]+[a-z0-9_]*$/i
