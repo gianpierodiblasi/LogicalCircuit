@@ -50,7 +50,7 @@ class LogicalCircuitUI {
   #currentEvent;
 
   #onMouse = {"name": "", "index": -1, "referencePath": "", "referenceName": ""};
-  #onKnob = {"name": "", "index": -1, "referencePath": "", event: null};
+  #onKnob = {"name": "", "index": -1, "referenceName": "", event: null};
   #onArrow = {"direction": "", selected: false};
   #onSymbol = {"pressed": false, "offsetLeft": 0, "offsetTop": 0};
 
@@ -522,7 +522,20 @@ class LogicalCircuitUI {
   }
 
   #drawOnKnob() {
-
+    if (this.#onKnob.event) {
+      this.#ctx.beginPath();
+      this.#ctx.moveTo(this.#onKnob.event.offsetX, this.#onKnob.event.offsetY);
+      this.#ctx.lineTo(this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+      this.#ctx.stroke();
+//
+      if (this.#onKnob.name) {
+//        this.#ctx.lineWidth = 4;
+//        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.object, this.#onMouse.reference, this.#onKnob.object, this.#onKnob.reference) ? "green" : "orange";
+//        this.#ctx.stroke(this.#onKnob.index === -1 ? this.#onKnob.object[this.#onKnob.reference] : this.#onKnob.object[this.#onKnob.reference][this.#onKnob.index]);
+//        this.#ctx.lineWidth = 2;
+//        this.#ctx.strokeStyle = "black";
+      }
+    }
   }
 
   #onMouseMove(event) {
@@ -532,7 +545,43 @@ class LogicalCircuitUI {
       this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;
       this.#jsonUI[this.#onMouse.name].left = event.offsetX - this.#onSymbol.offsetLeft;
     } else if (this.#onKnob.event) {
+      this.#onKnob = {"name": "", "index": -1, "referenceName": "", "event": this.#onKnob.event};
 
+      for (var property in this.#jsonUI) {
+        var type = this.#logicalCircuit.getType(property);
+
+        switch (type) {
+          case "IN":
+            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
+              this.#onKnob.name = property;
+              this.#onKnob.referenceName = property + "*exit";
+            }
+            break;
+          case "OUT":
+            this.#logicalCircuit.getFrom(property).forEach((element, index) => {
+              if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
+                this.#onKnob.name = property;
+                this.#onKnob.index = index;
+                this.#onKnob.referenceName = property + "*" + index;
+              }
+            });
+            break;
+          default:
+            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
+              this.#onKnob.name = property;
+              this.#onKnob.referenceName = property + "*exit";
+            }
+
+            this.#logicalCircuit.getFrom(property).forEach((element, index) => {
+              if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
+                this.#onKnob.name = property;
+                this.#onKnob.index = index;
+                this.#onKnob.referenceName = property + "*" + index;
+              }
+            });
+            break;
+        }
+      }
     } else {
       this.#onMouse = {"name": "", "index": -1, "referencePath": "", "referenceName": ""};
 
