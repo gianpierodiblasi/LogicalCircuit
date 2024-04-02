@@ -76,14 +76,14 @@ class LogicalCircuitUI {
   };
 
   #onSymbol = {
-    "pressed": false,
+    "name": "",
     "offsetLeft": 0,
     "offsetTop": 0
   };
 
   #onArrow = {
-    "direction": "",
-    selected: false
+    "name": "",
+    "direction": ""
   };
 
   #currentEvent;
@@ -543,12 +543,12 @@ class LogicalCircuitUI {
   #onMouseMove(event) {
     this.#currentEvent = event;
 
-    if (this.#onSymbol.pressed) {
+    if (this.#onSymbol.name) {
       this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;
       this.#jsonUI[this.#onMouse.name].left = event.offsetX - this.#onSymbol.offsetLeft;
 
       this.#onChangeUIListener.forEach(listener => listener());
-    } else if (this.#onKnob.event) {
+    } else if (this.#onKnob.name) {
 //      this.#onKnob = {"name": "", "index": -1, "referenceName": "", "event": this.#onKnob.event};
 //
 //      for (var property in this.#jsonUI) {
@@ -654,7 +654,7 @@ class LogicalCircuitUI {
   }
 
   #onMouseUp(event) {
-    this.#onSymbol.pressed = false;
+    this.#onSymbol.name = "";
     this.#onKnob.name = "";
     this.#draw();
   }
