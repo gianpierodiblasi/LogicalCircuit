@@ -8,33 +8,17 @@ This API provides two classes to (visually) manage logical circuits; a demo is a
 The *LogicalCircuit* class can be used to manage a logical circuit; the following JSON describes the structure used by the class to manage the circuit.
 ```json
 {
-  "inputs": [{
-    "name": "x"
-  }, {
-    "name": "y"
-  }],
-  "operators": [{
-    "name": "1",
-    "type": "AND",
-    "from": ["x", "y"]
-  }, {
-    "name": "2",
-    "type": "OR",
-    "from": ["x", "y"]
-  }, {
-    "name": "12",
-    "type": "XOR",
-    "from": ["1", "2"]
-  }],
-  "outputs": [{
-    "name": "out1",
-    "from": "12"
-  }]
+  x: {type: "IN"},
+  y: {type: "IN"},
+  o1: {"type": "AND", "from": ["x", "y"]},
+  o2: {"type": "OR", "from": ["x", "y"]},
+  o12: {"type": "XOR", "from": ["1", "2"]},
+  out1: {type: "OUT"}
 }
 ```
 **Notes:**
-- the *inputs* array represents the input parameters, the *operators* array represents the circuit and finally the *output* array represents the output parameters
-- the *name* properties have to be unique in the structure and for each *from* value there must be exist a corresponding *name* property
+- the "IN" *type* represents the input parameters, the "OUT" *type* represents the output parameters and the other "type"s represent the logical operator
+- for each *from* value there must be exist a corresponding property
 - the managed operators are OR, NOR, AND, NAND, XOR, NXOR, NOT
 
 #### constructor
@@ -44,18 +28,62 @@ var logicalCircuit = new LogicalCircuit();
 ```
 
 #### methods
-- *load(circuit)*: loads a circuit, no check is done on the correctness of the JSON object
+- *setJSON(json)*: sets the JSON object describing the structure used by the class to manage the circuit, no check is done on the correctness of the JSON object
   - input
-    - circuit: the circuit, represented by a JSON as described above (JSON)
+    - json: the JSON object, as described above (JSON)
   - output: NOTHING
+- *getJSON(json)*: returns the JSON object describing the structure used by the class to manage the circuit
+  - input : NOTHING
+  - output: the JSON object, as described above (JSON)
 - *addInput(name)*: adds an input node
   - input
     - name: the node name (STRING)
-  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
 - *addOutput(name)*: adds an output node
   - input
     - name: the node name (STRING)
-  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
+- *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
+    ```javascript
+    /[a-zA-Z_]+[a-zA-Z0-9]*/g
+    ```
+  - input:
+    - name: the name (STRING)
+  - output: true if the name is valid, false otherwise (BOOLEAN)
+- *isNameAlreadyUsed(name)*: an utility method to check if a name is already used
+  - input:
+    - name: the name (STRING)
+  - output: true if the name is already used, false otherwise (BOOLEAN)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 - *add\<Operator>()*: adds an operator node (an operator is always added)
   - input: NOTHING
   - output: the unique name assigned to the operator (STRING)
@@ -67,14 +95,6 @@ var logicalCircuit = new LogicalCircuit();
   - input
     - name: the operator name (STRING)
   - output: NOTHING
-- *purgeName(name)*: an utility method to purge a name
-  - input:
-    - name: the name (STRING)
-  - output: the purged name (STRING)
-- *isNameAlreadyUsed(name)*: an utility method to check if a name is already used
-  - input:
-    - name: the name (STRING)
-  - output: true if the name is already used, false otherwise (BOOLEAN)
 - *remove(name)*: removes a node
   - input
     - name: the node name (STRING)

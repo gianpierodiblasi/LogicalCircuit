@@ -7,58 +7,88 @@
     <link href="dist/logicalcircuit.css" rel="stylesheet">
     <script src="dist/logicalcircuit.js"></script>
     <script>
-      var circuit1 = {
-        "inputs": [{
-            "name": "x", "top": 10, "left": 10
-          }, {
-            "name": "y", "top": 100, "left": 10
-          }],
-        "operators": [{
-            "name": "1", "type": "AND", "from": ["x", "y"], "top": 10, "left": 100
-          }, {
-            "name": "2", "type": "OR", "from": ["x", "y"], "top": 100, "left": 100
-          }, {
-            "name": "12", "type": "XOR", "from": ["1", "2"], "top": 55, "left": 200
-          }],
-        "outputs": [{"name": "out1", "from": "12", "top": 55, "left": 300}]
+      var json1 = {
+        x: {type: "IN"},
+        y: {type: "IN"},
+        o1: {"type": "AND", "from": ["x", "y"]},
+        o2: {"type": "OR", "from": ["x", "y"]},
+        o12: {"type": "XOR", "from": ["1", "2"]},
+        out1: {type: "OUT"}
       };
 
-      var circuit2 = {
-        "inputs": [{
-            "name": "x", "top": 10, "left": 10
-          }, {
-            "name": "yy", "top": 100, "left": 10
-          }, {
-            "name": "aaa", "top": 200, "left": 10
-          }, {
-            "name": "bbbb", "top": 300, "left": 10
-          }],
-        "operators": [{
-            "name": "1", "type": "AND", "from": ["x", "yy"], "top": 10, "left": 200
-          }, {
-            "name": "11", "type": "AND", "from": ["x", "yy", "bbbb"], "top": 100, "left": 200
-          }, {
-            "name": "2", "type": "OR", "from": ["aaa", "bbbb", "x"], "top": 200, "left": 230
-          }, {
-            "name": "22", "type": "OR", "from": ["bbbb", "x"], "top": 300, "left": 230
-          }, {
-            "name": "3", "type": "NOT", "from": ["2"], "top": 400, "left": 200
-          }, {
-            "name": "4", "type": "OR", "from": ["1", "3"], "top": 500, "left": 200
-          }],
-        "outputs": [{
-            "name": "out1", "from": "4", "top": 200, "left": 400
-          }, {
-            "name": "output2", "from": "22", "top": 400, "left": 400
-          }]
+      var jsonUI1 = {
+        x: {"top": 10, "left": 10},
+        y: {"top": 100, "left": 10},
+        o1: {"top": 10, "left": 100},
+        o2: {"top": 100, "left": 100},
+        o12: {"top": 55, "left": 200},
+        out1: {"top": 55, "left": 300}
       };
+
+//      var circuit2 = {
+//        "inputs": [{
+//            "name": "x", "top": 10, "left": 10
+//          }, {
+//            "name": "yy", "top": 100, "left": 10
+//          }, {
+//            "name": "aaa", "top": 200, "left": 10
+//          }, {
+//            "name": "bbbb", "top": 300, "left": 10
+//          }],
+//        "operators": [{
+//            "name": "1", "type": "AND", "from": ["x", "yy"], "top": 10, "left": 200
+//          }, {
+//            "name": "11", "type": "AND", "from": ["x", "yy", "bbbb"], "top": 100, "left": 200
+//          }, {
+//            "name": "2", "type": "OR", "from": ["aaa", "bbbb", "x"], "top": 200, "left": 230
+//          }, {
+//            "name": "22", "type": "OR", "from": ["bbbb", "x"], "top": 300, "left": 230
+//          }, {
+//            "name": "3", "type": "NOT", "from": ["2"], "top": 400, "left": 200
+//          }, {
+//            "name": "4", "type": "OR", "from": ["1", "3"], "top": 500, "left": 200
+//          }],
+//        "outputs": [{
+//            "name": "out1", "from": "4", "top": 200, "left": 400
+//          }, {
+//            "name": "output2", "from": "22", "top": 400, "left": 400
+//          }]
+//      };
+
+//      var circuit2 = {
+//        "inputs": [{
+//            "name": "x", "top": 10, "left": 10
+//          }, {
+//            "name": "yy", "top": 100, "left": 10
+//          }, {
+//            "name": "aaa", "top": 200, "left": 10
+//          }, {
+//            "name": "bbbb", "top": 300, "left": 10
+//          }],
+//        "operators": [{
+//            "name": "1", "type": "AND", "from": ["x", "yy"], "top": 10, "left": 200
+//          }, {
+//            "name": "11", "type": "AND", "from": ["x", "yy", "bbbb"], "top": 100, "left": 200
+//          }, {
+//            "name": "2", "type": "OR", "from": ["aaa", "bbbb", "x"], "top": 200, "left": 230
+//          }, {
+//            "name": "22", "type": "OR", "from": ["bbbb", "x"], "top": 300, "left": 230
+//          }, {
+//            "name": "3", "type": "NOT", "from": ["2"], "top": 400, "left": 200
+//          }, {
+//            "name": "4", "type": "OR", "from": ["1", "3"], "top": 500, "left": 200
+//          }],
+//        "outputs": [{
+//            "name": "out1", "from": "4", "top": 200, "left": 400
+//          }, {
+//            "name": "output2", "from": "22", "top": 400, "left": 400
+//          }]
+//      };
 
       window.onload = (event) => {
-        var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {showToolbar: true});
-        logicalCircuitUI.load(circuit1);
-
-        document.querySelector("#load1").onclick = () => logicalCircuitUI.load(circuit1);
-        document.querySelector("#load2").onclick = () => logicalCircuitUI.load(circuit2);
+        var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
+        document.querySelector("#load1").onclick = () => logicalCircuitUI.load(json1, jsonUI1);
+        document.querySelector("#load2").onclick = () => logicalCircuitUI.load(json2, jsonUI2);
       };
     </script>
   </head>
