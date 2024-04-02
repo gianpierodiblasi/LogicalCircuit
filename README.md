@@ -57,23 +57,18 @@ var logicalCircuit = new LogicalCircuit();
   - input
     - name: the operator name (STRING)
   - output: NOTHING
-- *addConnection(startName, isStartSource, startIndex, endName, isEndSource, endIndex)*: adds a new connection; the connection is added if and only if it is valid connection
+- *addConnection(startName, endName, endIndex)*: adds a new connection; the connection is added if and only if it is valid connection
   - input:
-    - startName: the name of the starting node (STRING)
-    - isStartSource: true if the starting node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
-    - startIndex: the index of the starting node; used to indentify the input position if necessary (INTEGER)
-    - endName: the name of the ending node (STRING)
-    - isEndSource: true if the ending node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
-    - endIndex: the index of the ending node; used to indentify the input position if necessary (INTEGER)
+    - startName: the name of the starting node, that is the information exits from this node (STRING)
+    - endName: the name of the ending node, that is the information enters in this node (STRING)
+    - endIndex: the index in the *from* array of the ending node (INTEGER)
   - output: NOTHING
-- *isConnectionValid(startName, isStartSource, endName, isEndSource)*: checks if a connection is valid
+- *isConnectionValid(startName, endName)*: checks if a connection is valid
   - input:
     - startName: the name of the starting node (STRING)
-    - isStartSource: true if the starting node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
     - endName: the name of the ending node (STRING)
-    - isEndSource: true if the ending node is a source in the connection (the information exits from this node), false otherwise (the information enters in this node) (BOOLEAN)
   - output: true if the connection is valid, false othewise (BOOLEAN)
-- removeConnection(name, index): removes a connection
+- *removeConnection(name, index)*: removes a connection
     - name: the name of the node (STRING)
     - index: the index of the node; used to indentify the input position if necessary (INTEGER)
   - output: NOTHING

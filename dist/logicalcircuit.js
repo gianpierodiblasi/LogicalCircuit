@@ -82,7 +82,7 @@ class LogicalCircuit {
   }
 
   incConnector(name) {
-    if (this.#json[name] && this.#json[name].type !== "OUT" && this.#json[name].from) {
+    if (this.#json[name] && this.#json[name].type !== "OUT" && this.#json[name].type !== "NOT" && this.#json[name].from) {
       this.#json[name].from.push("");
     }
   }
@@ -98,32 +98,25 @@ class LogicalCircuit {
     }
   }
 
-  addConnection(startName, isStartSource, startIndex, endName, isEndSource, endIndex) {
-    if (!this.isConnectionValid(startName, isStartSource, endName, isEndSource)) {
-    } else if (isStartSource) {
-      this.#privateAddConnection(startName, endName, endIndex);
-    } else if (isEndSource) {
-      this.#privateAddConnection(endName, startName, startIndex);
+  addConnection(startName, endName, endIndex) {
+    if (this.isConnectionValid(startName, endName) && 0 <= endIndex && endIndex < this.#json[endName].from.length) {
+      this.#json[endName].from[endIndex] = startName;
     }
   }
 
-  #privateAddConnection(start, end, index) {
-    if (0 <= index && index < this.#json[end].from.length) {
-      this.#json[end].from[index] = start;
-    }
-  }
-
-  isConnectionValid(startName, isStartSource, endName, isEndSource) {
-    return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
-  }
-
-  #isLoop(startName, isStartSource, endName, isEndSource) {
-    if (!isStartSource && isEndSource) {
-      return this.#areConnected(startName, endName);
-    } else if (isStartSource && !isEndSource) {
-      return this.#areConnected(endName, startName);
-    } else {
+  isConnectionValid(startName, endName) {
+    if (startName === endName || !this.#json[startName] || !this.#json[endName]) {
       return false;
+    } else if (this.#json[startName].type === "IN") {
+      return this.#json[endName].type !== "IN";
+    } else if (this.#json[startName].type === "OUT") {
+      return false;
+    } else if (this.#json[endName].type === "IN") {
+      return false;
+    } else if (this.#json[endName].type === "OUT") {
+      return true;
+    } else {
+      return !this.#areConnected(startName, endName);
     }
   }
 
