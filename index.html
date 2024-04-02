@@ -60,6 +60,8 @@
         var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
         document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
         document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
+        logicalCircuitUI.addOnChangeListener(() => console.log("changed"));
+        logicalCircuitUI.addOnChangeUIListener(() => console.log("UI changed"));
       };
     </script>
   </head>

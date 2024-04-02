@@ -151,6 +151,14 @@ where:
 - *isValid()*: checks if this object represents a set of valid logical circuits
   - input : NOTHING
   - output : true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+- *addOnChangeListener(listener)*: adds a function listener for the change events
+  - input
+    - listener: the listener (FUNCTION)
+  - output: NOTHING
+- *addOnChangeUIListener(listener)*: adds a function listener for the UI change events
+  - input
+    - listener: the listener (FUNCTION)
+  - output: NOTHING
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
