@@ -14,17 +14,36 @@ class LogicalCircuit {
     return JSON.parse(JSON.stringify(this.#json));
   }
 
-//  getJavaScriptExpression() {
-//    if (!this.isValid()) {
-//      return false;
-//    } else {
-//
-//    }
-//  }
-//
-//  isValid() {
-//
-//  }
+  getJavaScriptExpressions() {
+    var expressions = {};
+
+    if (this.isValid()) {
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(name));
+    }
+
+    return expressions;
+  }
+
+  #computeExpression(name) {
+
+  }
+
+  isValid() {
+    var valid = true;
+    Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => valid &= this.#isConnected(name));
+    return !!valid;
+  }
+
+  #isConnected(name) {
+    var connected = true;
+    this.#json[name].from.forEach(element => {
+      connected &= !!element;
+      if (connected && this.#json[element].type !== "IN") {
+        connected &= !!this.#isConnected(element);
+      }
+    });
+    return !!connected;
+  }
 
   addInput(name) {
     return this.#add(name, {"type": "IN"});
