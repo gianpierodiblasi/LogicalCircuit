@@ -18,8 +18,11 @@ The *LogicalCircuit* class can be used to manage a logical circuit; the followin
 ```
 **Notes:**
 - the "IN" *type* represents the input parameters, the "OUT" *type* represents the output parameters and the other *type*s represent the logical operators
-- for each *from* value there must be exist a corresponding property
+- for each value in the *from* arrays there must be exist a corresponding property
 - the managed operators are OR, NOR, AND, NAND, XOR, NXOR, NOT
+- the *from* array of a property with *type* = "OUT" have to contain one and only one element
+- the *from* array of a property with *type* = "NOT" have to contain one and only one element
+- the *from* array of other operators have to contain at least two elements
 
 #### constructor
 The constructor can be used to create a new *LogicalCircuit* as follows:
