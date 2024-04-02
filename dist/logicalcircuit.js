@@ -1,5 +1,6 @@
 class LogicalCircuit {
   #json = {};
+  #operatorTypes = ["OR", "NOR", "AND", "NAND", "XOR", "NXOR", "NOT"];
 
   constructor() {
   }
@@ -96,6 +97,56 @@ class LogicalCircuit {
     }
   }
 
+  addConnection(startName, isStartSource, startIndex, endName, isEndSource, endIndex) {
+    if (!this.isConnectionValid(startName, isStartSource, endName, isEndSource)) {
+    } else if (isStartSource) {
+      this.#privateAddConnection(startName, endName, endIndex);
+    } else if (isEndSource) {
+      this.#privateAddConnection(endName, startName, startIndex);
+    }
+  }
+
+  #privateAddConnection(start, end, index) {
+    if (!Array.isArray(this.#json[end])) {
+      this.#json[end].from = start;
+    } else if (0 <= index && index < this.#json[end].from.length) {
+      this.#json[end].from[index] = start;
+    }
+  }
+
+  isConnectionValid(startName, isStartSource, endName, isEndSource) {
+    return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
+  }
+
+  #isLoop(startName, isStartSource, endName, isEndSource) {
+    if (!isStartSource && isEndSource) {
+      return this.#areConnected(startName, endName);
+    } else if (isStartSource && !isEndSource) {
+      return this.#areConnected(endName, startName);
+    } else {
+      return false;
+    }
+  }
+
+  #areConnected(startName, endName) {
+    var operators = Object.keys(this.#json).filter(name => this.#operatorTypes.includes(this.#json[name].type) && this.#json[name].from.includes(startName));
+    if (operators.includes(endName)) {
+      return true;
+    } else {
+      var connected = false;
+      operators.forEach(name => connected |= this.#areConnected(name, endName));
+      return connected;
+    }
+  }
+
+  removeConnection(name, index) {
+    if (!Array.isArray(this.#json[name])) {
+      this.#json[name].from = "";
+    } else if (0 <= index && index < this.#json[name].from.length) {
+      this.#json[name].from[index] = "";
+    }
+  }
+
   remove(name) {
     delete this.#json[name];
 
@@ -116,63 +167,6 @@ class LogicalCircuit {
   clear() {
     this.#json = {};
   }
-
-//  isConnectionValid(startName, isStartSource, endName, isEndSource) {
-//    return startName !== endName && !!(isStartSource ^ isEndSource) && !this.#isLoop(startName, isStartSource, endName, isEndSource);
-//  }
-//
-//  #isLoop(startName, isStartSource, endName, isEndSource) {
-//    if (!isStartSource && isEndSource) {
-//      return this.#areConnected(startName, endName);
-//    } else if (isStartSource && !isEndSource) {
-//      return this.#areConnected(endName, startName);
-//    } else {
-//      return false;
-//    }
-//  }
-//
-//  #areConnected(startName, endName) {
-//    var operators = this.#structure.operators.filter(operator => operator.from.includes(startName));
-//    if (operators.find(operator => operator.name === endName)) {
-//      return true;
-//    } else {
-//      var connected = false;
-//      operators.forEach(operator => connected |= this.#areConnected(operator.name, endName));
-//      return connected;
-//    }
-//  }
-//
-//  addConnection(startName, isStartSource, startIndex, endName, isEndSource, endIndex) {
-//    if (!this.isConnectionValid(startName, isStartSource, endName, isEndSource)) {
-//    } else if (isStartSource) {
-//      this.#privateAddConnection(startName, endName, endIndex);
-//    } else if (isEndSource) {
-//      this.#privateAddConnection(endName, startName, startIndex);
-//    }
-//  }
-//
-//  #privateAddConnection(start, end, index) {
-//    var found1 = this.#structure.operators.find(operator => operator.name === end);
-//    var found2 = this.#structure.outputs.find(output => output.name === end);
-//
-//    if (found1) {
-//      found1.from[index] = start;
-//    } else if (found2) {
-//      found2.from = start;
-//    }
-//  }
-//
-//  removeConnection(name, index) {
-//    var found1 = this.#structure.operators.find(operator => operator.name === name);
-//    var found2 = this.#structure.outputs.find(output => output.name === name);
-//
-//    if (found1) {
-//      found1.from[index] = "";
-//    } else if (found2) {
-//      found2.from = "";
-//    }
-//  }
-//
 
   isNameValid(name) {
     return typeof name === 'string' ? /[a-zA-Z]+[a-zA-Z0-9]*/g.test(name) : false;
