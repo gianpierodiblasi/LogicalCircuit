@@ -91,7 +91,7 @@ var logicalCircuit = new LogicalCircuit();
   - output: the from property of the node, an empty string if there is no node with this name or the node is an input node (STRING)
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
     ```javascript
-    /[a-zA-Z]+[a-zA-Z0-9]*/g
+    /^[a-z]+[a-z0-9_]*$/i
     ```
   - input:
     - name: the name (STRING)
@@ -141,57 +141,6 @@ where:
 - *getJSONUI()*: returns the JSON object describing the visual structure used by the class to manage the circuit
   - input : NOTHING
   - output: the JSON object, as described above (JSON)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-- *load(circuit)*: loads a circuit, no check is done on the correctness of the JSON object
-  - input
-    - circuit: the circuit, represented by a JSON as described above; the properties *\*Path*, *\*Size* and *\*Center* are not considered (JSON)
-  - output: NOTHING
-- *addInput(name, top, left)*: adds an input node
-  - input
-    - name: the node name (STRING)
-    - top: the top coordinate of the node (NUMBER)
-    - left: the left coordinate of the node (NUMBER)
-  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- *addOutput(name, top, left)*: adds an output node
-  - input
-    - name: the node name (STRING)
-    - top: the top coordinate of the node (NUMBER)
-    - left: the left coordinate of the node (NUMBER)
-  - output: true if the node is added, false otherwise; a node is not added if and only if the (trimmed) name is empty or the name is already used by another input, operator or output node (BOOLEAN)
-- *add\<Operator>(top, left)*: adds an operator node (an operator is always added)
-  - input:
-    - top: the top coordinate of the node (NUMBER)
-    - left: the left coordinate of the node (NUMBER)
-  - output: the unique name assigned to the operator (STRING)
-- *remove(name)*: removes a node
-  - input
-    - name: the node name (STRING)
-  - output: NOTHING
-- *clear()*: clears the logical circuit
-  - input: NOTHING
-  - output: NOTHING
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
