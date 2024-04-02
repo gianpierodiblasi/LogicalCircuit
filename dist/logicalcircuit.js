@@ -1,5 +1,6 @@
 class LogicalCircuit {
   #json = {};
+
   #operatorTypes = ["OR", "NOR", "AND", "NAND", "XOR", "NXOR", "NOT"];
 
   constructor() {
@@ -68,7 +69,7 @@ class LogicalCircuit {
   }
 
   #add(name, json) {
-    if (this.#isNameValid(name) && !this.isNameAlreadyUsed(name)) {
+    if (this.isNameValid(name) && !this.isNameAlreadyUsed(name)) {
       this.#json[name] = json;
       return true;
     } else {
@@ -179,8 +180,8 @@ class LogicalCircuit {
 
 class LogicalCircuitUI {
   #logicalCircuit = new LogicalCircuit();
-  #jsonUI = {
-  }
+  #jsonUI = {};
+
   #canvas;
   #ctx;
 //
@@ -206,16 +207,16 @@ class LogicalCircuitUI {
 //  #onSymbol = {"pressed": false, "offsetX": 0, "offsetY": 0};
 //
   constructor(container, options) {
-//    try {
-//      options.showToolbar;
-//    } catch (exception) {
-//      options = {};
-//    }
-//
-//      var toolbar = document.createElement("div");
-//      toolbar.classList.add("LogicalCircuitUI_Toolbar");
-//      container.append(toolbar);
-//
+    try {
+      options.width;
+    } catch (exception) {
+      options = {};
+    }
+
+      var toolbar = document.createElement("div");
+      toolbar.classList.add("LogicalCircuitUI_Toolbar");
+      container.append(toolbar);
+
 //      this.#addButtonAndText(toolbar, "IN", (event, name) => this.addInput(name, 15, 15));
 //      this.#addButtonAndText(toolbar, "OUT", (event, name) => this.addOutput(name, 15, 15));
 //      this.#addButton(toolbar, "OR");
@@ -227,21 +228,21 @@ class LogicalCircuitUI {
 //      this.#addButton(toolbar, "NOT");
 //      this.#addButton(toolbar, "CLEAR", (event) => this.clear());
 //
-//    this.#canvas = document.createElement("canvas");
-//    this.#canvas.classList.add("LogicalCircuitUI_Canvas");
-//    this.#canvas.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
-//    this.#canvas.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
+    this.#canvas = document.createElement("canvas");
+    this.#canvas.classList.add("LogicalCircuitUI_Canvas");
+    this.#canvas.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
+    this.#canvas.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
 //    this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
 //    this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
 //    this.#canvas.onmouseup = (event) => this.#onMouseUp(event);
-//    container.append(this.#canvas);
-//
-//    this.#ctx = this.#canvas.getContext('2d');
-//    this.#ctx.font = "24px sans-serif";
-//    this.#ctx.textBaseline = "middle";
-//    this.#ctx.lineWidth = 2;
-//    this.#ctx.lineJoin = "round";
-//    this.#draw();
+    container.append(this.#canvas);
+
+    this.#ctx = this.#canvas.getContext('2d');
+    this.#ctx.font = "24px sans-serif";
+    this.#ctx.textBaseline = "middle";
+    this.#ctx.lineWidth = 2;
+    this.#ctx.lineJoin = "round";
+    this.#draw();
   }
 //
 //  load(circuit) {
@@ -373,7 +374,7 @@ class LogicalCircuitUI {
 //    found.left = isNaN(left) || left < 0 || left > this.#canvas.width ? 10 : left;
 //  }
 //
-//  #draw() {
+  #draw() {
 //    this.#canvas.style.cursor = "default";
 //    this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 //
@@ -407,7 +408,7 @@ class LogicalCircuitUI {
 //    this.#ctx.stroke();
 //    this.#ctx.lineWidth = 2;
 //    this.#ctx.strokeStyle = "black";
-//  }
+  }
 //
 //  #drawInput(input) {
 //    var width = this.#ctx.measureText(input.name).width + this.#inputGap;
