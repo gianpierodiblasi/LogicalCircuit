@@ -169,6 +169,10 @@ class LogicalCircuit {
     this.#json = {};
   }
 
+  getType(name) {
+    return this.#json[name] ? this.#json[name].type : "";
+  }
+
   isNameValid(name) {
     return typeof name === 'string' ? /[a-zA-Z]+[a-zA-Z0-9]*/g.test(name) : false;
   }
@@ -184,15 +188,37 @@ class LogicalCircuitUI {
 
   #canvas;
   #ctx;
-//
-//  #knobRadius = 5;
-//  #notRadius = 7;
-//
-//  #inputGap = 20;
-//  #inputHeight = 40;
-//  #outputGap = 20;
-//  #outputHeight = 40;
-//
+
+  #knobPath = {};
+  #knobCenter = {};
+  #symbolPath = {};
+  #symbolSize = {};
+
+  #defaultFont = "24px sans-serif";
+  #defaultLineWidth = 2;
+  #defaultStrokeStyle = "black";
+
+  #trashFont = "48px sans-serif";
+  #trashText = "\u{1F5D1}";
+  #trashLeft = 35;
+  #trashTop = 20;
+  #trashLineWidth = 80;
+  #trashRadius1 = 40;
+  #trashRadius2 = 120;
+  #trashGradients = [
+    {"pos": 0, "color": "rgba(0,0,0,0)"},
+    {"pos": 0.5, "color": "rgba(0,0,0,0)"},
+    {"pos": 1, "color": "rgba(0,0,0,0.3)"}
+  ];
+
+  #knobRadius = 5;
+  #notRadius = 7;
+
+  #inputGap = 20;
+  #inputHeight = 40;
+  #outputGap = 20;
+  #outputHeight = 40;
+
 //  #operatorRadiusX = 20;
 //  #operatorLineWidth = 30;
 //  #operator1Height = 20;
@@ -238,9 +264,9 @@ class LogicalCircuitUI {
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
-    this.#ctx.font = "24px sans-serif";
+    this.#ctx.font = this.#defaultFont;
     this.#ctx.textBaseline = "middle";
-    this.#ctx.lineWidth = 2;
+    this.#ctx.lineWidth = this.#defaultLineWidth;
     this.#ctx.lineJoin = "round";
     this.#draw();
   }
@@ -380,79 +406,88 @@ class LogicalCircuitUI {
 //  }
 //
   #draw() {
-//    this.#canvas.style.cursor = "default";
-//    this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-//
-//    this.#drawTrash();
-//
-//    this.#logicalCircuit.inputs.forEach(input => this.#drawInput(input));
-//    this.#logicalCircuit.outputs.forEach(output => this.#drawOutput(output));
-//    this.#logicalCircuit.operators.forEach(operator => this.#drawOperator(operator));
-//
+    this.#canvas.style.cursor = "default";
+    this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+
+    this.#drawTrash();
+
+    for (var property in this.#jsonUI) {
+      switch (this.#logicalCircuit.getType(property)) {
+        case "IN":
+          this.#drawInput(property);
+          break;
+        case "OUT":
+          this.#drawOutput(property);
+          break;
+        default:
+          this.#drawOperator(property);
+          break;
+      }
+    }
+
 //    this.#logicalCircuit.operators.forEach(operator => this.#drawOperatorConnector(operator));
 //    this.#logicalCircuit.outputs.forEach(output => this.#drawOutputConnector(output));
 //
 //    this.#drawOnMouse();
 //    this.#drawOnKnob();
-//  }
-//
-//  #drawTrash() {
-//    this.#ctx.font = "48px sans-serif";
-//    this.#ctx.fillText("\u{1F5D1}", this.#canvas.width - 35, this.#canvas.height - 20);
-//    this.#ctx.font = "24px sans-serif";
-//
-//    var gradient = this.#ctx.createRadialGradient(this.#canvas.width, this.#canvas.height, 40, this.#canvas.width, this.#canvas.height, 120);
-//    gradient.addColorStop(0, "rgba(0,0,0,0)");
-//    gradient.addColorStop(0.5, "rgba(0,0,0,0)");
-//    gradient.addColorStop(1, "rgba(0,0,0,0.3)");
-//
-//    this.#ctx.lineWidth = 80;
-//    this.#ctx.strokeStyle = gradient;
-//    this.#ctx.beginPath();
-//    this.#ctx.arc(this.#canvas.width, this.#canvas.height, 80, 0, 2 * Math.PI);
-//    this.#ctx.stroke();
-//    this.#ctx.lineWidth = 2;
-//    this.#ctx.strokeStyle = "black";
   }
-//
-//  #drawInput(input) {
-//    var width = this.#ctx.measureText(input.name).width + this.#inputGap;
-//    var centerTop = input.top + this.#inputHeight / 2;
-//
-//    input.knobCenter = {
-//      "x": input.left + width + this.#knobRadius,
-//      "y": centerTop
-//    };
-//
-//    this.#drawText(input, width, this.#inputHeight, this.#inputGap);
-//    this.#drawKnob(input, "knobPath", "knobCenter");
-//  }
-//
-//  #drawOutput(output) {
-//    var width = this.#ctx.measureText(output.name).width + this.#outputGap;
-//    var centerTop = output.top + this.#outputHeight / 2;
-//
-//    output.knobCenter = {
-//      "x": output.left - this.#knobRadius,
-//      "y": centerTop
-//    };
-//
-//    this.#drawText(output, width, this.#outputHeight, this.#outputGap);
-//    this.#drawKnob(output, "knobPath", "knobCenter");
-//  }
-//
-//  #drawText(node, width, height, gap) {
-//    node.symbolPath = new Path2D();
-//    node.symbolPath.rect(node.left, node.top, width, height);
-//    node.symbolSize = {
-//      "width": width,
-//      "height": height
-//    };
-//    this.#ctx.stroke(node.symbolPath);
-//    this.#ctx.fillText(node.name, node.left + gap / 2, node.knobCenter.y);
-//  }
-//
-//  #drawOperator(operator) {
+
+  #drawTrash() {
+    this.#ctx.font = this.#trashFont;
+    this.#ctx.fillText(this.#trashText, this.#canvas.width - this.#trashLeft, this.#canvas.height - this.#trashTop);
+    this.#ctx.font = this.#defaultFont;
+
+    var radialGradient = this.#ctx.createRadialGradient(this.#canvas.width, this.#canvas.height, this.#trashRadius1, this.#canvas.width, this.#canvas.height, this.#trashRadius2);
+    this.#trashGradients.forEach(gradient => radialGradient.addColorStop(gradient.pos, gradient.color));
+
+    this.#ctx.lineWidth = this.#trashLineWidth;
+    this.#ctx.strokeStyle = radialGradient;
+    this.#ctx.beginPath();
+    this.#ctx.arc(this.#canvas.width, this.#canvas.height, this.#trashLineWidth, 0, 2 * Math.PI);
+    this.#ctx.stroke();
+    this.#ctx.lineWidth = this.#defaultLineWidth;
+    this.#ctx.strokeStyle = this.#defaultStrokeStyle;
+  }
+
+  #drawInput(name) {
+    var width = this.#ctx.measureText(name).width + this.#inputGap;
+    var centerTop = this.#jsonUI[name].top + this.#inputHeight / 2;
+
+    this.#knobCenter[name] = {
+      "left": this.#jsonUI[name].left + width + this.#knobRadius,
+      "top": centerTop
+    };
+
+    this.#drawText(name, width, this.#inputHeight, this.#inputGap);
+    this.#drawKnob(name);
+  }
+
+  #drawOutput(name) {
+    var width = this.#ctx.measureText(name).width + this.#outputGap;
+    var centerTop = this.#jsonUI[name].top + this.#outputHeight / 2;
+
+    this.#knobCenter[name] = {
+      "left": this.#jsonUI[name].left - this.#knobRadius,
+      "top": centerTop
+    };
+
+    this.#drawText(name, width, this.#outputHeight, this.#outputGap);
+    this.#drawKnob(name);
+  }
+
+  #drawText(name, width, height, gap) {
+    this.#symbolSize[name] = {
+      "width": width,
+      "height": height
+    };
+
+    this.#symbolPath[name] = new Path2D();
+    this.#symbolPath[name].rect(this.#jsonUI[name].left, this.#jsonUI[name].top, width, height);
+    this.#ctx.stroke(this.#symbolPath[name]);
+    this.#ctx.fillText(name, this.#jsonUI[name].left + gap / 2, this.#knobCenter[name].top);
+  }
+
+  #drawOperator(operator) {
 //    operator.symbolPath = new Path2D();
 //    operator.fromKnobPath = [];
 //    operator.fromKnobCenter = [];
@@ -605,18 +640,18 @@ class LogicalCircuitUI {
 //
 //    this.#drawKnob(operator, "outputKnobPath", "outputKnobCenter");
 //    this.#ctx.stroke(operator.symbolPath);
-//  }
+  }
 //
-//  #drawKnob(node, knobPath, knobCenter) {
-//    if (node) {
-//      node[knobPath] = new Path2D();
-//      node[knobPath].moveTo(node[knobCenter].x, node[knobCenter].y - this.#knobRadius);
-//      node[knobPath].lineTo(node[knobCenter].x + this.#knobRadius, node[knobCenter].y);
-//      node[knobPath].lineTo(node[knobCenter].x, node[knobCenter].y + this.#knobRadius);
-//      node[knobPath].lineTo(node[knobCenter].x - this.#knobRadius, node[knobCenter].y);
-//      node[knobPath].closePath();
-//      this.#ctx.stroke(node[knobPath]);
-//    } else {
+  #drawKnob(name) {
+    if (name) {
+      this.#knobPath[name] = new Path2D();
+      this.#knobPath[name].moveTo(this.#knobCenter[name].left, this.#knobCenter[name].top - this.#knobRadius);
+      this.#knobPath[name].lineTo(this.#knobCenter[name].left + this.#knobRadius, this.#knobCenter[name].top);
+      this.#knobPath[name].lineTo(this.#knobCenter[name].left, this.#knobCenter[name].top + this.#knobRadius);
+      this.#knobPath[name].lineTo(this.#knobCenter[name].left - this.#knobRadius, this.#knobCenter[name].top);
+      this.#knobPath[name].closePath();
+      this.#ctx.stroke(this.#knobPath[name]);
+    } else {
 //      var path = new Path2D();
 //      path.moveTo(knobCenter.x, knobCenter.y - this.#knobRadius);
 //      path.lineTo(knobCenter.x + this.#knobRadius, knobCenter.y);
@@ -625,9 +660,8 @@ class LogicalCircuitUI {
 //      path.closePath();
 //      this.#ctx.stroke(path);
 //      return path;
-//    }
-//
-//  }
+    }
+  }
 //
 //  #drawOperatorConnector(operator) {
 //    operator.fromKnobConnectorPath = [];

@@ -81,6 +81,10 @@ var logicalCircuit = new LogicalCircuit();
 - *clear()*: clears the logical circuit
   - input: NOTHING
   - output: NOTHING
+- *getType(name)*: returns the type of a node
+  - input:
+    - name: the name of the node (STRING)
+  - output: the type of the node, an empty string if there is no node with this name (STRING)
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
     ```javascript
     /[a-zA-Z]+[a-zA-Z0-9]*/g
