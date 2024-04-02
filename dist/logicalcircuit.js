@@ -28,25 +28,25 @@ class LogicalCircuit {
     if (this.#json[name].type === "IN") {
       return name;
     } else if (this.#json[name].type === "NOT") {
-      return "!(" + this.#computeExpression(this.#json[name].from[0]) + ")";
+      return "!" + this.#computeExpression(this.#json[name].from[0]);
     } else {
       var array = [];
-      this.#json[name].from.forEach(element => array.push("(" + this.#computeExpression(element) + ")"));
+      this.#json[name].from.forEach(element => array.push(this.#computeExpression(element)));
 
       switch (this.#json[name].type) {
         case "OR":
-          return array.join("||");
+          return "(" + array.join("||") + ")";
         case "AND":
-          return array.join("&&");
+          return "(" + array.join("&&") + ")";
         case "NOR":
           return "!(" + array.join("||") + ")";
         case "NAND":
           return "!(" + array.join("&&") + ")";
         case "XOR":
-          return "([" + array.join(",") + "].filter(element=>element).length===1)";
+          return "([" + array.join(",") + "].filter(el=>el).length===1)";
           break;
         case "NXOR":
-          return "!([" + array.join(",") + "].filter(element=>element).length===1)";
+          return "!([" + array.join(",") + "].filter(el=>el).length===1)";
       }
     }
   }

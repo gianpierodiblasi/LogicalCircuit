@@ -60,8 +60,19 @@
         var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
         document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
         document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
-        logicalCircuitUI.addOnChangeListener(() => console.log("changed"));
-        logicalCircuitUI.addOnChangeUIListener(() => console.log("UI changed"));
+        logicalCircuitUI.addOnChangeListener(() => {
+          if (logicalCircuitUI.isValid()) {
+            var expressions = logicalCircuitUI.getJavaScriptExpressions();
+
+            var div = document.querySelector("#expressions");
+            div.textContent = "";
+            for (var key in expressions) {
+              var row = document.createElement("div");
+              row.textContent = key + " = " + expressions[key];
+              div.append(row);
+            }
+          }
+        });
       };
     </script>
   </head>
@@ -73,5 +84,6 @@
     </div>
     <hr style="color:gray"/>
     <div id="container"></div>
+    <div id="expressions" style="font-family:monospace"></div>
   </body>
 </html>
