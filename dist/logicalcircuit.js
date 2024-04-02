@@ -132,22 +132,24 @@ class LogicalCircuit {
   }
 
   removeConnection(name, index) {
-    if (0 <= index && index < this.#json[name].from.length) {
+    if (this.#json[name] && 0 <= index && index < this.#json[name].from.length) {
       this.#json[name].from[index] = "";
     }
   }
 
   remove(name) {
-    delete this.#json[name];
+    if (this.#json[name]) {
+      delete this.#json[name];
 
-    for (var property in this.#json) {
-      switch (this.#json[property].type) {
-        case "IN":
-          break;
-        case "OUT":
-        default:
-          this.#json[property].from = this.#json[property].from.map(element => element === name ? "" : element);
-          break;
+      for (var property in this.#json) {
+        switch (this.#json[property].type) {
+          case "IN":
+            break;
+          case "OUT":
+          default:
+            this.#json[property].from = this.#json[property].from.map(element => element === name ? "" : element);
+            break;
+        }
       }
     }
   }
