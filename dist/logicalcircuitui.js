@@ -1,6 +1,7 @@
 class LogicalCircuitUI {
   #logicalCircuit = new LogicalCircuit();
   #jsonUI = {};
+  #interactive = {};
 
   #canvas;
   #ctx;
@@ -17,7 +18,8 @@ class LogicalCircuitUI {
     "strokeStyle": "black",
     "cursor": "default",
     "bezierConnector": false,
-    "showOperatorName": false
+    "showOperatorName": false,
+    "interactive": false
   };
 
   #cursor = {
@@ -50,7 +52,10 @@ class LogicalCircuitUI {
 
   #text = {
     "gap": 20,
-    "height": 40
+    "height": 40,
+    "ONStyle": "green",
+    "OFFStyle": "gray",
+    "circleStyle": "white"
   };
 
   #operator = {
@@ -151,11 +156,15 @@ class LogicalCircuitUI {
     if (options.showOperatorName) {
       this.setShowOperatorName(true);
     }
+    if (options.interactive) {
+      this.setInteractive(true);
+    }
   }
 
   setJSONs(json, jsonUI) {
     this.#logicalCircuit.setJSON(json);
     this.#jsonUI = JSON.parse(JSON.stringify(jsonUI));
+    this.setInteractive(this.#default.interactive);
 
     document.querySelector(".LogicalCircuitUI_Toolbar input.IN").value = "";
     document.querySelector(".LogicalCircuitUI_Toolbar button.IN").disabled = true;
@@ -219,6 +228,10 @@ class LogicalCircuitUI {
     if (this.#logicalCircuit.addInput(name)) {
       this.#addPosition(name);
 
+      if (this.#default.interactive) {
+        this.#interactive[name] = false;
+      }
+
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
 
@@ -276,6 +289,22 @@ class LogicalCircuitUI {
 
   setShowOperatorName(showOperatorName) {
     this.#default.showOperatorName = !!showOperatorName;
+    this.#draw();
+  }
+
+  setInteractive(interactive) {
+    this.#default.interactive = !!interactive;
+
+    this.#interactive = {};
+
+    if (interactive) {
+      for (var property in this.#jsonUI) {
+        if (this.#logicalCircuit.getType(property) === "IN") {
+          this.#interactive[property] = false;
+        }
+      }
+    }
+
     this.#draw();
   }
 
@@ -350,7 +379,7 @@ class LogicalCircuitUI {
   }
 
   #drawText(name, suffix) {
-    var width = this.#ctx.measureText(name).width + this.#text.gap;
+    var width = this.#ctx.measureText(name).width + this.#text.gap + (this.#default.interactive ? this.#text.gap : 0);
     var centerTop = this.#jsonUI[name].top + this.#text.height / 2;
 
     this.#knobCenter[name + "*" + suffix] = {
@@ -367,7 +396,47 @@ class LogicalCircuitUI {
     this.#symbolPath[name].rect(this.#jsonUI[name].left, this.#jsonUI[name].top, width, this.#text.height);
     this.#ctx.stroke(this.#symbolPath[name]);
 
+    if (this.#default.interactive) {
+      var style;
+      if (suffix === "exit") {
+        style = this.#interactive[name] ? this.#text.ONStyle : this.#text.OFFStyle
+      } else if (this.isValid()) {
+        style = this.#computeExpression(name) ? this.#text.ONStyle : this.#text.OFFStyle
+      } else {
+        style = this.#text.circleStyle;
+      }
+      var radius = this.#text.gap / 2 - 2;
+      var arcTop = style === this.#text.ONStyle ? this.#jsonUI[name].top + 2 + radius + 2 : this.#jsonUI[name].top + this.#text.height - 2 - radius - 2;
+
+      this.#ctx.fillStyle = style;
+      this.#ctx.beginPath();
+      this.#ctx.roundRect(this.#jsonUI[name].left + width - this.#text.gap - 2, this.#jsonUI[name].top + 2, this.#text.gap, this.#text.height - 4, this.#text.gap / 2);
+      this.#ctx.fill();
+      this.#ctx.fillStyle = this.#text.circleStyle;
+      this.#ctx.beginPath();
+      this.#ctx.arc(this.#jsonUI[name].left + width - this.#text.gap / 2 - 2, arcTop, radius, 0, 2 * Math.PI);
+      this.#ctx.fill();
+      this.#ctx.fillStyle = this.#default.strokeStyle;
+    }
+
     this.#ctx.fillText(name, this.#jsonUI[name].left + this.#text.gap / 2, this.#knobCenter[name + "*" + suffix].top);
+  }
+
+  #computeExpression(name) {
+    var result;
+
+    var toEval = "";
+    var expressions = this.getJavaScriptExpressions();
+    if (expressions.xor) {
+      toEval = "var xor = " + expressions.xor + ";\n";
+    }
+    for (var property in this.#interactive) {
+      toEval += "var " + property + " = " + this.#interactive[property] + ";\n";
+    }
+    toEval += "result = " + expressions[name] + ";";
+    eval(toEval);
+
+    return result;
   }
 
   #drawOperator(name, type) {

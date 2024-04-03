@@ -32,7 +32,7 @@ class LogicalCircuit {
 
     if (this.isValid()) {
       if (Object.keys(this.#json).some(name => ["XOR", "NXOR"].includes(this.#json[name].type))) {
-        expressions["xor"] = "(...a)=>a.filter(e=>e).length==1;";
+        expressions.xor = "(...a)=>a.filter(e=>e).length==1";
       }
 
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0], false));

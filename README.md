@@ -168,6 +168,10 @@ where:
   - input:
     - showOperatorName: true to show the operator name, false otherwise (BOOLEAN)
   - output: NOTHING
+- *setInteractive(interactive)*: sets the interactive mode
+  - input:
+    - interactive: true to set the interactive mode (it is possibile to test in real time the logical circuits), false otherwise (BOOLEAN)
+  - output: NOTHING
 - *addBlackListWord(name)*: add a new word in the blacklist
   - input:
     - name: the name (STRING)
