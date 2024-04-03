@@ -128,8 +128,7 @@ class LogicalCircuitUI {
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
     container.append(toolbar);
 
-    this.#addButtonAndText(toolbar, "IN", (name) => this.#addInput(name));
-    this.#addButtonAndText(toolbar, "OUT", (name) => this.#addOutput(name));
+    this.#addButtonsAndText(toolbar);
     this.#addButton(toolbar, "OR", () => this.#add("OR"));
     this.#addButton(toolbar, "NOR", () => this.#add("NOR"));
     this.#addButton(toolbar, "AND", () => this.#add("AND"));
@@ -171,11 +170,7 @@ class LogicalCircuitUI {
     this.#jsonUI = JSON.parse(JSON.stringify(jsonUI));
     this.setInteractive(this.#default.interactive);
 
-    document.querySelector(".LogicalCircuitUI_Toolbar input.IN").value = "";
-    document.querySelector(".LogicalCircuitUI_Toolbar button.IN").disabled = true;
-    document.querySelector(".LogicalCircuitUI_Toolbar input.OUT").value = "";
-    document.querySelector(".LogicalCircuitUI_Toolbar button.OUT").disabled = true;
-
+    this.#resetText();
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
 
@@ -210,27 +205,35 @@ class LogicalCircuitUI {
     return this.#logicalCircuit.isValid();
   }
 
-  #addButtonAndText(toolbar, label, listener) {
+  #addButtonsAndText(toolbar) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_TextContainer");
     toolbar.append(div);
 
     var text = document.createElement("input");
     text.type = "text";
-    text.classList.add(label);
-    text.oninput = (event) => button.disabled = !this.#logicalCircuit.isNameValid(text.value) || this.#logicalCircuit.isNameAlreadyUsed(text.value);
+    text.classList.add("IN-OUT");
+    text.oninput = (event) => {
+      var disabled = !this.#logicalCircuit.isNameValid(text.value) || this.#logicalCircuit.isNameAlreadyUsed(text.value);
+      buttonIN.disabled = disabled;
+      buttonOUT.disabled = disabled;
+    };
     div.append(text);
 
+    var buttonIN = this.#createButton(div, "IN");
+    var buttonOUT = this.#createButton(div, "OUT");
+
+    buttonIN.onclick = (event) => this.#addInput(text.value);
+    buttonOUT.onclick = (event) => this.#addOutput(text.value);
+  }
+
+  #createButton(div, label) {
     var button = document.createElement("button");
     button.textContent = label;
     button.classList.add(label);
     button.disabled = true;
-    button.onclick = (event) => {
-      listener(text.value);
-      text.value = "";
-      button.disabled = true;
-    };
     div.append(button);
+    return button;
   }
 
   #addButton(toolbar, label, listener) {
@@ -249,6 +252,7 @@ class LogicalCircuitUI {
         this.#interactive[name] = false;
       }
 
+      this.#resetText();
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
 
@@ -260,6 +264,7 @@ class LogicalCircuitUI {
     if (this.#logicalCircuit.addOutput(name)) {
       this.#addPosition(name);
 
+      this.#resetText();
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
 
@@ -285,18 +290,22 @@ class LogicalCircuitUI {
   }
 
   #clear() {
-    this.#logicalCircuit.clear();
-    this.#jsonUI = {};
+    if (confirm("Do you really want to clear the current logical circuit?")) {
+      this.#logicalCircuit.clear();
+      this.#jsonUI = {};
 
-    document.querySelector(".LogicalCircuitUI_Toolbar input.IN").value = "";
+      this.#resetText();
+      this.#onChangeListener.forEach(listener => listener());
+      this.#onChangeUIListener.forEach(listener => listener());
+
+      this.#draw();
+    }
+  }
+
+  #resetText() {
+    document.querySelector(".LogicalCircuitUI_Toolbar input.IN-OUT").value = "";
     document.querySelector(".LogicalCircuitUI_Toolbar button.IN").disabled = true;
-    document.querySelector(".LogicalCircuitUI_Toolbar input.OUT").value = "";
     document.querySelector(".LogicalCircuitUI_Toolbar button.OUT").disabled = true;
-
-    this.#onChangeListener.forEach(listener => listener());
-    this.#onChangeUIListener.forEach(listener => listener());
-
-    this.#draw();
   }
 
   setBezierConnector(bezierConnector) {
