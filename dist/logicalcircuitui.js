@@ -89,12 +89,12 @@ class LogicalCircuitUI {
     "selected": false,
     "name": "",
     "direction": "",
-    "font": "12px sans-serif",
-    "up": "\u{02191}",
-    "down": "\u{02193}",
+    "font": "14px sans-serif",
+    "up": "-", //"\u{02191}",
+    "down": "+", // "\u{02193}",
     "max": 6,
-    "canDoStrokeStyle": "black",
-    "cannotDoStrokeStyle": "red"
+    "canDoStrokeStyle": "white",
+    "cannotDoStrokeStyle": "gray"
   };
 
   #currentEvent;
@@ -555,19 +555,31 @@ class LogicalCircuitUI {
     var arrowDOWN = this.#jsonUI[this.#onMouse.name].top + 3 * this.#symbolSize[this.#onMouse.name].height / 4;
 
     this.#ctx.font = this.#onArrow.font;
-    var width = this.#ctx.measureText(this.#onArrow.up).width;
-    this.#ctx.fillStyle = fromLength > 2 ? this.#onArrow.canDoStrokeStyle : this.#onArrow.cannotDoStrokeStyle;
-    this.#ctx.fillText(this.#onArrow.up, arrowLeft, arrowUP);
-    this.#ctx.fillStyle = fromLength < this.#onArrow.max ? this.#onArrow.canDoStrokeStyle : this.#onArrow.cannotDoStrokeStyle;
-    this.#ctx.fillText(this.#onArrow.down, arrowLeft, arrowDOWN);
-    this.#ctx.fillStyle = this.#default.strokeStyle;
-    this.#ctx.font = this.#default.font;
+    var wUP = this.#ctx.measureText(this.#onArrow.up).width;
+    var wDOWN = this.#ctx.measureText(this.#onArrow.down).width;
+    var width = Math.max(wUP, wDOWN);
+
+    var totPath = new Path2D();
 
     var path = new Path2D();
-    path.rect(arrowLeft - 2, this.#jsonUI[this.#onMouse.name].top + 3, width + 4, this.#symbolSize[this.#onMouse.name].height - 6);
+    this.#ctx.fillStyle = fromLength > 2 ? this.#onArrow.canDoStrokeStyle : this.#onArrow.cannotDoStrokeStyle;
+    path.rect(arrowLeft - 2, this.#jsonUI[this.#onMouse.name].top + 3, width + 4, this.#symbolSize[this.#onMouse.name].height / 2 - 3);
+    totPath.addPath(path);
+    this.#ctx.fill(path);
+    this.#ctx.stroke(path);
+    path = new Path2D();
+    this.#ctx.fillStyle = fromLength < this.#onArrow.max ? this.#onArrow.canDoStrokeStyle : this.#onArrow.cannotDoStrokeStyle;
+    path.rect(arrowLeft - 2, this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 2, width + 4, this.#symbolSize[this.#onMouse.name].height / 2 - 3);
+    totPath.addPath(path);
+    this.#ctx.fill(path);
     this.#ctx.stroke(path);
 
-    this.#onArrow.selected = this.#ctx.isPointInPath(path, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+    this.#ctx.fillStyle = this.#default.strokeStyle;
+    this.#ctx.fillText(this.#onArrow.up, arrowLeft + (width - wUP) / 2, arrowUP);
+    this.#ctx.fillText(this.#onArrow.down, arrowLeft + (width - wDOWN) / 2, arrowDOWN);
+    this.#ctx.font = this.#default.font;
+
+    this.#onArrow.selected = this.#ctx.isPointInPath(totPath, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
     this.#onArrow.name = this.#onMouse.name;
     this.#onArrow.direction = this.#currentEvent.offsetY < this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 2 ? "UP" : "DOWN";
   }
