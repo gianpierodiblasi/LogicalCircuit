@@ -287,6 +287,10 @@ class LogicalCircuitUI {
     this.#onChangeUIListener.push(listener);
   }
 
+  addBlackListWord(name) {
+    this.#logicalCircuit.addBlackListWord(name);
+  }
+
   #draw() {
     this.#canvas.style.cursor = this.#default.cursor;
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);

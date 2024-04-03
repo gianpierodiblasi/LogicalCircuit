@@ -93,10 +93,13 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name of the node (STRING)
   - output: the *from* array of the node, an empty array if there is no node with this name or the node is an input node (STRING)
-- *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name has to respect the following regular expression
+- *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name:
+  - has to respect the following regular expression
     ```javascript
     /^[a-z]+[a-z0-9_]*$/i
     ```
+  - cannot be one of the following blacklist words: OR, NOR, AND, NAND, XOR, NXOR, NOT (case insensitive)
+  - cannot be a JavaScript reserved word (case insensitive)
   - input:
     - name: the name (STRING)
   - output: true if the name is valid, false otherwise (BOOLEAN)
@@ -104,6 +107,10 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name (STRING)
   - output: true if the name is already used, false otherwise (BOOLEAN)
+- *addBlackListWord(name)*: add a new word in the blacklist
+  - input:
+    - name: the name (STRING)
+  - output: (NOTHING)
 ### LogicalCircuitUI
 The *LogicalCircuitUI* class can be used to visually manage a logical circuit; the following JSON describes the structure used by the class to visually manage the circuit.
 ```json
@@ -161,6 +168,10 @@ where:
   - input:
     - showOperatorName: true to show the operator name, false otherwise (BOOLEAN)
   - output: NOTHING
+- *addBlackListWord(name)*: add a new word in the blacklist
+  - input:
+    - name: the name (STRING)
+  - output: (NOTHING)
 - *addOnChangeListener(listener)*: adds a function listener for the change events
   - input
     - listener: the listener (FUNCTION)
