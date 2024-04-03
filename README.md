@@ -132,6 +132,7 @@ where:
   "width": 800, // the canvas width (default: 800)
   "height": 600, // the canvas height (default: 600)
   "bezierConnector": false // true to connect the object by means of a bezier curve, false otherwise (default: false)
+  "showOperatorName": false // true to show the operator name, false otherwise (default: false)
 }
 ```
 #### methods
@@ -155,6 +156,10 @@ where:
 - *setBezierConnector(bezierConnector)*: sets the bezier connector
   - input:
     - bezierConnector: true to connect the object by means of a bezier curve, false otherwise (BOOLEAN)
+  - output: NOTHING
+- *setShowOperatorName(showOperatorName)*: sets the visualization of the operator name
+  - input:
+    - showOperatorName: true to show the operator name, false otherwise (BOOLEAN)
   - output: NOTHING
 - *addOnChangeListener(listener)*: adds a function listener for the change events
   - input

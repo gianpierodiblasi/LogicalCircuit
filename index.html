@@ -61,6 +61,7 @@
         document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
         document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
         document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
+        document.querySelector("#name").onchange = (event) => logicalCircuitUI.setShowOperatorName(event.srcElement.checked);
         logicalCircuitUI.addOnChangeListener(() => {
           var div = document.querySelector("#expressions");
           div.textContent = "";
@@ -84,6 +85,7 @@
       <button id="load1">Load 1</button>
       <button id="load2">Load 2</button>
       <input id="bezier" type="checkbox"/><label for="bezier">Bezier Connector</label>
+      <input id="name" type="checkbox"/><label for="name">Show Operator Name</label>
     </div>
     <hr style="color:gray"/>
     <div id="container"></div>

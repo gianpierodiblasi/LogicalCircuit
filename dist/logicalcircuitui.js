@@ -16,7 +16,8 @@ class LogicalCircuitUI {
     "lineWidth": 2,
     "strokeStyle": "black",
     "cursor": "default",
-    "bezierConnector": false
+    "bezierConnector": false,
+    "showOperatorName": false
   };
 
   #cursor = {
@@ -57,7 +58,8 @@ class LogicalCircuitUI {
     "lineWidth": 30,
     "oneHeight": 20,
     "xorGap": 12,
-    "notRadius": 7
+    "notRadius": 7,
+    "font": "9px sans-serif",
   };
 
   #onMouse = {
@@ -145,6 +147,9 @@ class LogicalCircuitUI {
 
     if (options.bezierConnector) {
       this.setBezierConnector(true);
+    }
+    if (options.showOperatorName) {
+      this.setShowOperatorName(true);
     }
   }
 
@@ -269,6 +274,11 @@ class LogicalCircuitUI {
     this.#draw();
   }
 
+  setShowOperatorName(showOperatorName) {
+    this.#default.showOperatorName = !!showOperatorName;
+    this.#draw();
+  }
+
   addOnChangeListener(listener) {
     this.#onChangeListener.push(listener);
   }
@@ -369,6 +379,8 @@ class LogicalCircuitUI {
     this.#setKnobCenter(name, type, from, centerTop, radiusTop);
     this.#setSymbolSize(name, type, from, width, centerTop);
     this.#setSymbolPath(name, type, width, height, centerTop, radiusTop);
+
+    this.#drawOperatorName(name, type);
   }
 
   #setExitKnobCenter(name, type, width, centerTop) {
@@ -512,6 +524,36 @@ class LogicalCircuitUI {
     }
 
     this.#ctx.stroke(this.#symbolPath[name]);
+  }
+
+  #drawOperatorName(name, type) {
+    if (this.#default.showOperatorName) {
+      this.#ctx.font = this.#operator.font;
+
+      var left;
+      switch (type) {
+        case "OR":
+        case "XOR":
+          left = this.#operator.radiusLeft + (this.#symbolSize[name].width - this.#operator.radiusLeft - this.#ctx.measureText(type).width) / 2;
+          break;
+        case "AND":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 2;
+          break;
+        case "NOR":
+        case "NXOR":
+          left = this.#operator.radiusLeft + (this.#symbolSize[name].width - this.#operator.radiusLeft - this.#ctx.measureText(type).width) / 2 - this.#operator.notRadius;
+          break;
+        case "NAND":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 2 - this.#operator.notRadius;
+          break;
+        case "NOT":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 4;
+          break;
+      }
+
+      this.#ctx.fillText(type, this.#jsonUI[name].left + left, this.#jsonUI[name].top + this.#symbolSize[name].height / 2);
+      this.#ctx.font = this.#default.font;
+    }
   }
 
   #drawKnob(name) {
