@@ -786,7 +786,7 @@ class LogicalCircuitUI {
 
       if (this.#onKnob.name) {
         this.#ctx.lineWidth = this.#onKnob.lineWidth;
-        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onKnob.name) ? this.#onKnob.canDoStrokeStyle : this.#onKnob.cannotDoStrokeStyle;
+        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index) ? this.#onKnob.canDoStrokeStyle : this.#onKnob.cannotDoStrokeStyle;
         this.#ctx.stroke(this.#knobPath[this.#onKnob.referenceName]);
         this.#ctx.lineWidth = this.#default.lineWidth;
         this.#ctx.strokeStyle = this.#default.strokeStyle;
@@ -827,26 +827,36 @@ class LogicalCircuitUI {
     }
   }
 
-  #isConnectionValid(startName, endName) {
+  #isConnectionValid(startName, startIndex, endName, endIndex) {
     var startType = this.#logicalCircuit.getType(startName);
     var endType = this.#logicalCircuit.getType(endName);
 
-    if (startType === "IN") {
+    if (startType === "IN" && endType === "IN") {
+      return false;
+    } else if (startType === "IN" && endType === "OUT") {
       return this.#logicalCircuit.isConnectionValid(startName, endName);
-    } else if (endType === "IN") {
+    } else if (startType === "IN") {
+      return endIndex === -1 ? false : this.#logicalCircuit.isConnectionValid(startName, endName);
+    } else if (startType === "OUT" && endType === "IN") {
       return this.#logicalCircuit.isConnectionValid(endName, startName);
+    } else if (startType === "OUT" && endType === "OUT") {
+      return false;
     } else if (startType === "OUT") {
-      return this.#logicalCircuit.isConnectionValid(endName, startName);
+      return endIndex !== -1 ? false : this.#logicalCircuit.isConnectionValid(endName, startName);
+    } else if (endType === "IN") {
+      return startIndex === -1 ? false : this.#logicalCircuit.isConnectionValid(endName, startName);
     } else if (endType === "OUT") {
-      return this.#logicalCircuit.isConnectionValid(startName, endName);
-    } else if (this.#onMouse.index === -1 && this.#onKnob.index === -1) {
+      return startIndex !== -1 ? false : this.#logicalCircuit.isConnectionValid(startName, endName);
+    } else if (startIndex === -1 && endIndex === -1) {
       return false;
-    } else if (this.#onMouse.index !== -1 && this.#onKnob.index !== -1) {
+    } else if (startIndex !== -1 && endIndex !== -1) {
       return false;
-    } else if (this.#onMouse.index === -1) {
+    } else if (startIndex === -1) {
       return this.#logicalCircuit.isConnectionValid(startName, endName);
-    } else if (this.#onKnob.index === -1) {
+    } else if (endIndex === -1) {
       return this.#logicalCircuit.isConnectionValid(endName, startName);
+    } else {
+      return false;
     }
   }
 
@@ -1036,7 +1046,7 @@ class LogicalCircuitUI {
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     } else if (this.#onKnob.pressed && this.#onKnob.name &&
-            this.#isConnectionValid(this.#onMouse.name, this.#onKnob.name)) {
+            this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index)) {
 
       var startType = this.#logicalCircuit.getType(this.#onMouse.name);
       var endType = this.#logicalCircuit.getType(this.#onKnob.name);
