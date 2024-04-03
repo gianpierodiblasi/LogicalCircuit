@@ -131,6 +131,7 @@ where:
 {
   "width": 800, // the canvas width (default: 800)
   "height": 600, // the canvas height (default: 600)
+  "bezierConnector": false // true to connect the object by means of a bezier curve, false otherwise (default: false)
 }
 ```
 #### methods
@@ -151,6 +152,10 @@ where:
 - *isValid()*: checks if this object represents a set of valid logical circuits
   - input : NOTHING
   - output : true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+- *setBezierConnector(bezierConnector)*: sets the bezier connector
+  - input:
+    - bezierConnector: true to connect the object by means of a bezier curve, false otherwise (BOOLEAN)
+  - output: NOTHING
 - *addOnChangeListener(listener)*: adds a function listener for the change events
   - input
     - listener: the listener (FUNCTION)

@@ -15,7 +15,8 @@ class LogicalCircuitUI {
     "font": "24px sans-serif",
     "lineWidth": 2,
     "strokeStyle": "black",
-    "cursor": "default"
+    "cursor": "default",
+    "bezierConnector": false
   };
 
   #cursor = {
@@ -139,6 +140,10 @@ class LogicalCircuitUI {
     this.#ctx.lineWidth = this.#default.lineWidth;
     this.#ctx.lineJoin = "round";
     this.#draw();
+
+    if (options.bezierConnector) {
+      this.setBezierConnector(true);
+    }
   }
 
   setJSONs(json, jsonUI) {
@@ -254,6 +259,11 @@ class LogicalCircuitUI {
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
 
+    this.#draw();
+  }
+
+  setBezierConnector(bezierConnector) {
+    this.#default.bezierConnector = !!bezierConnector;
     this.#draw();
   }
 
@@ -516,7 +526,23 @@ class LogicalCircuitUI {
     if (startName) {
       this.#connectorPath[endName + "*" + endIndex] = new Path2D();
       this.#connectorPath[endName + "*" + endIndex].moveTo(this.#knobCenter[startName + "*exit"].left, this.#knobCenter[startName + "*exit"].top);
-      this.#connectorPath[endName + "*" + endIndex].lineTo(this.#knobCenter[endName + "*" + endIndex].left, this.#knobCenter[endName + "*" + endIndex].top);
+
+      if (this.#default.bezierConnector) {
+        var cp1 = {
+          "left": this.#knobCenter[startName + "*exit"].left + (this.#knobCenter[endName + "*" + endIndex].left - this.#knobCenter[startName + "*exit"].left) / 2,
+          "top": this.#knobCenter[startName + "*exit"].top
+        };
+
+        var cp2 = {
+          "left": cp1.left,
+          "top": this.#knobCenter[endName + "*" + endIndex].top
+        };
+
+        this.#connectorPath[endName + "*" + endIndex].bezierCurveTo(cp1.left, cp1.top, cp2.left, cp2.top, this.#knobCenter[endName + "*" + endIndex].left, this.#knobCenter[endName + "*" + endIndex].top);
+      } else {
+        this.#connectorPath[endName + "*" + endIndex].lineTo(this.#knobCenter[endName + "*" + endIndex].left, this.#knobCenter[endName + "*" + endIndex].top);
+      }
+
       this.#ctx.stroke(this.#connectorPath[endName + "*" + endIndex]);
     }
   }
@@ -602,7 +628,23 @@ class LogicalCircuitUI {
     if (this.#onKnob.pressed) {
       this.#ctx.beginPath();
       this.#ctx.moveTo(this.#onKnob.event.offsetX, this.#onKnob.event.offsetY);
-      this.#ctx.lineTo(this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+
+      if (this.#default.bezierConnector) {
+        var cp1 = {
+          "left": this.#onKnob.event.offsetX + (this.#currentEvent.offsetX - this.#onKnob.event.offsetX) / 2,
+          "top": this.#onKnob.event.offsetY
+        };
+
+        var cp2 = {
+          "left": cp1.left,
+          "top": this.#currentEvent.offsetY
+        };
+
+        this.#ctx.bezierCurveTo(cp1.left, cp1.top, cp2.left, cp2.top, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+      } else {
+        this.#ctx.lineTo(this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+      }
+
       this.#ctx.stroke();
 
       if (this.#onKnob.name) {
