@@ -46,7 +46,7 @@ class LogicalCircuit {
           break;
         case "XOR":
         case "NXOR":
-          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, this.#json[name].from.length === 2)));
+          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, false)));
           break;
       }
 
@@ -58,18 +58,9 @@ class LogicalCircuit {
         case "NAND":
           return "!(" + array.join(this.#operatorSymbols[this.#json[name].type]) + ")";
         case "XOR":
-          if (this.#json[name].from.length === 2) {
-            return (needBrackets ? "(" : "") + array.join("^") + (needBrackets ? ")" : "");
-          } else {
-            return "([" + array.join(",") + "].filter(el=>el).length===1)";
-          }
-          break;
+          return "([" + array.join(",") + "].filter(e=>e).length==1)";
         case "NXOR":
-          if (this.#json[name].from.length === 2) {
-            return "!(" + array.join("^") + ")";
-          } else {
-            return "!([" + array.join(",") + "].filter(el=>el).length===1)";
-          }
+          return "!([" + array.join(",") + "].filter(e=>e).length==1)";
       }
     }
   }
