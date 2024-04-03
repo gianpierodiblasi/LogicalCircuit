@@ -38,6 +38,15 @@ var logicalCircuit = new LogicalCircuit();
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
+- *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - parameters: the input parameters (JSON)
+  - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *computeExpression(name, parameters)*: returns a JSON object representing the computation of the JavaScript expressions of a logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+    - parameters: the input parameters (JSON)
+  - output: the JSON object representing the JavaScript expressions of a logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
 - *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input: NOTHING
   - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
@@ -158,6 +167,15 @@ where:
 - *getJSONUI()*: returns the JSON object describing the visual structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
+- *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - parameters: the input parameters (JSON)
+  - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *computeExpression(name, parameters)*: returns a JSON object representing the computation of the JavaScript expressions of a logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+    - parameters: the input parameters (JSON)
+  - output: the JSON object representing the JavaScript expressions of a logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
 - *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input: NOTHING
   - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)

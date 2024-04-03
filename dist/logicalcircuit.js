@@ -27,6 +27,29 @@ class LogicalCircuit {
     return JSON.parse(JSON.stringify(this.#json));
   }
 
+  computeExpressions(parameters) {
+    var expressions = {};
+    Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.computeExpression(name, parameters));
+    return expressions;
+  }
+
+  computeExpression(name, parameters) {
+    var result;
+
+    var toEval = "";
+    var expressions = this.getJavaScriptExpression(name);
+    if (expressions.xor) {
+      toEval = "var xor = " + expressions.xor + ";\n";
+    }
+    for (var property in parameters) {
+      toEval += "var " + property + " = " + parameters[property] + ";\n";
+    }
+    toEval += "result = " + expressions[name] + ";";
+    eval(toEval);
+
+    return result;
+  }
+
   getJavaScriptExpressions() {
     var expressions = {};
 
@@ -35,7 +58,7 @@ class LogicalCircuit {
         expressions.xor = "(...a)=>a.filter(e=>e).length==1";
       }
 
-      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0], false));
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#buildExpression(this.#json[name].from[0], false));
     }
 
     return expressions;
@@ -49,17 +72,17 @@ class LogicalCircuit {
         expressions.xor = "(...a)=>a.filter(e=>e).length==1";
       }
 
-      expressions[name] = this.#computeExpression(this.#json[name].from[0], false);
+      expressions[name] = this.#buildExpression(this.#json[name].from[0], false);
     }
 
     return expressions;
   }
 
-  #computeExpression(name, needBrackets) {
+  #buildExpression(name, needBrackets) {
     if (this.#json[name].type === "IN") {
       return name;
     } else if (this.#json[name].type === "NOT") {
-      return "!" + this.#computeExpression(this.#json[name].from[0], true);
+      return "!" + this.#buildExpression(this.#json[name].from[0], true);
     } else {
       var array = [];
       switch (this.#json[name].type) {
@@ -67,11 +90,11 @@ class LogicalCircuit {
         case "AND":
         case "NOR":
         case "NAND":
-          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, true)));
+          this.#json[name].from.forEach(element => array.push(this.#buildExpression(element, true)));
           break;
         case "XOR":
         case "NXOR":
-          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, false)));
+          this.#json[name].from.forEach(element => array.push(this.#buildExpression(element, false)));
           break;
       }
 
