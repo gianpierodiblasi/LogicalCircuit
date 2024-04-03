@@ -24,6 +24,10 @@ class LogicalCircuit {
     var expressions = {};
 
     if (this.isValid()) {
+      if (Object.keys(this.#json).some(name => ["XOR", "NXOR"].includes(this.#json[name].type))) {
+        expressions["xor"] = "(...a)=>a.filter(e=>e).length==1;";
+      }
+
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0], false));
     }
 
@@ -58,9 +62,9 @@ class LogicalCircuit {
         case "NAND":
           return "!(" + array.join(this.#operatorSymbols[this.#json[name].type]) + ")";
         case "XOR":
-          return "([" + array.join(",") + "].filter(e=>e).length==1)";
+          return "xor(" + array.join(",") + ")";
         case "NXOR":
-          return "!([" + array.join(",") + "].filter(e=>e).length==1)";
+          return "!xor(" + array.join(",") + ")";
       }
     }
   }
