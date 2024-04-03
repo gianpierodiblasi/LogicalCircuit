@@ -32,35 +32,39 @@ var logicalCircuit = new LogicalCircuit();
 
 #### methods
 - *setJSON(json)*: sets the JSON object describing the structure used by the class to manage the circuit; no check is done on the correctness of the JSON object
-  - input
+  - input:
     - json: the JSON object, as described above (JSON)
   - output: NOTHING
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
-  - input : NOTHING
+  - input: NOTHING
   - output: the JSON object, as described above (JSON)
 - *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
-  - input : NOTHING
+  - input: NOTHING
   - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *getJavaScriptExpression(name)*: returns a JSON object representing the JavaScript expression of a logical circuit; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+  - output: the JSON object representing the JavaScript expression of a logical circuit, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
 - *isValid()*: checks if this object represents a set of valid logical circuits
-  - input : NOTHING
-  - output : true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+  - input: NOTHING
+  - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
 - *addInput(name)*: adds an input node
-  - input
+  - input:
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
 - *addOutput(name)*: adds an output node
-  - input
+  - input:
     - name: the node name (STRING)
   - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
 - *add\<Operator>()*: adds an operator node (an operator is always added)
   - input: NOTHING
   - output: the unique name assigned to the operator (STRING)
 - *incConnector(name)*: increments the number of connectors in an operator
-  - input
+  - input:
     - name: the operator name (STRING)
   - output: NOTHING
 - *decConnector(name)*: decrements the number of connectors in an operator
-  - input
+  - input:
     - name: the operator name (STRING)
   - output: NOTHING
 - *addConnection(startName, endName, endIndex)*: adds a new connection; the connection is added if and only if it is valid connection
@@ -79,7 +83,7 @@ var logicalCircuit = new LogicalCircuit();
     - index: the index in the *from* array of the node (INTEGER)
   - output: NOTHING
 - *remove(name)*: removes a node
-  - input
+  - input:
     - name: the node name (STRING)
   - output: NOTHING
 - *clear()*: clears the logical circuit
@@ -139,34 +143,38 @@ where:
   "width": 800, // the canvas width (default: 800)
   "height": 600, // the canvas height (default: 600)
   "bezierConnector": false // true to connect the object by means of a bezier curve, false otherwise (default: false)
-  "showOperatorName": false // true to show the operator name, false otherwise (default: false)
+  "showOperatorType": false // true to show the operator type, false otherwise (default: false)
 }
 ```
 #### methods
 - *setJSONs(json, jsonUI)*: sets the JSON objects describing the structure (visual and not) used by the class to manage the circuit; no check is done on the correctness of the JSON objects
-  - input
+  - input:
     - json: the JSON object, as described above (JSON)
     - jsonUI: the JSON object, as described above (JSON)
   - output: NOTHING
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
-  - input : NOTHING
+  - input: NOTHING
   - output: the JSON object, as described above (JSON)
 - *getJSONUI()*: returns the JSON object describing the visual structure used by the class to manage the circuit
-  - input : NOTHING
+  - input: NOTHING
   - output: the JSON object, as described above (JSON)
 - *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
-  - input : NOTHING
+  - input: NOTHING
   - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *getJavaScriptExpression(name)*: returns a JSON object representing the JavaScript expression of a logical circuit; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+  - output: the JSON object representing the JavaScript expression of a logical circuit, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
 - *isValid()*: checks if this object represents a set of valid logical circuits
-  - input : NOTHING
-  - output : true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+  - input: NOTHING
+  - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
 - *setBezierConnector(bezierConnector)*: sets the bezier connector
   - input:
     - bezierConnector: true to connect the object by means of a bezier curve, false otherwise (BOOLEAN)
   - output: NOTHING
-- *setShowOperatorName(showOperatorName)*: sets the visualization of the operator name
+- *setShowOperatorType(showOperatorType)*: sets the visualization of the operator type
   - input:
-    - showOperatorName: true to show the operator name, false otherwise (BOOLEAN)
+    - showOperatorType: true to show the operator type, false otherwise (BOOLEAN)
   - output: NOTHING
 - *setInteractive(interactive)*: sets the interactive mode
   - input:
@@ -177,11 +185,11 @@ where:
     - name: the name (STRING)
   - output: (NOTHING)
 - *addOnChangeListener(listener)*: adds a function listener for the change events
-  - input
+  - input:
     - listener: the listener (FUNCTION)
   - output: NOTHING
 - *addOnChangeUIListener(listener)*: adds a function listener for the UI change events
-  - input
+  - input:
     - listener: the listener (FUNCTION)
   - output: NOTHING
 

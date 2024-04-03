@@ -11,6 +11,7 @@ class LogicalCircuitUI {
   #symbolPath = {};
   #symbolSize = {};
   #connectorPath = {};
+  #interactivePath = {};
 
   #default = {
     "font": "24px sans-serif",
@@ -18,7 +19,7 @@ class LogicalCircuitUI {
     "strokeStyle": "black",
     "cursor": "default",
     "bezierConnector": false,
-    "showOperatorName": false,
+    "showOperatorType": false,
     "interactive": false
   };
 
@@ -64,7 +65,7 @@ class LogicalCircuitUI {
     "oneHeight": 20,
     "xorGap": 12,
     "notRadius": 7,
-    "font": "9px sans-serif",
+    "font": "9px sans-serif"
   };
 
   #onMouse = {
@@ -106,6 +107,10 @@ class LogicalCircuitUI {
     "canDoStrokeStyle": "white",
     "cannotDoStrokeStyle": "gray"
   };
+
+  #onInteractive = {
+    "selected": false
+  }
 
   #currentEvent;
 
@@ -153,8 +158,8 @@ class LogicalCircuitUI {
     if (options.bezierConnector) {
       this.setBezierConnector(true);
     }
-    if (options.showOperatorName) {
-      this.setShowOperatorName(true);
+    if (options.showOperatorType) {
+      this.setShowOperatorType(true);
     }
     if (options.interactive) {
       this.setInteractive(true);
@@ -187,6 +192,10 @@ class LogicalCircuitUI {
 
   getJavaScriptExpressions() {
     return this.#logicalCircuit.getJavaScriptExpressions();
+  }
+
+  getJavaScriptExpression(name) {
+    return this.#logicalCircuit.getJavaScriptExpression(name);
   }
 
   isValid() {
@@ -287,14 +296,15 @@ class LogicalCircuitUI {
     this.#draw();
   }
 
-  setShowOperatorName(showOperatorName) {
-    this.#default.showOperatorName = !!showOperatorName;
+  setShowOperatorType(showOperatorType) {
+    this.#default.showOperatorType = !!showOperatorType;
     this.#draw();
   }
 
   setInteractive(interactive) {
     this.#default.interactive = !!interactive;
-
+    this.#onInteractive.selected = false;
+    
     this.#interactive = {};
 
     if (interactive) {
@@ -399,19 +409,24 @@ class LogicalCircuitUI {
     if (this.#default.interactive) {
       var style;
       if (suffix === "exit") {
-        style = this.#interactive[name] ? this.#text.ONStyle : this.#text.OFFStyle
+        style = this.#interactive[name] ? this.#text.ONStyle : this.#text.OFFStyle;
       } else if (this.isValid()) {
-        style = this.#computeExpression(name) ? this.#text.ONStyle : this.#text.OFFStyle
+        style = this.#computeExpression(name) ? this.#text.ONStyle : this.#text.OFFStyle;
       } else {
         style = this.#text.circleStyle;
       }
+
       var radius = this.#text.gap / 2 - 2;
       var arcTop = style === this.#text.ONStyle ? this.#jsonUI[name].top + 2 + radius + 2 : this.#jsonUI[name].top + this.#text.height - 2 - radius - 2;
 
+      var path = new Path2D();
+      path.roundRect(this.#jsonUI[name].left + width - this.#text.gap - 2, this.#jsonUI[name].top + 2, this.#text.gap, this.#text.height - 4, this.#text.gap / 2);
+      if (suffix === "exit") {
+        this.#interactivePath[name] = path;
+      }
+
       this.#ctx.fillStyle = style;
-      this.#ctx.beginPath();
-      this.#ctx.roundRect(this.#jsonUI[name].left + width - this.#text.gap - 2, this.#jsonUI[name].top + 2, this.#text.gap, this.#text.height - 4, this.#text.gap / 2);
-      this.#ctx.fill();
+      this.#ctx.fill(path);
       this.#ctx.fillStyle = this.#text.circleStyle;
       this.#ctx.beginPath();
       this.#ctx.arc(this.#jsonUI[name].left + width - this.#text.gap / 2 - 2, arcTop, radius, 0, 2 * Math.PI);
@@ -426,7 +441,7 @@ class LogicalCircuitUI {
     var result;
 
     var toEval = "";
-    var expressions = this.getJavaScriptExpressions();
+    var expressions = this.getJavaScriptExpression(name);
     if (expressions.xor) {
       toEval = "var xor = " + expressions.xor + ";\n";
     }
@@ -453,7 +468,7 @@ class LogicalCircuitUI {
     this.#setSymbolSize(name, type, from, width, centerTop);
     this.#setSymbolPath(name, type, width, height, centerTop, radiusTop);
 
-    this.#drawOperatorName(name, type);
+    this.#drawOperatorType(name, type);
   }
 
   #setExitKnobCenter(name, type, width, centerTop) {
@@ -599,8 +614,8 @@ class LogicalCircuitUI {
     this.#ctx.stroke(this.#symbolPath[name]);
   }
 
-  #drawOperatorName(name, type) {
-    if (this.#default.showOperatorName) {
+  #drawOperatorType(name, type) {
+    if (this.#default.showOperatorType) {
       this.#ctx.font = this.#operator.font;
 
       var left;
@@ -667,8 +682,12 @@ class LogicalCircuitUI {
   #drawOnMouse() {
     if (!this.#onMouse.name) {
     } else {
+      var type = this.#logicalCircuit.getType(this.#onMouse.name);
       if (this.#onMouse.referencePath !== "symbolPath") {
-      } else if (!["IN", "OUT", "NOT"].includes(this.#logicalCircuit.getType(this.#onMouse.name))) {
+      } else if (this.#default.interactive && type === "IN") {
+        this.#onInteractive.selected = this.#ctx.isPointInPath(this.#interactivePath[this.#onMouse.name], this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+        this.#canvas.style.cursor = this.#onInteractive.selected ? this.#cursor.pointer : this.#cursor.grab;
+      } else if (!["IN", "OUT", "NOT"].includes(type)) {
         this.#drawArrow();
       } else {
         this.#canvas.style.cursor = this.#cursor.grab;
@@ -992,6 +1011,9 @@ class LogicalCircuitUI {
               break;
           }
 
+          this.#draw();
+        } else if (this.#onInteractive.selected) {
+          this.#interactive[this.#onMouse.name] = !this.#interactive[this.#onMouse.name];
           this.#draw();
         } else {
           this.#onSymbol.pressed = true;

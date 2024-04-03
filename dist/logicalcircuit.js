@@ -41,6 +41,20 @@ class LogicalCircuit {
     return expressions;
   }
 
+  getJavaScriptExpression(name) {
+    var expressions = {};
+
+    if (this.isValid() && this.#json[name] && this.#json[name].type === "OUT") {
+      if (Object.keys(this.#json).some(name => ["XOR", "NXOR"].includes(this.#json[name].type))) {
+        expressions.xor = "(...a)=>a.filter(e=>e).length==1";
+      }
+
+      expressions[name] = this.#computeExpression(this.#json[name].from[0], false);
+    }
+
+    return expressions;
+  }
+
   #computeExpression(name, needBrackets) {
     if (this.#json[name].type === "IN") {
       return name;
