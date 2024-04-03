@@ -149,11 +149,11 @@ where:
 - *options* is a JSON with the following structure:
 ```json
 {
-  "width": 800, // the canvas width (default: 800)
-  "height": 600, // the canvas height (default: 600)
-  "bezierConnector": false, // true to connect the object by means of a bezier curve, false otherwise (default: false)
-  "showOperatorType": false, // true to show the operator type, false otherwise (default: false)
-  "interactive": false // true to set the interactive mode (it is possibile to test in real time the logical circuits), false otherwise (default: false)
+  "width": 800, "//": "the canvas width (default: 800)",
+  "height": 600, "//": "the canvas height (default: 600)",
+  "bezierConnector": false, "//": "true to connect the object by means of a bezier curve, false otherwise (default: false)",
+  "showOperatorType": false, "//": "true to show the operator type, false otherwise (default: false)",
+  "interactive": false, "//": "true to set the interactive mode (it is possibile to test in real time the logical circuits), false otherwise (default: false)"
 }
 ```
 #### methods
