@@ -2,6 +2,12 @@ class LogicalCircuit {
   #json = {};
 
   #operatorTypes = ["OR", "NOR", "AND", "NAND", "XOR", "NXOR", "NOT"];
+  #operatorSymbols = {
+    "OR": "||",
+    "AND": "&&",
+    "NOR": "||",
+    "NAND": "&&"
+  };
 
   constructor() {
   }
@@ -18,35 +24,52 @@ class LogicalCircuit {
     var expressions = {};
 
     if (this.isValid()) {
-      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0]));
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#computeExpression(this.#json[name].from[0], false));
     }
 
     return expressions;
   }
 
-  #computeExpression(name) {
+  #computeExpression(name, needBrackets) {
     if (this.#json[name].type === "IN") {
       return name;
     } else if (this.#json[name].type === "NOT") {
-      return "!" + this.#computeExpression(this.#json[name].from[0]);
+      return "!" + this.#computeExpression(this.#json[name].from[0], true);
     } else {
       var array = [];
-      this.#json[name].from.forEach(element => array.push(this.#computeExpression(element)));
+      switch (this.#json[name].type) {
+        case "OR":
+        case "AND":
+        case "NOR":
+        case "NAND":
+          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, true)));
+          break;
+        case "XOR":
+        case "NXOR":
+          this.#json[name].from.forEach(element => array.push(this.#computeExpression(element, this.#json[name].from.length === 2)));
+          break;
+      }
 
       switch (this.#json[name].type) {
         case "OR":
-          return "(" + array.join("||") + ")";
         case "AND":
-          return "(" + array.join("&&") + ")";
+          return (needBrackets ? "(" : "") + array.join(this.#operatorSymbols[this.#json[name].type]) + (needBrackets ? ")" : "");
         case "NOR":
-          return "!(" + array.join("||") + ")";
         case "NAND":
-          return "!(" + array.join("&&") + ")";
+          return "!(" + array.join(this.#operatorSymbols[this.#json[name].type]) + ")";
         case "XOR":
-          return "([" + array.join(",") + "].filter(el=>el).length===1)";
+          if (this.#json[name].from.length === 2) {
+            return (needBrackets ? "(" : "") + array.join("^") + (needBrackets ? ")" : "");
+          } else {
+            return "([" + array.join(",") + "].filter(el=>el).length===1)";
+          }
           break;
         case "NXOR":
-          return "!([" + array.join(",") + "].filter(el=>el).length===1)";
+          if (this.#json[name].from.length === 2) {
+            return "!(" + array.join("^") + ")";
+          } else {
+            return "!([" + array.join(",") + "].filter(el=>el).length===1)";
+          }
       }
     }
   }
