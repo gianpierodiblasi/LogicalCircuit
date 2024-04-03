@@ -20,8 +20,10 @@ class LogicalCircuitUI {
   };
 
   #cursor = {
-    "move": "move",
-    "pointer": "pointer"
+    "grab": "grab",
+    "pointer": "pointer",
+    "notAllowed": "not-allowed",
+    "grabbing": "grabbing"
   }
 
   #addedElementPosition = {
@@ -553,9 +555,8 @@ class LogicalCircuitUI {
       if (this.#onMouse.referencePath !== "symbolPath") {
       } else if (!["IN", "OUT", "NOT"].includes(this.#logicalCircuit.getType(this.#onMouse.name))) {
         this.#drawArrow();
-        this.#canvas.style.cursor = this.#onArrow.selected ? this.#cursor.pointer : this.#cursor.move;
       } else {
-        this.#canvas.style.cursor = this.#cursor.move;
+        this.#canvas.style.cursor = this.#cursor.grab;
       }
 
       this.#drawPath();
@@ -608,12 +609,23 @@ class LogicalCircuitUI {
     this.#onArrow.selected = this.#ctx.isPointInPath(totPath, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
     this.#onArrow.name = this.#onMouse.name;
     this.#onArrow.direction = this.#currentEvent.offsetY < this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 2 ? "UP" : "DOWN";
+
+    if (!this.#onArrow.selected) {
+      this.#canvas.style.cursor = this.#cursor.grab;
+    } else if (this.#onArrow.direction === "UP" && fromLength > 2) {
+      this.#canvas.style.cursor = this.#cursor.pointer;
+    } else if (this.#onArrow.direction === "DOWN" && fromLength < this.#onArrow.max) {
+      this.#canvas.style.cursor = this.#cursor.pointer;
+    } else {
+      this.#canvas.style.cursor = this.#cursor.notAllowed;
+    }
   }
 
   #drawPath() {
     this.#ctx.lineWidth = this.#onMouse.lineWidth;
 
     if (this.#onSymbol.pressed) {
+      this.#canvas.style.cursor = this.#cursor.grabbing;
       this.#ctx.strokeStyle = this.#intersects(this.#canvas.width, this.#canvas.height, this.#trash.lineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height) ? this.#trash.strokeStyle : this.#onMouse.strokeStyle;
     } else {
       this.#ctx.strokeStyle = this.#onMouse.referencePath === "connectorPath" ? this.#trash.strokeStyle : this.#onMouse.strokeStyle;
@@ -870,6 +882,7 @@ class LogicalCircuitUI {
           this.#onSymbol.pressed = true;
           this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
           this.#onSymbol.offsetTop = event.offsetY - this.#jsonUI[this.#onMouse.name].top;
+          this.#canvas.style.cursor = this.#cursor.grabbing;
         }
         break;
       case "connectorPath":
