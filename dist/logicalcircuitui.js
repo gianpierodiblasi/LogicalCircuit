@@ -648,6 +648,10 @@ class LogicalCircuitUI {
       return this.#logicalCircuit.isConnectionValid(endName, startName);
     } else if (endType === "OUT") {
       return this.#logicalCircuit.isConnectionValid(startName, endName);
+    } else if (this.#onMouse.index === -1 && this.#onKnob.index === -1) {
+      return false;
+    } else if (this.#onMouse.index !== -1 && this.#onKnob.index !== -1) {
+      return false;
     } else if (this.#onMouse.index === -1) {
       return this.#logicalCircuit.isConnectionValid(startName, endName);
     } else if (this.#onKnob.index === -1) {
@@ -833,7 +837,7 @@ class LogicalCircuitUI {
       delete this.#jsonUI[this.#onMouse.name];
 
       this.#onMouse.name = "";
-      
+
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     } else if (this.#onKnob.pressed && this.#onKnob.name &&

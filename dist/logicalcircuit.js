@@ -163,12 +163,12 @@ class LogicalCircuit {
   }
 
   #areConnected(startName, endName) {
-    var operators = Object.keys(this.#json).filter(name => this.#operatorTypes.includes(this.#json[name].type) && this.#json[name].from.includes(startName));
-    if (operators.includes(endName)) {
+    var operators = Object.keys(this.#json).filter(name => this.#operatorTypes.includes(this.#json[name].type) && this.#json[name].from.includes(endName));
+    if (operators.includes(startName)) {
       return true;
     } else {
       var connected = false;
-      operators.forEach(name => connected |= this.#areConnected(name, endName));
+      operators.forEach(name => connected |= this.#areConnected(startName, name));
       return connected;
     }
   }
