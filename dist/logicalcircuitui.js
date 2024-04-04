@@ -3,8 +3,11 @@ class LogicalCircuitUI {
   #jsonUI = {};
   #interactive = {};
 
+  #uniqueClass;
   #canvas;
   #ctx;
+  #onChangeListener = [];
+  #onChangeUIListener = [];
 
   #knobPath = {};
   #knobCenter = {};
@@ -12,6 +15,7 @@ class LogicalCircuitUI {
   #symbolSize = {};
   #connectorPath = {};
   #interactivePath = {};
+  #currentEvent;
 
   #default = {
     "font": "24px sans-serif",
@@ -112,36 +116,44 @@ class LogicalCircuitUI {
     "selected": false
   }
 
-  #currentEvent;
-
-  #onChangeListener = [];
-  #onChangeUIListener = [];
-
   constructor(container, options) {
     try {
       options.width;
     } catch (exception) {
       options = {};
     }
+    options.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
+    options.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
+
+    this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime();
+    container.classList.add("LogicalCircuitUI_Container");
+    container.classList.add(this.#uniqueClass);
+    container.style.width = (options.width + 2) + "px";
 
     var toolbar = document.createElement("div");
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
+    toolbar.style.width = (options.width + 2) + "px";
     container.append(toolbar);
 
-    this.#addButtonsAndText(toolbar);
-    this.#addButton(toolbar, "OR", () => this.#add("OR"));
-    this.#addButton(toolbar, "NOR", () => this.#add("NOR"));
-    this.#addButton(toolbar, "AND", () => this.#add("AND"));
-    this.#addButton(toolbar, "NAND", () => this.#add("NAND"));
-    this.#addButton(toolbar, "XOR", () => this.#add("XOR"));
-    this.#addButton(toolbar, "NXOR", () => this.#add("NXOR"));
-    this.#addButton(toolbar, "NOT", () => this.#add("NOT"));
-    this.#addButton(toolbar, "CLEAR", () => this.#clear());
+    var toolbarLeft = document.createElement("div");
+    toolbarLeft.classList.add("LogicalCircuitUI_Toolbar_Left");
+    toolbar.append(toolbarLeft);
+
+    var toolbarRight = document.createElement("div");
+    toolbarRight.classList.add("LogicalCircuitUI_Toolbar_Right");
+    toolbar.append(toolbarRight);
+
+    this.#addButtonsAndText(toolbarLeft);
+    this.#addButtons(toolbarLeft, "OR", () => this.#add("OR"), () => this.#add("NOR"));
+    this.#addButtons(toolbarLeft, "AND", () => this.#add("AND"), () => this.#add("NAND"));
+    this.#addButtons(toolbarLeft, "XOR", () => this.#add("XOR"), () => this.#add("NXOR"));
+    this.#addButtons(toolbarLeft, "NOT", () => this.#add("NOT"));
+    this.#addButtons(toolbarRight, "CLEAR", () => this.#clear());
 
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
-    this.#canvas.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
-    this.#canvas.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
+    this.#canvas.width = options.width;
+    this.#canvas.height = options.height;
     this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
     this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
     this.#canvas.onmouseup = (event) => this.#onMouseUp(event);
@@ -220,28 +232,33 @@ class LogicalCircuitUI {
     };
     div.append(text);
 
-    var buttonIN = this.#createButton(div, "IN");
-    var buttonOUT = this.#createButton(div, "OUT");
+    var buttonIN = this.#createButton(div, "IN", true);
+    var buttonOUT = this.#createButton(div, "OUT", true);
 
     buttonIN.onclick = (event) => this.#addInput(text.value);
     buttonOUT.onclick = (event) => this.#addOutput(text.value);
   }
 
-  #createButton(div, label) {
-    var button = document.createElement("button");
-    button.textContent = label;
-    button.classList.add(label);
-    button.disabled = true;
-    div.append(button);
-    return button;
+  #addButtons(toolbar, label, listener, listenerN) {
+    var div = document.createElement("div");
+    div.classList.add("LogicalCircuitUI_ButtonContainer");
+    toolbar.append(div);
+
+    if (listener) {
+      this.#createButton(div, label, false).onclick = (event) => listener(label);
+    }
+    if (listenerN) {
+      this.#createButton(div, "N" + label, false).onclick = (event) => listenerN(label);
+    }
   }
 
-  #addButton(toolbar, label, listener) {
+  #createButton(div, label, disabled) {
     var button = document.createElement("button");
     button.textContent = label;
     button.classList.add(label);
-    button.onclick = (event) => listener(label);
-    toolbar.append(button);
+    button.disabled = disabled;
+    div.append(button);
+    return button;
   }
 
   #addInput(name) {
@@ -303,9 +320,9 @@ class LogicalCircuitUI {
   }
 
   #resetText() {
-    document.querySelector(".LogicalCircuitUI_Toolbar input.IN-OUT").value = "";
-    document.querySelector(".LogicalCircuitUI_Toolbar button.IN").disabled = true;
-    document.querySelector(".LogicalCircuitUI_Toolbar button.OUT").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value = "";
+    document.querySelector("." + this.#uniqueClass + " button.IN").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.OUT").disabled = true;
   }
 
   setBezierConnector(bezierConnector) {
