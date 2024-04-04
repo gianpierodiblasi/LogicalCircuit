@@ -7,14 +7,14 @@
   margin-bottom: 5px;
 }
 .LogicalCircuitUI_Toolbar button {
-  width: 70px;
+  width: 75px;
 }
 
-.LogicalCircuitUI_Toolbar_Left, .LogicalCircuitUI_Toolbar_Right {
+.LogicalCircuitUI_Toolbar_Left, .LogicalCircuitUI_Toolbar_Center, .LogicalCircuitUI_Toolbar_Right {
   display: flex;
 
 }
-.LogicalCircuitUI_Toolbar_Left > * {
+.LogicalCircuitUI_Toolbar_Left > *, .LogicalCircuitUI_Toolbar_Center > * {
   margin-right: 5px;
 }
 .LogicalCircuitUI_Toolbar_Right > * {
@@ -22,7 +22,7 @@
 }
 
 .LogicalCircuitUI_TextContainer {
-  width: 140px;
+  width: 150px;
   display: flex;
   flex-flow: row wrap;
 }
@@ -31,7 +31,7 @@
 }
 
 .LogicalCircuitUI_ButtonContainer {
-  width: 70px;
+  width: 75px;
   display: flex;
   flex-flow: column wrap;
 }

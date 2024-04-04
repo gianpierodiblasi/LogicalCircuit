@@ -27,25 +27,167 @@ class LogicalCircuit {
     return JSON.parse(JSON.stringify(this.#json));
   }
 
+  simplify() {
+    if (this.isValid()) {
+      var inputs = Object.keys(this.#json).filter(name => this.#json[name].type === "IN");
+
+      var newJSON = {};
+      inputs.forEach(input => newJSON[input] = {"type": "IN"});
+
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => {
+        var minterms = this.#getMinTerms(name, inputs);
+        var implicants = this.#combine(minterms);
+        var mintermsOccurrences = this.#getMintermsOccurrences(minterms, implicants);
+        var essentials = this.#getEssentials(implicants, mintermsOccurrences);
+
+        newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, essentials)]};
+        console.log(this.#testSimplified(name, newJSON, inputs));
+      });
+    }
+  }
+
+  #getMinTerms(name, inputs) {
+    var minterms = {};
+    for (var index = 0; index < Math.pow(2, inputs.length); index++) {
+      var parameters = {};
+      var binary = index.toString(2).padStart(inputs.length, "0");
+      inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
+
+      if (this.computeExpression(name, parameters)) {
+        minterms["" + index] = binary;
+      }
+    }
+    return minterms;
+  }
+
+  #combine(minterms) {
+    var implicants = {};
+    var atLestOneCombined = false;
+
+    Object.keys(minterms).forEach(m1 => {
+      var combined = false;
+      Object.keys(minterms).forEach(m2 => {
+        var count = 0;
+        var newTerm = minterms[m1];
+        for (var index = 0; index < newTerm.length; index++) {
+          if (newTerm[index] !== minterms[m2][index]) {
+            newTerm = newTerm.substring(0, index) + "-" + newTerm.substring(index + 1);
+            count++;
+          }
+        }
+
+        if (count === 1) {
+          combined = true;
+          atLestOneCombined = true;
+          if (!Object.keys(implicants).some(key => implicants[key] === newTerm)) {
+            implicants[m1 + "," + m2] = newTerm;
+          }
+        }
+      });
+
+      if (!combined) {
+        implicants[m1] = minterms[m1];
+      }
+    });
+
+    return atLestOneCombined ? this.#combine(implicants) : implicants;
+  }
+
+  #getMintermsOccurrences(minterms, implicants) {
+    var mintermsOccurrences = {};
+    Object.keys(minterms).forEach(minterm => mintermsOccurrences[minterm] = Object.keys(implicants).flatMap(implicant => implicant.split(",")).filter(element => element === minterm).length);
+    return mintermsOccurrences;
+  }
+
+  #getEssentials(implicants, mintermsOccurrences) {
+    var essentials = {};
+    var found = true;
+    while (found) {
+      found = false;
+      Object.keys(mintermsOccurrences).filter(occurrence => mintermsOccurrences[occurrence] === 1).forEach(occurrence => {
+        found = true;
+        delete mintermsOccurrences[occurrence];
+
+        Object.keys(implicants).filter(implicant => implicant.split(",").includes(occurrence)).forEach(implicant => {
+          essentials[implicant] = implicants[implicant];
+          delete implicants[implicant];
+        });
+      });
+    }
+    return essentials;
+  }
+
+  #getSimplified(newJSON, inputs, essentials) {
+    var uniqueName = this.#getUniqueName();
+    newJSON[uniqueName] = {"type": "OR", "from": []};
+
+    Object.keys(essentials).forEach(im => {
+      var uniqueNameAND = this.#getUniqueName();
+      newJSON[uniqueNameAND] = {"type": "AND", "from": []};
+
+      for (var index = 0; index < essentials[im].length; index++) {
+        switch (essentials[im][index]) {
+          case "0":
+            var uniqueNameNOT = this.#getUniqueName();
+            newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[index]]};
+            newJSON[uniqueNameAND].from.push(uniqueNameNOT);
+            break;
+          case "1":
+            newJSON[uniqueNameAND].from.push(inputs[index]);
+            break;
+          case "-":
+            break;
+        }
+      }
+
+      newJSON[uniqueName].from.push(uniqueNameAND);
+    });
+
+
+    return uniqueName;
+  }
+
+  #testSimplified(name, newJSON, inputs) {
+    var oldJSON = this.#json;
+
+    var passed = true;
+    for (var index = 0; index < Math.pow(2, inputs.length); index++) {
+      var parameters = {};
+      var binary = index.toString(2).padStart(inputs.length, "0");
+      inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
+
+      var oldT = this.computeExpression(name, parameters);
+      this.#json = newJSON;
+      var newT = this.computeExpression(name, parameters);
+      this.#json = oldJSON;
+      passed &= oldT === newT;
+    }
+    return !!passed;
+  }
+
   computeExpressions(parameters) {
     var expressions = {};
-    Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.computeExpression(name, parameters));
+    if (this.isValid()) {
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.computeExpression(name, parameters));
+    }
     return expressions;
   }
 
   computeExpression(name, parameters) {
     var result;
 
-    var toEval = "";
-    var expressions = this.getJavaScriptExpression(name);
-    if (expressions.xor) {
-      toEval = "var xor = " + expressions.xor + ";\n";
+    if (this.isValid()) {
+      var toEval = "";
+      var expressions = this.getJavaScriptExpression(name);
+      if (expressions.xor) {
+        toEval = "var xor = " + expressions.xor + ";\n";
+      }
+      for (var property in parameters) {
+        toEval += "var " + property + " = " + parameters[property] + ";\n";
+      }
+      toEval += "result = " + expressions[name] + ";";
+      eval(toEval);
     }
-    for (var property in parameters) {
-      toEval += "var " + property + " = " + parameters[property] + ";\n";
-    }
-    toEval += "result = " + expressions[name] + ";";
-    eval(toEval);
 
     return result;
   }
@@ -182,7 +324,7 @@ class LogicalCircuit {
   }
 
   #getUniqueName() {
-    return "LogicalCircuit_Operator_" + new Date().getTime();
+    return "LogicalCircuit_Operator_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
   }
 
   incConnector(name) {

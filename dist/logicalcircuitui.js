@@ -129,7 +129,7 @@ class LogicalCircuitUI {
     options.width = isNaN(options.width) || options.width < 0 ? this.#default.width : options.width;
     options.height = isNaN(options.height) || options.height < 0 ? this.#default.height : options.height;
 
-    this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime();
+    this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
     container.classList.add("LogicalCircuitUI_Container");
     container.classList.add(this.#uniqueClass);
     container.style.width = (options.width + 2) + "px";
@@ -143,6 +143,10 @@ class LogicalCircuitUI {
     toolbarLeft.classList.add("LogicalCircuitUI_Toolbar_Left");
     toolbar.append(toolbarLeft);
 
+    var toolbarCenter = document.createElement("div");
+    toolbarCenter.classList.add("LogicalCircuitUI_Toolbar_Center");
+    toolbar.append(toolbarCenter);
+
     var toolbarRight = document.createElement("div");
     toolbarRight.classList.add("LogicalCircuitUI_Toolbar_Right");
     toolbar.append(toolbarRight);
@@ -152,10 +156,11 @@ class LogicalCircuitUI {
     this.#addButtons(toolbarLeft, "AND", () => this.#add("AND"), () => this.#add("NAND"));
     this.#addButtons(toolbarLeft, "XOR", () => this.#add("XOR"), () => this.#add("NXOR"));
     this.#addButtons(toolbarLeft, "NOT", () => this.#add("NOT"));
+    this.#addButtons(toolbarCenter, "SIMPLIFY", () => this.#simplify());
 
     try {
       var g = new dagre.graphlib.Graph();
-      this.#addButtons(toolbarLeft, "TIDY UP", () => this.#tidyUp());
+      this.#addButtons(toolbarCenter, "TIDY UP", () => this.#tidyUp());
     } catch (exception) {
     }
 
@@ -315,6 +320,10 @@ class LogicalCircuitUI {
       "top": this.#addedElementPosition.top,
       "left": this.#addedElementPosition.left
     };
+  }
+
+  #simplify() {
+    this.#logicalCircuit.simplify();
   }
 
   #tidyUp() {
