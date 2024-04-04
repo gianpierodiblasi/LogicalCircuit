@@ -160,7 +160,7 @@ class LogicalCircuitUI {
 
     try {
       var g = new dagre.graphlib.Graph();
-      this.#addButtons(toolbarCenter, "TIDY UP", () => this.#tidyUp());
+      this.#addButtons(toolbarCenter, "TIDY UP", () => this.#tidyUp(false));
     } catch (exception) {
     }
 
@@ -323,11 +323,44 @@ class LogicalCircuitUI {
   }
 
   #simplify() {
-    this.#logicalCircuit.simplify();
+    if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify()) {
+      this.#jsonUI = {};
+      this.#resetText();
+
+      try {
+        var g = new dagre.graphlib.Graph();
+        Object.keys(this.getJSON()).forEach(name => this.#addPosition(name));
+
+        this.setInteractive(this.#default.interactive);
+        this.#onChangeListener.forEach(listener => listener());
+
+        this.#tidyUp(true);
+      } catch (exception) {
+        var json = this.getJSON();
+
+        Object.keys(json).filter(name => this.#logicalCircuit.getType(name) === "IN").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#addedElementPosition.left));
+        Object.keys(json).filter(name => this.#logicalCircuit.getType(name) === "NOT").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#canvas.width / 5));
+        Object.keys(json).filter(name => this.#logicalCircuit.getType(name) === "AND").forEach((name, index, array) => this.#assignPosition(name, index, array, 2 * this.#canvas.width / 5));
+        Object.keys(json).filter(name => this.#logicalCircuit.getType(name) === "OR").forEach((name, index, array) => this.#assignPosition(name, index, array, 3 * this.#canvas.width / 5));
+        Object.keys(json).filter(name => this.#logicalCircuit.getType(name) === "OUT").forEach((name, index, array) => this.#assignPosition(name, index, array, 4 * this.#canvas.width / 5));
+
+        this.setInteractive(this.#default.interactive);
+        this.#onChangeListener.forEach(listener => listener());
+        this.#onChangeUIListener.forEach(listener => listener());
+        this.#draw();
+      }
+    }
   }
 
-  #tidyUp() {
-    if (confirm("Do you really want to tidy up the current logical circuit?")) {
+  #assignPosition(name, index, array, offset) {
+    this.#jsonUI[name] = {
+      "top": (index + 1) * this.#canvas.height / (array.length + 1) - this.#text.height,
+      "left": offset
+    };
+  }
+
+  #tidyUp(doNotAsk) {
+    if (doNotAsk || confirm("Do you really want to tidy up the current logical circuit?")) {
 
       var g = new dagre.graphlib.Graph();
       g.setGraph({

@@ -130,29 +130,36 @@ class LogicalCircuit {
     newJSON[uniqueName] = {"type": "OR", "from": []};
 
     Object.keys(essentials).forEach(im => {
-      var uniqueNameAND = this.#getUniqueName();
-      newJSON[uniqueNameAND] = {"type": "AND", "from": []};
-
-      for (var index = 0; index < essentials[im].length; index++) {
-        switch (essentials[im][index]) {
-          case "0":
-            var uniqueNameNOT = this.#getUniqueName();
-            newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[index]]};
-            newJSON[uniqueNameAND].from.push(uniqueNameNOT);
-            break;
-          case "1":
-            newJSON[uniqueNameAND].from.push(inputs[index]);
-            break;
-          case "-":
-            break;
-        }
+      var split = essentials[im].split("");
+      if (split.filter(el => el !== "-").length === 1) {
+        this.#getSimplifiedElement(newJSON, uniqueName, inputs, split);
+      } else {
+        var uniqueNameAND = this.#getUniqueName();
+        newJSON[uniqueNameAND] = {"type": "AND", "from": []};
+        this.#getSimplifiedElement(newJSON, uniqueNameAND, inputs, split);
+        newJSON[uniqueName].from.push(uniqueNameAND);
       }
-
-      newJSON[uniqueName].from.push(uniqueNameAND);
     });
 
 
     return uniqueName;
+  }
+
+  #getSimplifiedElement(newJSON, uniqueName, inputs, split) {
+    for (var index = 0; index < split.length; index++) {
+      switch (split[index]) {
+        case "0":
+          var uniqueNameNOT = this.#getUniqueName();
+          newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[index]]};
+          newJSON[uniqueName].from.push(uniqueNameNOT);
+          break;
+        case "1":
+          newJSON[uniqueName].from.push(inputs[index]);
+          break;
+        case "-":
+          break;
+      }
+    }
   }
 
   #testSimplified(name, newJSON, inputs) {
