@@ -943,6 +943,9 @@ class LogicalCircuitUI {
   #onMouseMove(event) {
     this.#currentEvent = event;
 
+    var dist = Math.sqrt(Math.pow(event.offsetX - this.#canvas.width, 2) + Math.pow(event.offsetY - this.#canvas.height, 2));
+    this.#canvas.setAttribute('title', dist < this.#trash.radius2 ? "To trash an element move and release it here" : "");
+
     if (this.#onSymbol.pressed) {
       this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;
       this.#jsonUI[this.#onMouse.name].left = event.offsetX - this.#onSymbol.offsetLeft;
