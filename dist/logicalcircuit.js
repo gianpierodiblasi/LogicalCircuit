@@ -12,8 +12,18 @@ class LogicalCircuit {
   #operatorSymbols = {
     "OR": "||",
     "AND": "&&",
+    "XOR": "+",
     "NOR": "||",
-    "NAND": "&&"
+    "NAND": "&&",
+    "NXOR": "+"
+  };
+  #comparatorSymbols = {
+    "OR": "",
+    "AND": "",
+    "XOR": "===1",
+    "NOR": "",
+    "NAND": "",
+    "NXOR": "!==1"
   };
 
   constructor() {
@@ -191,16 +201,12 @@ class LogicalCircuit {
   computeExpression(name, parameters) {
     var result;
 
-    if (this.isValid()) {
+    if (this.isValid() && this.#json[name] && this.#json[name].type === "OUT") {
       var toEval = "";
-      var expressions = this.getJavaScriptExpression(name);
-      if (expressions.xor) {
-        toEval = "var xor = " + expressions.xor + ";\n";
-      }
       for (var property in parameters) {
         toEval += "var " + property + " = " + parameters[property] + ";\n";
       }
-      toEval += "result = " + expressions[name] + ";";
+      toEval += "result = " + this.getJavaScriptExpression(name) + ";";
       eval(toEval);
     }
 
@@ -211,10 +217,6 @@ class LogicalCircuit {
     var expressions = {};
 
     if (this.isValid()) {
-      if (Object.keys(this.#json).some(name => ["XOR", "NXOR"].includes(this.#json[name].type))) {
-        expressions.xor = "(...a)=>a.filter(e=>e).length==1";
-      }
-
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => expressions[name] = this.#buildExpression(this.#json[name].from[0], false));
     }
 
@@ -222,17 +224,7 @@ class LogicalCircuit {
   }
 
   getJavaScriptExpression(name) {
-    var expressions = {};
-
-    if (this.isValid() && this.#json[name] && this.#json[name].type === "OUT") {
-      if (Object.keys(this.#json).some(name => ["XOR", "NXOR"].includes(this.#json[name].type))) {
-        expressions.xor = "(...a)=>a.filter(e=>e).length==1";
-      }
-
-      expressions[name] = this.#buildExpression(this.#json[name].from[0], false);
-    }
-
-    return expressions;
+    return this.isValid() && this.#json[name] && this.#json[name].type === "OUT" ? this.#buildExpression(this.#json[name].from[0], false) : "";
   }
 
   #buildExpression(name, needBrackets) {
@@ -241,31 +233,17 @@ class LogicalCircuit {
     } else if (this.#json[name].type === "NOT") {
       return "!" + this.#buildExpression(this.#json[name].from[0], true);
     } else {
-      var array = [];
-      switch (this.#json[name].type) {
-        case "OR":
-        case "AND":
-        case "NOR":
-        case "NAND":
-          this.#json[name].from.forEach(element => array.push(this.#buildExpression(element, true)));
-          break;
-        case "XOR":
-        case "NXOR":
-          this.#json[name].from.forEach(element => array.push(this.#buildExpression(element, false)));
-          break;
-      }
+      var array = this.#json[name].from.map(element => this.#buildExpression(element, true));
 
       switch (this.#json[name].type) {
         case "OR":
         case "AND":
-          return (needBrackets ? "(" : "") + array.join(this.#operatorSymbols[this.#json[name].type]) + (needBrackets ? ")" : "");
+        case "XOR":
+        case "NXOR":
+          return (needBrackets ? "(" : "") + array.join(this.#operatorSymbols[this.#json[name].type]) + this.#comparatorSymbols[this.#json[name].type] + (needBrackets ? ")" : "");
         case "NOR":
         case "NAND":
           return "!(" + array.join(this.#operatorSymbols[this.#json[name].type]) + ")";
-        case "XOR":
-          return "xor(" + array.join(",") + ")";
-        case "NXOR":
-          return "!xor(" + array.join(",") + ")";
       }
     }
   }
