@@ -38,6 +38,9 @@ var logicalCircuit = new LogicalCircuit();
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
+- *simplify*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm)
+  - input: NOTHING
+  - output: true if the simplification has been performed, false otherwise (BOOLEAN)
 - *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input:
     - parameters: the input parameters (JSON)

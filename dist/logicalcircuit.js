@@ -32,6 +32,7 @@ class LogicalCircuit {
       var inputs = Object.keys(this.#json).filter(name => this.#json[name].type === "IN");
 
       var newJSON = {};
+      var passed = true;
       inputs.forEach(input => newJSON[input] = {"type": "IN"});
 
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => {
@@ -41,8 +42,15 @@ class LogicalCircuit {
         var essentials = this.#getEssentials(implicants, mintermsOccurrences);
 
         newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, essentials)]};
-        console.log(this.#testSimplified(name, newJSON, inputs));
+        passed &= this.#testSimplified(name, newJSON, inputs);
       });
+
+      if (passed) {
+        this.#json = newJSON;
+      }
+      return !!passed;
+    } else {
+      return false;
     }
   }
 
