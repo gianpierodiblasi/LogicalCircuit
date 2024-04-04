@@ -156,7 +156,8 @@ where:
   "showOperatorType": false,
   "//": "true to show the operator type, false otherwise (default: false)",
   "interactive": false,
-  "//": "true to set the interactive mode (it is possibile to test in real time the logical circuits),"
+  "//": "true to set the interactive mode"
+  "//": "(it is possibile to test in real time the logical circuits),"
   "//": "false otherwise (default: false)"
 }
 ```
