@@ -218,7 +218,7 @@ where:
   - output: NOTHING
 
 ## How To Use
-The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
+The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files (minified or not) available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
 
 The API is "ready for" tidy uping by means of the [dagre](https://github.com/dagrejs/dagre) library; if a reference to this library is added then a "TIDY UP" button is available in the toolbar.
 
