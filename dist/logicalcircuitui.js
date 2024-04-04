@@ -1,3 +1,5 @@
+/* global dagre */
+
 class LogicalCircuitUI {
   #logicalCircuit = new LogicalCircuit();
   #jsonUI = {};
@@ -18,6 +20,8 @@ class LogicalCircuitUI {
   #currentEvent;
 
   #default = {
+    "width": 800,
+    "height": 600,
     "font": "24px sans-serif",
     "lineWidth": 2,
     "strokeStyle": "black",
@@ -122,8 +126,8 @@ class LogicalCircuitUI {
     } catch (exception) {
       options = {};
     }
-    options.width = isNaN(options.width) || options.width < 0 ? 800 : options.width;
-    options.height = isNaN(options.height) || options.height < 0 ? 600 : options.height;
+    options.width = isNaN(options.width) || options.width < 0 ? this.#default.width : options.width;
+    options.height = isNaN(options.height) || options.height < 0 ? this.#default.height : options.height;
 
     this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime();
     container.classList.add("LogicalCircuitUI_Container");
@@ -148,6 +152,13 @@ class LogicalCircuitUI {
     this.#addButtons(toolbarLeft, "AND", () => this.#add("AND"), () => this.#add("NAND"));
     this.#addButtons(toolbarLeft, "XOR", () => this.#add("XOR"), () => this.#add("NXOR"));
     this.#addButtons(toolbarLeft, "NOT", () => this.#add("NOT"));
+
+    try {
+      var g = new dagre.graphlib.Graph();
+      this.#addButtons(toolbarLeft, "TIDY UP", () => this.#tidyUp());
+    } catch (exception) {
+    }
+
     this.#addButtons(toolbarRight, "CLEAR", () => this.#clear());
 
     this.#canvas = document.createElement("canvas");
@@ -255,7 +266,7 @@ class LogicalCircuitUI {
   #createButton(div, label, disabled) {
     var button = document.createElement("button");
     button.textContent = label;
-    button.classList.add(label);
+    button.classList.add(label.replace(" ", "-"));
     button.disabled = disabled;
     div.append(button);
     return button;
@@ -304,6 +315,49 @@ class LogicalCircuitUI {
       "top": this.#addedElementPosition.top,
       "left": this.#addedElementPosition.left
     };
+  }
+
+  #tidyUp() {
+    if (confirm("Do you really want to tidy up the current logical circuit?")) {
+
+      var g = new dagre.graphlib.Graph();
+      g.setGraph({
+        "rankdir": "LR",
+        "marginx": 20,
+        "marginy": 20
+      });
+      g.setDefaultEdgeLabel(() => {
+        return {};
+      });
+
+      for (var property in this.#jsonUI) {
+        g.setNode(property, {width: this.#symbolSize[property].width, height: this.#symbolSize[property].height});
+
+        switch (this.#logicalCircuit.getType(property)) {
+          case "IN":
+            break;
+          case "OUT":
+            g.setEdge(this.#logicalCircuit.getFrom(property)[0], property);
+            break;
+          default:
+            this.#logicalCircuit.getFrom(property).forEach(name => g.setEdge(name, property));
+            break;
+        }
+      }
+
+      dagre.layout(g);
+      var graph = g.graph();
+      var scale = graph.width > this.#canvas.width || graph.height > this.#canvas.height ? Math.min(this.#canvas.width / graph.width, this.#canvas.height, graph.height) : 1;
+
+      g.nodes().forEach(v => {
+        var node = g.node(v);
+        this.#jsonUI[v].left = node.x * scale - node.width / 2;
+        this.#jsonUI[v].top = node.y * scale - node.height / 2;
+      });
+
+      this.#onChangeUIListener.forEach(listener => listener());
+      this.#draw();
+    }
   }
 
   #clear() {

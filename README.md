@@ -215,5 +215,10 @@ where:
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only reference the JS and CSS files available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) for an example).
 
+The API is "ready for" tidy uping by means of the [dagre](https://github.com/dagrejs/dagre) library; if a reference to this library is added then a "TIDY UP" button is available in the toolbar.
+
+## Dependencies
+- dagre (optional) - [link](https://github.com/dagrejs/dagre)
+
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
