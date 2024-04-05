@@ -38,7 +38,7 @@ var logicalCircuit = new LogicalCircuit();
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
-- *simplify(isMaxterm)*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented (here)[https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0] and (here)[https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js]
+- *simplify(isMaxterm)*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented [here](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0) and [here](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
   - input:
     - isMaxterm: true to use maxterms, false to use minterms (BOOLEAN)
   - output: true if the simplification has been performed, false otherwise (BOOLEAN)
