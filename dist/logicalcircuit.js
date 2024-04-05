@@ -327,6 +327,14 @@ class LogicalCircuit {
     }
   }
 
+  undo() {
+
+  }
+
+  redo() {
+
+  }
+
   clear() {
     this.#json = {};
   }

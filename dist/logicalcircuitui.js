@@ -151,7 +151,7 @@ class LogicalCircuitUI {
     toolbarRight.classList.add("LogicalCircuitUI_Toolbar_Right");
     toolbar.append(toolbarRight);
 
-    this.#addButtons(toolbarLeft, "UNDO", "REDO", "small", () => this.#clear(), () => this.#clear());
+    this.#addButtons(toolbarLeft, "UNDO", "REDO", "small", () => this.#undo(), () => this.#redo());
     this.#addButtonsAndText(toolbarLeft);
     this.#addButtons(toolbarLeft, "OR", null, "small", () => this.#add("OR"), () => this.#add("NOR"));
     this.#addButtons(toolbarLeft, "AND", null, "small", () => this.#add("AND"), () => this.#add("NAND"));
@@ -325,7 +325,7 @@ class LogicalCircuitUI {
     };
   }
 
-  #simplify(isMaxterm) {
+  #simplify() {
     if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify()) {
       this.#jsonUI = {};
       this.#resetText();
@@ -364,7 +364,6 @@ class LogicalCircuitUI {
 
   #tidyUp(doNotAsk) {
     if (doNotAsk || confirm("Do you really want to tidy up the current logical circuit?")) {
-
       var g = new dagre.graphlib.Graph();
       g.setGraph({
         "rankdir": "LR",
@@ -403,6 +402,14 @@ class LogicalCircuitUI {
       this.#onChangeUIListener.forEach(listener => listener());
       this.#draw();
     }
+  }
+
+  #undo() {
+
+  }
+
+  #redo() {
+
   }
 
   #clear() {
