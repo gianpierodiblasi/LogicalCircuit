@@ -40,7 +40,7 @@ var logicalCircuit = new LogicalCircuit();
   - output: the JSON object, as described above (JSON)
 - *simplify(isMaxterm)*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented (here)[https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0] and (here)[https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js]
   - input:
-  - isMaxterm: true to use maxterms, false to use minterms (BOOLEAN)
+    - isMaxterm: true to use maxterms, false to use minterms (BOOLEAN)
   - output: true if the simplification has been performed, false otherwise (BOOLEAN)
 - *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input:
