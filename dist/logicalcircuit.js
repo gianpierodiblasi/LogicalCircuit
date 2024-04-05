@@ -40,35 +40,56 @@ export default class LogicalCircuit {
   }
 
   simplify() {
-    var inputs = Object.keys(this.#json).filter(name => this.#json[name].type === "IN");
-    if (inputs.length > 26 || !this.isValid()) {
+    if (!this.isValid()) {
       return false;
     } else {
-      var variables = "";
-      for (var index = 0; index < inputs.length; index++) {
-        variables += String.fromCharCode(65 + index);
-      }
-
       var newJSON = {};
-      inputs.forEach(input => newJSON[input] = {"type": "IN"});
+      Object.keys(this.#json).filter(name => this.#json[name].type === "IN").forEach(input => newJSON[input] = {"type": "IN"});
 
+      var canSimplify = true;
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => {
         var values = [];
+        var inputs = [];
+        this.#findInputs(name, inputs);
 
-        for (var index = 0; index < Math.pow(2, inputs.length); index++) {
-          var parameters = {};
-          var binary = index.toString(2).padStart(inputs.length, "0");
-          inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
-
-          if (this.computeExpression(name, parameters)) {
-            values.push(index);
+        if (inputs.length > 26) {
+          canSimplify = false;
+        } else {
+          var variables = "";
+          for (var index = 0; index < inputs.length; index++) {
+            variables += String.fromCharCode(65 + index);
           }
-        }
 
-        newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values).func)]};
+          for (var index = 0; index < Math.pow(2, inputs.length); index++) {
+            var parameters = {};
+            var binary = index.toString(2).padStart(inputs.length, "0");
+            inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
+
+            if (this.computeExpression(name, parameters)) {
+              values.push(index);
+            }
+          }
+
+          newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values).func)]};
+        }
       });
-      this.#json = newJSON;
-      return true;
+
+      if (canSimplify) {
+        this.#json = newJSON;
+      }
+      return canSimplify;
+    }
+  }
+
+  #findInputs(name, array) {
+    if (this.#json[name].type === "IN") {
+      if (!array.includes(name)) {
+        array.push(name);
+      }
+    } else if (this.#json[name].type === "NOT") {
+      this.#findInputs(this.#json[name].from[0], array);
+    } else {
+      this.#json[name].from.forEach(element => this.#findInputs(element, array));
     }
   }
 
