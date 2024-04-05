@@ -37,7 +37,7 @@ class LogicalCircuit {
     return JSON.parse(JSON.stringify(this.#json));
   }
 
-  simplify(isMaxterm) {
+  simplify() {
     if (!this.isValid()) {
       return false;
     } else {
@@ -60,13 +60,13 @@ class LogicalCircuit {
             var binary = index.toString(2).padStart(inputs.length, "0");
             inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
 
-            if (this.computeExpression(name, parameters) !== isMaxterm) {
+            if (this.computeExpression(name, parameters)) {
               values.push(index);
             }
           }
 
           newJSON[name] = {"type": "OUT", "from": []};
-          this.#getSimplified(newJSON, name, inputs, new QuineMcCluskey(variables, values, [], isMaxterm).func, isMaxterm);
+          this.#getSimplified(newJSON, name, inputs, new QuineMcCluskey(variables, values, []).func);
         }
       });
 
@@ -89,26 +89,26 @@ class LogicalCircuit {
     }
   }
 
-  #getSimplified(newJSON, name, inputs, func, isMaxterm) {
-    func = func.split(isMaxterm ? " AND " : " OR ");
+  #getSimplified(newJSON, name, inputs, func) {
+    func = func.split(" OR ");
 
     if (func.length > 1) {
       var uniqueName = this.#getUniqueName();
-      newJSON[uniqueName] = {"type": isMaxterm ? "AND" : "OR", "from": []};
-      func.forEach(subFunc => this.#getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc, isMaxterm));
+      newJSON[uniqueName] = {"type": "OR", "from": []};
+      func.forEach(subFunc => this.#getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc));
       newJSON[name].from.push(uniqueName);
     } else {
-      this.#getSimplifiedSubFunc(newJSON, name, inputs, func[0], isMaxterm);
+      this.#getSimplifiedSubFunc(newJSON, name, inputs, func[0]);
     }
   }
 
-  #getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc, isMaxterm) {
-    subFunc = subFunc.replace("(", "").replace(")", "").split(isMaxterm ? " OR " : " AND ");
+  #getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc) {
+    subFunc = subFunc.replace("(", "").replace(")", "").split(" AND ");
     if (subFunc.length === 1) {
       this.#getSimplifiedElement(newJSON, uniqueName, inputs, subFunc[0]);
     } else {
       var uniqueNameSub = this.#getUniqueName();
-      newJSON[uniqueNameSub] = {"type": isMaxterm ? "OR" : "AND", "from": []};
+      newJSON[uniqueNameSub] = {"type": "AND", "from": []};
       subFunc.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameSub, inputs, element));
       newJSON[uniqueName].from.push(uniqueNameSub);
     }

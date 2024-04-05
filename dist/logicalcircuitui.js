@@ -151,22 +151,22 @@ class LogicalCircuitUI {
     toolbarRight.classList.add("LogicalCircuitUI_Toolbar_Right");
     toolbar.append(toolbarRight);
 
+    this.#addButtons(toolbarLeft, "UNDO", "REDO", "small", () => this.#clear(), () => this.#clear());
     this.#addButtonsAndText(toolbarLeft);
-    this.#addButtons(toolbarLeft, "OR", "small", () => this.#add("OR"), () => this.#add("NOR"));
-    this.#addButtons(toolbarLeft, "AND", "small", () => this.#add("AND"), () => this.#add("NAND"));
-    this.#addButtons(toolbarLeft, "XOR", "small", () => this.#add("XOR"), () => this.#add("NXOR"));
-    this.#addButtons(toolbarLeft, "NOT", "small", () => this.#add("NOT"));
-    this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", "big", () => this.#simplify(true));
-    this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", "big", () => this.#simplify(false));
+    this.#addButtons(toolbarLeft, "OR", null, "small", () => this.#add("OR"), () => this.#add("NOR"));
+    this.#addButtons(toolbarLeft, "AND", null, "small", () => this.#add("AND"), () => this.#add("NAND"));
+    this.#addButtons(toolbarLeft, "XOR", null, "small", () => this.#add("XOR"), () => this.#add("NXOR"));
+    this.#addButtons(toolbarLeft, "NOT", null, "small", () => this.#add("NOT"));
 
     try {
       new dagre.graphlib.Graph();
-      this.#addButtons(toolbarCenter, "TIDY UP", "big", () => this.#tidyUp(false));
+      this.#addButtons(toolbarCenter, "SIMPLIFY", "TIDY UP", "big", () => this.#simplify(), () => this.#tidyUp(false));
     } catch (exception) {
       console.info("dagre.js not found (see https://github.com/dagrejs/dagre)");
+      this.#addButtons(toolbarCenter, "SIMPLIFY", null, "big", () => this.#simplify());
     }
 
-    this.#addButtons(toolbarRight, "CLEAR", "big", () => this.#clear());
+    this.#addButtons(toolbarRight, "CLEAR", null, "big", () => this.#clear());
 
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
@@ -257,16 +257,16 @@ class LogicalCircuitUI {
     buttonOUT.onclick = (event) => this.#addOutput(text.value);
   }
 
-  #addButtons(toolbar, label, size, listener, listenerN) {
+  #addButtons(toolbar, label1, label2, size, listener1, listener2) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_ButtonContainer");
     toolbar.append(div);
 
-    if (listener) {
-      this.#createButton(div, label, size, false).onclick = (event) => listener(label);
+    if (listener1) {
+      this.#createButton(div, label1, size, false).onclick = (event) => listener1(label);
     }
-    if (listenerN) {
-      this.#createButton(div, "N" + label, size, false).onclick = (event) => listenerN(label);
+    if (listener2) {
+      this.#createButton(div, label2 ? label2 : "N" + label1, size, false).onclick = (event) => listener2(label);
     }
   }
 
@@ -326,7 +326,7 @@ class LogicalCircuitUI {
   }
 
   #simplify(isMaxterm) {
-    if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify(isMaxterm)) {
+    if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify()) {
       this.#jsonUI = {};
       this.#resetText();
 
