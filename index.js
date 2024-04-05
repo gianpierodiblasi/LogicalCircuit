@@ -1,5 +1,3 @@
-/* global import */
-
 var json1 = {
   "x": {"type": "IN"},
   "y": {"type": "IN"},
