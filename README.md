@@ -226,13 +226,14 @@ The API has no dependencies, so in order to use the API it is necessary only to 
 
 The API is "ready for":
 
-- circuit simplification by means of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented (here)[https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0] and (here)[https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js]
+- circuit simplification by means of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented [here](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0) and [here](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
 - tidy uping by means of the [dagre](https://github.com/dagrejs/dagre) library
 
 if the references to these libraries are available then the corresponding buttons will be available in the toolbar (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example).
 
 ## Dependencies
-- dagre (optional) - [link](https://github.com/dagrejs/dagre)
+- @helander/quine-mccluskey-js (optional) - [link](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0), [link](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
+- dagre.js (optional) - [link](https://github.com/dagrejs/dagre)
 
 ## Donate
 If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
