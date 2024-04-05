@@ -156,14 +156,8 @@ class LogicalCircuitUI {
     this.#addButtons(toolbarLeft, "AND", "small", () => this.#add("AND"), () => this.#add("NAND"));
     this.#addButtons(toolbarLeft, "XOR", "small", () => this.#add("XOR"), () => this.#add("NXOR"));
     this.#addButtons(toolbarLeft, "NOT", "small", () => this.#add("NOT"));
-
-    try {
-      new QuineMcCluskey("A", []);
-      this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", "big", () => this.#simplify(true));
-      this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", "big", () => this.#simplify(false));
-    } catch (exception) {
-      console.info("quine-mccluskey-js not found (see https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0, https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)");
-    }
+    this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", "big", () => this.#simplify(true));
+    this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", "big", () => this.#simplify(false));
 
     try {
       new dagre.graphlib.Graph();

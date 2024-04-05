@@ -38,9 +38,8 @@ var logicalCircuit = new LogicalCircuit();
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
-- *simplify(isMaxterm)*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented [here](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0) and [here](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
-  - input:
-    - isMaxterm: true to use maxterms, false to use minterms (BOOLEAN)
+- *simplify()*: simplifies the logical circuit by using the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm)
+  - input: NOTHING
   - output: true if the simplification has been performed, false otherwise (BOOLEAN)
 - *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input:
@@ -224,15 +223,9 @@ where:
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files (minified or not) available in the dist folder (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example).
 
-The API is "ready for":
-
-- circuit simplification by means of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) implemented [here](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0) and [here](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
-- tidy uping by means of the [dagre](https://github.com/dagrejs/dagre) library
-
-if the references to these libraries are available then the corresponding buttons will be available in the toolbar (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example).
+The API is "ready for" tidy uping by means of the [dagre](https://github.com/dagrejs/dagre) library; if the reference to this library is available then a button will be available in the toolbar (open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example).
 
 ## Dependencies
-- @helander/quine-mccluskey-js (optional) - [link](https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0), [link](https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)
 - dagre.js (optional) - [link](https://github.com/dagrejs/dagre)
 
 ## Donate

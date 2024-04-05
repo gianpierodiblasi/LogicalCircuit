@@ -81,27 +81,23 @@ var jsonUI3 = {
 };
 
 window.onload = (event) => {
-  import("https://cdn.jsdelivr.net/npm/@helander/quine-mccluskey-js/+esm").then(module => {
-    window.QuineMcCluskey = module.default;
-
-    var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
-    document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
-    document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
-    document.querySelector("#load3").onclick = () => logicalCircuitUI.setJSONs(json3, jsonUI3);
-    document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
-    document.querySelector("#type").onchange = (event) => logicalCircuitUI.setShowOperatorType(event.srcElement.checked);
-    document.querySelector("#interactive").onchange = (event) => logicalCircuitUI.setInteractive(event.srcElement.checked);
-    logicalCircuitUI.addOnChangeListener(() => {
-      var div = document.querySelector("#expressions");
-      div.textContent = "";
-      if (logicalCircuitUI.isValid()) {
-        var expressions = logicalCircuitUI.getJavaScriptExpressions();
-        for (var key in expressions) {
-          var row = document.createElement("div");
-          row.textContent = key + " = " + expressions[key];
-          div.append(row);
-        }
+  var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
+  document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
+  document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
+  document.querySelector("#load3").onclick = () => logicalCircuitUI.setJSONs(json3, jsonUI3);
+  document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
+  document.querySelector("#type").onchange = (event) => logicalCircuitUI.setShowOperatorType(event.srcElement.checked);
+  document.querySelector("#interactive").onchange = (event) => logicalCircuitUI.setInteractive(event.srcElement.checked);
+  logicalCircuitUI.addOnChangeListener(() => {
+    var div = document.querySelector("#expressions");
+    div.textContent = "";
+    if (logicalCircuitUI.isValid()) {
+      var expressions = logicalCircuitUI.getJavaScriptExpressions();
+      for (var key in expressions) {
+        var row = document.createElement("div");
+        row.textContent = key + " = " + expressions[key];
+        div.append(row);
       }
-    });
+    }
   });
 };
