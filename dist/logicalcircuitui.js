@@ -156,12 +156,14 @@ class LogicalCircuitUI {
     this.#addButtons(toolbarLeft, "AND", () => this.#add("AND"), () => this.#add("NAND"));
     this.#addButtons(toolbarLeft, "XOR", () => this.#add("XOR"), () => this.#add("NXOR"));
     this.#addButtons(toolbarLeft, "NOT", () => this.#add("NOT"));
-    this.#addButtons(toolbarCenter, "SIMPLIFY", () => this.#simplify());
 
-    try {
-      var g = new dagre.graphlib.Graph();
+    if (QuineMcCluskey) {
+      this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", () => this.#simplify(true));
+      this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", () => this.#simplify(false));
+    }
+
+    if (dagre.graphlib.Graph) {
       this.#addButtons(toolbarCenter, "TIDY UP", () => this.#tidyUp(false));
-    } catch (exception) {
     }
 
     this.#addButtons(toolbarRight, "CLEAR", () => this.#clear());
@@ -322,8 +324,8 @@ class LogicalCircuitUI {
     };
   }
 
-  #simplify() {
-    if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify()) {
+  #simplify(isMaxterm) {
+    if (confirm("Do you really want to simplify the current logical circuit?") && this.#logicalCircuit.simplify(isMaxterm)) {
       this.#jsonUI = {};
       this.#resetText();
 

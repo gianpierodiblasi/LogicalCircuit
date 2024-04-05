@@ -37,7 +37,7 @@ class LogicalCircuit {
     return JSON.parse(JSON.stringify(this.#json));
   }
 
-  simplify() {
+  simplify(isMaxterm) {
     if (!this.isValid()) {
       return false;
     } else {
@@ -63,12 +63,12 @@ class LogicalCircuit {
             var binary = index.toString(2).padStart(inputs.length, "0");
             inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
 
-            if (this.computeExpression(name, parameters)) {
+            if (this.computeExpression(name, parameters) !== isMaxterm) {
               values.push(index);
             }
           }
 
-          newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values).func)]};
+          newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values, [], isMaxterm).func, isMaxterm)]};
         }
       });
 
@@ -91,20 +91,20 @@ class LogicalCircuit {
     }
   }
 
-  #getSimplified(newJSON, inputs, func) {
-    func = func.split(" OR ");
+  #getSimplified(newJSON, inputs, func, isMaxterm) {
+    func = func.split(isMaxterm ? " AND " : " OR ");
 
     if (func.length > 1) {
       var uniqueName = this.#getUniqueName();
-      newJSON[uniqueName] = {"type": "OR", "from": []};
+      newJSON[uniqueName] = {"type": isMaxterm ? "AND" : "OR", "from": []};
 
       func.forEach(subFunc => {
-        subFunc = subFunc.replace("(", "").replace(")", "").split(" AND ");
+        subFunc = subFunc.replace("(", "").replace(")", "").split(isMaxterm ? " OR " : " AND ");
         if (subFunc.length === 1) {
           this.#getSimplifiedElement(newJSON, uniqueName, inputs, subFunc[0]);
         } else {
           var uniqueNameAND = this.#getUniqueName();
-          newJSON[uniqueNameAND] = {"type": "AND", "from": []};
+          newJSON[uniqueNameAND] = {"type": isMaxterm ? "OR" : "AND", "from": []};
           subFunc.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameAND, inputs, element));
           newJSON[uniqueName].from.push(uniqueNameAND);
         }
