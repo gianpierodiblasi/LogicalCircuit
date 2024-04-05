@@ -1,4 +1,6 @@
-class LogicalCircuit {
+import QuineMcCluskey from 'https://cdn.jsdelivr.net/npm/@helander/quine-mccluskey-js/+esm';
+
+export default class LogicalCircuit {
   #json = {};
 
   #blackListNames = [
@@ -38,156 +40,75 @@ class LogicalCircuit {
   }
 
   simplify() {
-    if (this.isValid()) {
-      var inputs = Object.keys(this.#json).filter(name => this.#json[name].type === "IN");
+    var inputs = Object.keys(this.#json).filter(name => this.#json[name].type === "IN");
+    if (inputs.length > 26 || !this.isValid()) {
+      return false;
+    } else {
+      var variables = "";
+      for (var index = 0; index < inputs.length; index++) {
+        variables += String.fromCharCode(65 + index);
+      }
 
       var newJSON = {};
-      var passed = true;
       inputs.forEach(input => newJSON[input] = {"type": "IN"});
 
       Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => {
-        var minterms = this.#getMinTerms(name, inputs);
-        var implicants = this.#combine(minterms);
-        var mintermsOccurrences = this.#getMintermsOccurrences(minterms, implicants);
-        var essentials = this.#getEssentials(implicants, mintermsOccurrences);
+        var values = [];
 
-        newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, essentials)]};
-        passed &= this.#testSimplified(name, newJSON, inputs);
-      });
+        for (var index = 0; index < Math.pow(2, inputs.length); index++) {
+          var parameters = {};
+          var binary = index.toString(2).padStart(inputs.length, "0");
+          inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
 
-      if (passed) {
-        this.#json = newJSON;
-      }
-      return !!passed;
-    } else {
-      return false;
-    }
-  }
-
-  #getMinTerms(name, inputs) {
-    var minterms = {};
-    for (var index = 0; index < Math.pow(2, inputs.length); index++) {
-      var parameters = {};
-      var binary = index.toString(2).padStart(inputs.length, "0");
-      inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
-
-      if (this.computeExpression(name, parameters)) {
-        minterms["" + index] = binary;
-      }
-    }
-    return minterms;
-  }
-
-  #combine(minterms) {
-    var implicants = {};
-    var atLestOneCombined = false;
-
-    Object.keys(minterms).forEach(m1 => {
-      var combined = false;
-      Object.keys(minterms).forEach(m2 => {
-        var count = 0;
-        var newTerm = minterms[m1];
-        for (var index = 0; index < newTerm.length; index++) {
-          if (newTerm[index] !== minterms[m2][index]) {
-            newTerm = newTerm.substring(0, index) + "-" + newTerm.substring(index + 1);
-            count++;
+          if (this.computeExpression(name, parameters)) {
+            values.push(index);
           }
         }
 
-        if (count === 1) {
-          combined = true;
-          atLestOneCombined = true;
-          if (!Object.keys(implicants).some(key => implicants[key] === newTerm)) {
-            implicants[m1 + "," + m2] = newTerm;
-          }
-        }
+        newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values).func)]};
       });
-
-      if (!combined) {
-        implicants[m1] = minterms[m1];
-      }
-    });
-
-    return atLestOneCombined ? this.#combine(implicants) : implicants;
-  }
-
-  #getMintermsOccurrences(minterms, implicants) {
-    var mintermsOccurrences = {};
-    Object.keys(minterms).forEach(minterm => mintermsOccurrences[minterm] = Object.keys(implicants).flatMap(implicant => implicant.split(",")).filter(element => element === minterm).length);
-    return mintermsOccurrences;
-  }
-
-  #getEssentials(implicants, mintermsOccurrences) {
-    var essentials = {};
-    var found = true;
-    while (found) {
-      found = false;
-      Object.keys(mintermsOccurrences).filter(occurrence => mintermsOccurrences[occurrence] === 1).forEach(occurrence => {
-        found = true;
-        delete mintermsOccurrences[occurrence];
-
-        Object.keys(implicants).filter(implicant => implicant.split(",").includes(occurrence)).forEach(implicant => {
-          essentials[implicant] = implicants[implicant];
-          delete implicants[implicant];
-        });
-      });
-    }
-    return essentials;
-  }
-
-  #getSimplified(newJSON, inputs, essentials) {
-    var uniqueName = this.#getUniqueName();
-    newJSON[uniqueName] = {"type": "OR", "from": []};
-
-    Object.keys(essentials).forEach(im => {
-      var split = essentials[im].split("");
-      if (split.filter(el => el !== "-").length === 1) {
-        this.#getSimplifiedElement(newJSON, uniqueName, inputs, split);
-      } else {
-        var uniqueNameAND = this.#getUniqueName();
-        newJSON[uniqueNameAND] = {"type": "AND", "from": []};
-        this.#getSimplifiedElement(newJSON, uniqueNameAND, inputs, split);
-        newJSON[uniqueName].from.push(uniqueNameAND);
-      }
-    });
-
-
-    return uniqueName;
-  }
-
-  #getSimplifiedElement(newJSON, uniqueName, inputs, split) {
-    for (var index = 0; index < split.length; index++) {
-      switch (split[index]) {
-        case "0":
-          var uniqueNameNOT = this.#getUniqueName();
-          newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[index]]};
-          newJSON[uniqueName].from.push(uniqueNameNOT);
-          break;
-        case "1":
-          newJSON[uniqueName].from.push(inputs[index]);
-          break;
-        case "-":
-          break;
-      }
-    }
-  }
-
-  #testSimplified(name, newJSON, inputs) {
-    var oldJSON = this.#json;
-
-    var passed = true;
-    for (var index = 0; index < Math.pow(2, inputs.length); index++) {
-      var parameters = {};
-      var binary = index.toString(2).padStart(inputs.length, "0");
-      inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
-
-      var oldT = this.computeExpression(name, parameters);
       this.#json = newJSON;
-      var newT = this.computeExpression(name, parameters);
-      this.#json = oldJSON;
-      passed &= oldT === newT;
+      return true;
     }
-    return !!passed;
+  }
+
+  #getSimplified(newJSON, inputs, func) {
+    func = func.split(" OR ");
+
+    if (func.length > 1) {
+      var uniqueName = this.#getUniqueName();
+      newJSON[uniqueName] = {"type": "OR", "from": []};
+
+      func.forEach(subFunc => {
+        subFunc = subFunc.replace("(", "").replace(")", "").split(" AND ");
+        if (subFunc.length === 1) {
+          this.#getSimplifiedElement(newJSON, uniqueName, inputs, subFunc[0]);
+        } else {
+          var uniqueNameAND = this.#getUniqueName();
+          newJSON[uniqueNameAND] = {"type": "AND", "from": []};
+          subFunc.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameAND, inputs, element));
+          newJSON[uniqueName].from.push(uniqueNameAND);
+        }
+      });
+
+      return uniqueName;
+    } else if (func[0].startsWith("NOT ")) {
+      var uniqueNameNOT = this.#getUniqueName();
+      newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[func[0].charCodeAt(4) - 65]]};
+      return uniqueNameNOT;
+    } else {
+      return inputs[func[0].charCodeAt(0) - 65];
+    }
+  }
+
+  #getSimplifiedElement(newJSON, uniqueName, inputs, element) {
+    if (element.startsWith("NOT ")) {
+      var uniqueNameNOT = this.#getUniqueName();
+      newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[element.charCodeAt(4) - 65]]};
+      newJSON[uniqueName].from.push(uniqueNameNOT);
+    } else {
+      newJSON[uniqueName].from.push(inputs[element.charCodeAt(0) - 65]);
+    }
   }
 
   computeExpressions(parameters) {

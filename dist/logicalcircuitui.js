@@ -1,6 +1,7 @@
 /* global dagre */
+import LogicalCircuit from "./logicalcircuit.js";
 
-class LogicalCircuitUI {
+export default class LogicalCircuitUI {
   #logicalCircuit = new LogicalCircuit();
   #jsonUI = {};
   #interactive = {};
