@@ -263,10 +263,10 @@ class LogicalCircuitUI {
     toolbar.append(div);
 
     if (listener1) {
-      this.#createButton(div, label1, size, false).onclick = (event) => listener1(label);
+      this.#createButton(div, label1, size, false).onclick = (event) => listener1();
     }
     if (listener2) {
-      this.#createButton(div, label2 ? label2 : "N" + label1, size, false).onclick = (event) => listener2(label);
+      this.#createButton(div, label2 ? label2 : "N" + label1, size, false).onclick = (event) => listener2();
     }
   }
 
