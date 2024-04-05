@@ -53,10 +53,7 @@ class LogicalCircuit {
         if (inputs.length > 26) {
           canSimplify = false;
         } else {
-          var variables = "";
-          for (var index = 0; index < inputs.length; index++) {
-            variables += String.fromCharCode(65 + index);
-          }
+          var variables = inputs.reduce((acc, input, index) => acc + String.fromCharCode(65 + index), "");
 
           for (var index = 0; index < Math.pow(2, inputs.length); index++) {
             var parameters = {};
@@ -68,7 +65,8 @@ class LogicalCircuit {
             }
           }
 
-          newJSON[name] = {"type": "OUT", "from": [this.#getSimplified(newJSON, inputs, new QuineMcCluskey(variables, values, [], isMaxterm).func, isMaxterm)]};
+          newJSON[name] = {"type": "OUT", "from": []};
+          this.#getSimplified(newJSON, name, inputs, new QuineMcCluskey(variables, values, [], isMaxterm).func, isMaxterm);
         }
       });
 
@@ -91,32 +89,28 @@ class LogicalCircuit {
     }
   }
 
-  #getSimplified(newJSON, inputs, func, isMaxterm) {
+  #getSimplified(newJSON, name, inputs, func, isMaxterm) {
     func = func.split(isMaxterm ? " AND " : " OR ");
 
     if (func.length > 1) {
       var uniqueName = this.#getUniqueName();
       newJSON[uniqueName] = {"type": isMaxterm ? "AND" : "OR", "from": []};
-
-      func.forEach(subFunc => {
-        subFunc = subFunc.replace("(", "").replace(")", "").split(isMaxterm ? " OR " : " AND ");
-        if (subFunc.length === 1) {
-          this.#getSimplifiedElement(newJSON, uniqueName, inputs, subFunc[0]);
-        } else {
-          var uniqueNameAND = this.#getUniqueName();
-          newJSON[uniqueNameAND] = {"type": isMaxterm ? "OR" : "AND", "from": []};
-          subFunc.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameAND, inputs, element));
-          newJSON[uniqueName].from.push(uniqueNameAND);
-        }
-      });
-
-      return uniqueName;
-    } else if (func[0].startsWith("NOT ")) {
-      var uniqueNameNOT = this.#getUniqueName();
-      newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[func[0].charCodeAt(4) - 65]]};
-      return uniqueNameNOT;
+      func.forEach(subFunc => this.#getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc, isMaxterm));
+      newJSON[name].from.push(uniqueName);
     } else {
-      return inputs[func[0].charCodeAt(0) - 65];
+      this.#getSimplifiedSubFunc(newJSON, name, inputs, func[0], isMaxterm);
+    }
+  }
+
+  #getSimplifiedSubFunc(newJSON, uniqueName, inputs, subFunc, isMaxterm) {
+    subFunc = subFunc.replace("(", "").replace(")", "").split(isMaxterm ? " OR " : " AND ");
+    if (subFunc.length === 1) {
+      this.#getSimplifiedElement(newJSON, uniqueName, inputs, subFunc[0]);
+    } else {
+      var uniqueNameSub = this.#getUniqueName();
+      newJSON[uniqueNameSub] = {"type": isMaxterm ? "OR" : "AND", "from": []};
+      subFunc.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameSub, inputs, element));
+      newJSON[uniqueName].from.push(uniqueNameSub);
     }
   }
 
