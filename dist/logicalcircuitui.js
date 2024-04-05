@@ -152,21 +152,27 @@ class LogicalCircuitUI {
     toolbar.append(toolbarRight);
 
     this.#addButtonsAndText(toolbarLeft);
-    this.#addButtons(toolbarLeft, "OR", () => this.#add("OR"), () => this.#add("NOR"));
-    this.#addButtons(toolbarLeft, "AND", () => this.#add("AND"), () => this.#add("NAND"));
-    this.#addButtons(toolbarLeft, "XOR", () => this.#add("XOR"), () => this.#add("NXOR"));
-    this.#addButtons(toolbarLeft, "NOT", () => this.#add("NOT"));
+    this.#addButtons(toolbarLeft, "OR", "small", () => this.#add("OR"), () => this.#add("NOR"));
+    this.#addButtons(toolbarLeft, "AND", "small", () => this.#add("AND"), () => this.#add("NAND"));
+    this.#addButtons(toolbarLeft, "XOR", "small", () => this.#add("XOR"), () => this.#add("NXOR"));
+    this.#addButtons(toolbarLeft, "NOT", "small", () => this.#add("NOT"));
 
-    if (QuineMcCluskey) {
-      this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", () => this.#simplify(true));
-      this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", () => this.#simplify(false));
+    try {
+      new QuineMcCluskey("A", []);
+      this.#addButtons(toolbarCenter, "SIMPLIFY (POS)", "big", () => this.#simplify(true));
+      this.#addButtons(toolbarCenter, "SIMPLIFY (SOP)", "big", () => this.#simplify(false));
+    } catch (exception) {
+      console.info("quine-mccluskey-js not found (see https://www.npmjs.com/package/@helander/quine-mccluskey-js/v/1.0.0, https://www.jsdelivr.com/package/npm/@helander/quine-mccluskey-js)");
     }
 
-    if (dagre.graphlib.Graph) {
-      this.#addButtons(toolbarCenter, "TIDY UP", () => this.#tidyUp(false));
+    try {
+      new dagre.graphlib.Graph();
+      this.#addButtons(toolbarCenter, "TIDY UP", "big", () => this.#tidyUp(false));
+    } catch (exception) {
+      console.info("dagre.js not found (see https://github.com/dagrejs/dagre)");
     }
 
-    this.#addButtons(toolbarRight, "CLEAR", () => this.#clear());
+    this.#addButtons(toolbarRight, "CLEAR", "big", () => this.#clear());
 
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
@@ -250,30 +256,31 @@ class LogicalCircuitUI {
     };
     div.append(text);
 
-    var buttonIN = this.#createButton(div, "IN", true);
-    var buttonOUT = this.#createButton(div, "OUT", true);
+    var buttonIN = this.#createButton(div, "IN", "small", true);
+    var buttonOUT = this.#createButton(div, "OUT", "small", true);
 
     buttonIN.onclick = (event) => this.#addInput(text.value);
     buttonOUT.onclick = (event) => this.#addOutput(text.value);
   }
 
-  #addButtons(toolbar, label, listener, listenerN) {
+  #addButtons(toolbar, label, size, listener, listenerN) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_ButtonContainer");
     toolbar.append(div);
 
     if (listener) {
-      this.#createButton(div, label, false).onclick = (event) => listener(label);
+      this.#createButton(div, label, size, false).onclick = (event) => listener(label);
     }
     if (listenerN) {
-      this.#createButton(div, "N" + label, false).onclick = (event) => listenerN(label);
+      this.#createButton(div, "N" + label, size, false).onclick = (event) => listenerN(label);
     }
   }
 
-  #createButton(div, label, disabled) {
+  #createButton(div, label, size, disabled) {
     var button = document.createElement("button");
     button.textContent = label;
     button.classList.add(label.replace(" ", "-"));
+    button.classList.add(size);
     button.disabled = disabled;
     div.append(button);
     return button;

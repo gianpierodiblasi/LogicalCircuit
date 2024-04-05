@@ -6,8 +6,11 @@
   justify-content: space-between;
   margin-bottom: 5px;
 }
-.LogicalCircuitUI_Toolbar button {
-  width: 75px;
+.LogicalCircuitUI_Toolbar button.small {
+  width: 60px;
+}
+.LogicalCircuitUI_Toolbar button.big {
+  width: 85px;
 }
 
 .LogicalCircuitUI_Toolbar_Left, .LogicalCircuitUI_Toolbar_Center, .LogicalCircuitUI_Toolbar_Right {
@@ -22,7 +25,7 @@
 }
 
 .LogicalCircuitUI_TextContainer {
-  width: 150px;
+  width: 120px;
   display: flex;
   flex-flow: row wrap;
 }
@@ -31,7 +34,6 @@
 }
 
 .LogicalCircuitUI_ButtonContainer {
-  width: 75px;
   display: flex;
   flex-flow: column wrap;
 }
