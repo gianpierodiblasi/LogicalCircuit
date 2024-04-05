@@ -1,5 +1,3 @@
-import LogicalCircuitUI from "./dist/logicalcircuitui.js";
-
 var json1 = {
   "x": {"type": "IN"},
   "y": {"type": "IN"},

@@ -1,6 +1,4 @@
-import QuineMcCluskey from 'https://cdn.jsdelivr.net/npm/@helander/quine-mccluskey-js/+esm';
-
-export default class LogicalCircuit {
+class LogicalCircuit {
   #json = {};
 
   #blackListNames = [
