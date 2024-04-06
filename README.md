@@ -138,6 +138,43 @@ var logicalCircuit = new LogicalCircuit();
     - name: the name (STRING)
   - output: (NOTHING)
 
+### LogicalCircuitUI
+The *LogicalCircuitUI* class can be used to visually manage a logical circuit; the following JSON describes the structure used by the class to visually manage the circuit.
+```json
+{
+  "x": {"top": 10, "left": 10},
+  "y": {"top": 100, "left": 10},
+  "o1": {"top": 10, "left": 100},
+  "o2": {"top": 100, "left": 100},
+  "o12": {"top": 55, "left": 200},
+  "out1": {"top": 55, "left": 300}
+}
+```
+**Notes:**
+- the *(top, left)* parameters represent the position of the logical operator
+
+#### constructor
+The constructor can be used to create a new *LogicalCircuitUI* as follows:
+```javascript
+var logicalCircuitUI = new LogicalCircuitUI(container, options);
+```
+where:
+- *container* is the (div) element where to add the UI
+- *options* is a JSON with the following structure:
+```json
+{
+  "width": 800, "//": "the canvas width (default: 800)",
+  "height": 600, "//": "the canvas height (default: 600)",
+  "bezierConnector": false,
+  "//": "true to connect the object by means of a bezier curve, false otherwise (default: false)",
+  "showOperatorType": false,
+  "//": "true to show the operator type, false otherwise (default: false)",
+  "interactive": false,
+  "//": "true to set the interactive mode"
+  "//": "(it is possibile to test in real time the logical circuits),"
+  "//": "false otherwise (default: false)"
+}
+```
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
 
