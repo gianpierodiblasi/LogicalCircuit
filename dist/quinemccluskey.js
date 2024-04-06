@@ -29,10 +29,6 @@ class ProductTerm {
     return this.variableNames;
   }
 
-  getNumLiterals() {
-    return this.numLiterals;
-  }
-
   isMinterm() {
     return this.numLiterals === this.numVars;
   }
@@ -43,10 +39,6 @@ class ProductTerm {
 
   getCoverCount() {
     return this.coverCount;
-  }
-
-  compareTo(var1) {
-    return this.coverCount - var1.coverCount;
   }
 
   reduces(var1) {
@@ -64,12 +56,28 @@ class ProductTerm {
     return null;
   }
 
-  equals(var1) {
-    return this.value === var1.getValue() && this.mask === var1.getMask();
-  }
-
   covers(var1) {
     return (this.value & this.mask) === (var1.getValue() & this.mask);
+  }
+
+  countBits(var0) {
+    var var1 = 0;
+
+    for (var var2 = 0; var2 < 32; ++var2) {
+      if ((var0 & 1 << var2) !== 0) {
+        ++var1;
+      }
+    }
+
+    return var1;
+  }
+
+  compareTo(var1) {
+    return this.coverCount - var1.coverCount;
+  }
+
+  equals(var1) {
+    return this.value === var1.getValue() && this.mask === var1.getMask();
   }
 
   ptString() {
@@ -94,18 +102,6 @@ class ProductTerm {
   toString() {
     return this.ptString();
   }
-
-  countBits(var0) {
-    var var1 = 0;
-
-    for (var var2 = 0; var2 < 32; ++var2) {
-      if ((var0 & 1 << var2) !== 0) {
-        ++var1;
-      }
-    }
-
-    return var1;
-  }
 }
 
 class PrimeImplicant extends ProductTerm {
@@ -123,10 +119,6 @@ class PrimeImplicant extends ProductTerm {
     } else {
       this.coversArray.push(var1);
     }
-  }
-
-  getCount() {
-    return this.coversArray.length;
   }
 
   compareTo(var1) {
@@ -149,14 +141,6 @@ class PrimeImplicant extends ProductTerm {
 }
 
 class TruthTable {
-  LP = '(';
-  RP = ')';
-  AND = '*';
-  OR = '+';
-  XOR = '^';
-  NOT = '\'';
-  ZERO = '0';
-  ONE = '1';
   numVars = 0;
   numRows = 0;
   numMinterms = 0;
@@ -216,34 +200,6 @@ class TruthTable {
     }
   }
 
-  getNumVars() {
-    return this.numVars;
-  }
-
-  getNumRows() {
-    return this.numRows;
-  }
-
-  getNumMinterms() {
-    return this.numMinterms;
-  }
-
-  getVars() {
-    return this.variableNames.slice();
-  }
-
-  expString() {
-    return this.normalized;
-  }
-
-  getTruthValues() {
-    return this.theTable;
-  }
-
-  getMinterms() {
-    return this.minterms;
-  }
-
   leftBit(var0) {
     for (var var1 = 31; var1 >= 0; --var1) {
       if ((var0 & 1 << var1) !== 0) {
@@ -269,19 +225,6 @@ class TruthTable {
     }
 
     return var4;
-  }
-
-  sopString() {
-    var var1 = "";
-
-    for (var var2 = 0; var2 < this.numMinterms; ++var2) {
-      var1 += this.minterms[var2].toString();
-      if (var2 < this.numMinterms - 1) {
-        var1 += " + ";
-      }
-    }
-
-    return var1;
   }
 
   toString() {
@@ -446,23 +389,6 @@ class QuineMcCluskey extends TruthTable {
           var19 = var19.filter(el => !el.equals(var11));
         }
       }
-    }
-  }
-
-  priString() {
-    if (this.primeImplicants.length === 0) {
-      return "none";
-    } else {
-      var var1 = "";
-
-      for (var var2 = 0; var2 < this.primeImplicants.length; ++var2) {
-        var1 += this.primeImplicants.elementAt(var2).toString();
-        if (var2 < this.primeImplicants.length - 1) {
-          var1 += ", ";
-        }
-      }
-
-      return new String(var1);
     }
   }
 
