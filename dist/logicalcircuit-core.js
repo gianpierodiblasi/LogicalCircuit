@@ -224,6 +224,14 @@ class LogicalCircuitCore {
     this.#json = {};
   }
 
+  getType(name) {
+    return this.#json[name] ? this.#json[name].type : "";
+  }
+
+  getFrom(name) {
+    return this.#json[name] && this.#json[name].type !== "IN" ? this.#json[name].from.slice() : [];
+  }
+
   isNameValid(name) {
     return typeof name === 'string' && /^[a-z]+[a-z0-9_]*$/i.test(name) && !this.#blackListNames.includes(name.toUpperCase());
   }
