@@ -301,7 +301,7 @@ class TruthTable {
   }
 }
 
-class Minimize extends TruthTable {
+class QuineMcCluskey extends TruthTable {
   numLevels;
   levelTerms;
   primeImplicants;
@@ -309,26 +309,26 @@ class Minimize extends TruthTable {
   timesCovered;
   findAll;
 
-  constructor(var1) {
+  constructor(var1, debug) {
     super(var1);
-    this.numLevels = super.numVars + 1;
+    this.numLevels = this.numVars + 1;
     this.levelTerms = Array(this.numLevels);
     this.findAll = true;
-    this.initialize();
+    this.initialize(debug);
   }
 
-  initialize() {
+  initialize(debug) {
     this.levelTerms[0] = [];
 
-    for (var var1 = 0; var1 < super.numMinterms; ++var1) {
-      this.levelTerms[0].push(super.minterms[var1]);
+    for (var var1 = 0; var1 < this.numMinterms; ++var1) {
+      this.levelTerms[0].push(this.minterms[var1]);
     }
 
     var var13 = null;
     var var2 = null;
     var var3 = null;
     var var4 = 0;
-    if (super.numVars > 0) {
+    if (this.numVars > 0) {
       label126: for (var4 = 1; var4 < this.numLevels; ++var4) {
         var var5 = 0;
         this.levelTerms[var4] = [];
@@ -344,7 +344,9 @@ class Minimize extends TruthTable {
               if (!var8.length) {
                 if (!var7) {
                   this.levelTerms[var4].push(var13);
-                  console.log("Unable to reduce " + var13.toString() + " in pass " + var4.toString());
+                  if (debug) {
+                    console.log("Unable to reduce " + var13.toString() + " in pass " + var4.toString());
+                  }
                 }
                 continue label123;
               }
@@ -354,23 +356,31 @@ class Minimize extends TruthTable {
             } while (var3 === null);
 
             ++var5;
-            console.log("(" + var2.toString() + " + " + var13.toString() + ") can be replaced with " + var3.toString() + " in pass " + var4.toString() + ": ");
+            if (debug) {
+              console.log("(" + var2.toString() + " + " + var13.toString() + ") can be replaced with " + var3.toString() + " in pass " + var4.toString() + ": ");
+            }
             var var9 = false;
             var var10 = this.levelTerms[var4].slice().reverse();
 
             while (var10.length) {
               if (var3.equals(var10.pop())) {
-                console.log("Not done. (Already included.)");
+                if (debug) {
+                  console.log("Not done. (Already included.)");
+                }
                 var9 = true;
                 break;
               }
             }
 
             if (!var9) {
-              console.log("Done.");
+              if (debug) {
+                console.log("Done.");
+              }
               this.levelTerms[var4].push(var3);
               if (ProductTerm.identity.equals(var3)) {
-                console.log("Expression reduces to identity.");
+                if (debug) {
+                  console.log("Expression reduces to identity.");
+                }
                 break label126;
               }
             }
@@ -392,9 +402,7 @@ class Minimize extends TruthTable {
       this.primeImplicants.push(new PrimeImplicant(var14.pop()));
     }
 
-    var var15 = Array(super.numMinterms);
-
-    for (var var16 = 0; var16 < super.numMinterms; ++var16) {
+    for (var var16 = 0; var16 < this.numMinterms; ++var16) {
       var var18 = this.levelTerms[0][var16];
       var var20 = this.primeImplicants.slice().reverse();
 
@@ -407,13 +415,15 @@ class Minimize extends TruthTable {
       }
 
       if (var18.getCoverCount() === 0) {
-        throw "Minterm " + this.reverseBits(var18.value, super.numVars) + " is not covered by any prime implicants.";
+        throw "Minterm " + this.reverseBits(var18.value, this.numVars) + " is not covered by any prime implicants.";
       }
 
-      console.log("Minterm " + this.reverseBits(var18.value, super.numVars) + " is covered by " + var18.getCoverCount() + " prime implicant" + (var18.getCoverCount() !== 1 ? "s." : "."));
+      if (debug) {
+        console.log("Minterm " + this.reverseBits(var18.value, this.numVars) + " is covered by " + var18.getCoverCount() + " prime implicant" + (var18.getCoverCount() !== 1 ? "s." : "."));
+      }
     }
 
-    this.primeImplicants.sort((p1, p2 => p1.compareTo(p2)));
+    this.primeImplicants.sort((p1, p2) => p1.compareTo(p2));
     var var17 = this.levelTerms[0].slice();
     var17.sort((p1, p2) => p1.compareTo(p2));
     var var19 = this.primeImplicants.slice();
@@ -426,7 +436,7 @@ class Minimize extends TruthTable {
         var var11 = var19[var23];
         if (var11.covers(var21)) {
           this.minimum.push(var11);
-          var14 = var11.covers.slice().reverse();
+          var14 = var11.coversArray.slice().reverse();
 
           while (var14.length) {
             var var12 = var14.pop();

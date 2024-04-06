@@ -6,7 +6,9 @@
     <link rel="icon" type="image/png" href="../or.png">
     <script src="../dist/quinemccluskey.js"></script>
     <script>
-      var qmc = new QuineMcCluskey([0,4,12,13,14,15]);
+      var qmc = new QuineMcCluskey([0, 4, 12, 13, 14, 15], true);
+      console.log(qmc.toString());
+      qmc = new QuineMcCluskey([0, 1, 9, 11, 13, 15]);
       console.log(qmc.toString());
     </script>
   </head>
