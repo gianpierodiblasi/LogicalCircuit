@@ -15,6 +15,12 @@
         "o12": {"type": "XOR", "from": ["o1", "o2"]},
         "out1": {"type": "OUT", "from": ["o12"]}
       });
+
+      console.log("isValid = " + core.isValid());
+      console.log("getJavaScriptExpressions");
+      console.log(core.getJavaScriptExpressions());
+      console.log("computeExpressions");
+      console.log(core.computeExpressions({"x": true, "y": false}));
     </script>
   </head>
   <body>

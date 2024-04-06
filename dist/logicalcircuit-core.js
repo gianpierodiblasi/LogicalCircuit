@@ -92,6 +92,19 @@ class LogicalCircuitCore {
       }
     }
   }
-  
-  
+
+  isValid() {
+    return Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").reduce((acc, name) => acc && this.#isConnected(name), true);
+  }
+
+  #isConnected(name) {
+    var connected = true;
+    this.#json[name].from.forEach(element => {
+      connected &= !!element;
+      if (connected && this.#json[element].type !== "IN") {
+        connected &= !!this.#isConnected(element);
+      }
+    });
+    return !!connected;
+  }
 }

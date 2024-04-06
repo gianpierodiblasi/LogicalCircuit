@@ -64,3 +64,6 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the output node (STRING)
   - output: the string representing the JavaScript expression of a logical circuit, an empty string if this object does not represent a set of valid logical circuits (JSON)
+- *isValid()*: checks if this object represents a set of valid logical circuits
+  - input: NOTHING
+  - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
