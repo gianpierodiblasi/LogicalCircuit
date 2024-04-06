@@ -40,7 +40,7 @@ var logicalCircuit = new LogicalCircuit();
   - output: the JSON object, as described above (JSON)
 - *setSimplifier(simplifier)*: sets a function able to simplify the logical circuit; the function has to respect the following constraints:
   - it has to provide a SOP (Sum Of Products) logical expression
-  - it has to be of the following type (numberOfProperties: NUMBER, minterms: \[NUMBER\]) => STRING
+  - it has to be of the following type (numberOfProperties: INTEGER, minterms: \[INTEGER\]) => STRING
   - the output has to be a string representing the simplified logical circuit
   - the output string has to use:
     - capital letters for properties
@@ -85,6 +85,21 @@ var logicalCircuit = new LogicalCircuit();
 - *decConnector(name)*: decrements the number of connectors in an operator
   - input:
     - name: the operator name (STRING)
+  - output: NOTHING
+- *addConnection(startName, endName, endIndex)*: adds a new connection; the connection is added if and only if it is valid connection
+  - input:
+    - startName: the name of the starting node, that is the information exits from this node (STRING)
+    - endName: the name of the ending node, that is the information enters in this node (STRING)
+    - endIndex: the index in the *from* array of the ending node (INTEGER)
+  - output: NOTHING
+- *isConnectionValid(startName, endName)*: checks if a connection is valid
+  - input:
+    - startName: the name of the starting node (STRING)
+    - endName: the name of the ending node (STRING)
+  - output: true if the connection is valid, false othewise (BOOLEAN)
+- *removeConnection(name, index)*: removes a connection
+    - name: the name of the node (STRING)
+    - index: the index in the *from* array of the node (INTEGER)
   - output: NOTHING
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name:
   - has to respect the following regular expression

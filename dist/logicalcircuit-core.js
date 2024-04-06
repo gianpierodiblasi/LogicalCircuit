@@ -180,6 +180,39 @@ class LogicalCircuitCore {
     }
   }
 
+  addConnection(startName, endName, endIndex) {
+    if (this.isConnectionValid(startName, endName) && 0 <= endIndex && endIndex < this.#json[endName].from.length) {
+      this.#json[endName].from[endIndex] = startName;
+    }
+  }
+
+  isConnectionValid(startName, endName) {
+    if (startName === endName || !this.#json[startName] || !this.#json[endName]) {
+      return false;
+    } else if (this.#json[startName].type === "IN") {
+      return this.#json[endName].type !== "IN";
+    } else if (this.#json[startName].type === "OUT") {
+      return false;
+    } else if (this.#json[endName].type === "IN") {
+      return false;
+    } else if (this.#json[endName].type === "OUT") {
+      return true;
+    } else {
+      return !this.#areConnected(startName, endName);
+    }
+  }
+
+  #areConnected(startName, endName) {
+    var operators = Object.keys(this.#json).filter(name => this.#operatorTypes.includes(this.#json[name].type) && this.#json[name].from.includes(endName));
+    return operators.includes(startName) || operators.reduce((acc, name) => acc || this.#areConnected(startName, name), false);
+  }
+
+  removeConnection(name, index) {
+    if (this.#json[name] && this.#json[name].from && 0 <= index && index < this.#json[name].from.length) {
+      this.#json[name].from[index] = "";
+    }
+  }
+
   isNameValid(name) {
     return typeof name === 'string' && /^[a-z]+[a-z0-9_]*$/i.test(name) && !this.#blackListNames.includes(name.toUpperCase());
   }
