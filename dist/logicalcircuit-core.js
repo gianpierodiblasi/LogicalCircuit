@@ -67,7 +67,7 @@ class LogicalCircuitCore {
 
         newJSON[name] = {"type": "OUT", "from": []};
         try {
-          var expression = this.#simplifier(inputs.length, minterms);
+          var expression = this.#simplifier(minterms);
           this.#getSimplified(newJSON, name, inputs, expression);
         } catch (exception) {
           canSimplify = false;
