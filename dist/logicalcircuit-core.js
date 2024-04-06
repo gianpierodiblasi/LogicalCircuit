@@ -1,5 +1,6 @@
 class LogicalCircuitCore {
   #json = {};
+  #simplifier;
 
   #blackListNames = [
     "OR", "NOR", "AND", "NAND", "XOR", "NXOR", "NOT",
@@ -28,7 +29,7 @@ class LogicalCircuitCore {
 
   constructor() {
   }
-  
+
   setJSON(json) {
     this.#json = JSON.parse(JSON.stringify(json));
   }
@@ -36,6 +37,8 @@ class LogicalCircuitCore {
   getJSON() {
     return JSON.parse(JSON.stringify(this.#json));
   }
-  
-  
+
+  setSimplifier(simplifier) {
+    this.#simplifier = simplifier;
+  }
 }

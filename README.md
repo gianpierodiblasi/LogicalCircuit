@@ -38,3 +38,13 @@ var logicalCircuit = new LogicalCircuit();
 - *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
   - input: NOTHING
   - output: the JSON object, as described above (JSON)
+- *setSimplifier(simplifier)*: sets a function able to simplify the logical circuit; the function has to respect the following constraints:
+  - it has to provide a SOP (Sum Of Products) logical expression
+  - it has to be of the following type (numberOfProperties: NUMBER, minterms: \[NUMBER\]) => STRING
+  - the output has to be a string representing the simplified logical circuit
+  - the output string has to use:
+    - capital letters for properties
+    - AND, OR and NOT for logical operators
+  - input:
+    - simplifier: the simplifier (FUNCTION)
+  - output: NOTHING
