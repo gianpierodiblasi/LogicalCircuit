@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Logical Circuit Core</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" type="image/png" href="../or.png">
+    <script src="../dist/logicalcircuit-core.js"></script>
+    <script>
+      var core = new LogicalCircuitCore();
+      core.setJSON({
+        "x": {"type": "IN"},
+        "y": {"type": "IN"},
+        "o1": {"type": "AND", "from": ["x", "y"]},
+        "o2": {"type": "OR", "from": ["x", "y"]},
+        "o12": {"type": "XOR", "from": ["o1", "o2"]},
+        "out1": {"type": "OUT", "from": ["o12"]}
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Test Logical Circuit Core</h1>
+  </body>
+</html>
