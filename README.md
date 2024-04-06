@@ -142,8 +142,8 @@ var logicalCircuit = new LogicalCircuit();
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
 
 - reference all the not versioned files logicalcircuit-*.js
-- reference only the logicalcircuit-bundle-<version>.js
-- reference only the logicalcircuit-bundle-min-<version>.js
+- reference only the bundled file logicalcircuit-bundle-\<version\>.js
+- reference only the bundled and minified file logicalcircuit-bundle-min-\<version\>.js
 
 In order to show the behavior of:
 - the simplify method an implementation of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm) is provided
