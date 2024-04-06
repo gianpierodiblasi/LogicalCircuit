@@ -1,110 +1,99 @@
-class QuineMcCluskey extends TruthTable {
-  #numLevels;
-  #levelTerms;
-  #primeImplicants;
-  #minimum = [];
-  #timesCovered;
-  #findAll = true;
+class ProductTerm {
+  static identity = new ProductTerm(0, 0, []);
+  value;
+  mask;
+  #numLiterals;
+  #variableNames;
+  coverCount = 0;
 
-  constructor(minterms) {
-    super(minterms);
-    this.#numLevels = super.#numVars + 1;
-    this.#levelTerms = Array(this.#numLevels);
+  constructor(value, mask, variableNames) {
+    this.value = value;
+    this.mask = mask;
+    this.#numLiterals = value.toString(2).replace(/0/g, "").length;
+    this.#variableNames = variableNames;
+  }
 
-    this.#levelTerms[0] = [];
+  isMinterm() {
+    return this.#numLiterals === this.#variableNames.length;
+  }
 
-    for (var index = 0; index < super.#numMinterms; index++) {
-      this.#levelTerms[0].push(super.#minterms[index]);
+  #incrementCoverCount() {
+    this.coverCount++;
+  }
+
+  compareTo(productTerm) {
+    return this.coverCount - productTerm.coverCount;
+  }
+
+  equals(productTerm) {
+    return this.value === productTerm.value && this.mask === productTerm.mask;
+  }
+
+  reduces(productTerm) {
+    if (productTerm.mask === this.mask) {
+      if (this.mask === 0) {
+        return this.identity;
+      }
+
+      var value = productTerm.value & this.mask ^ this.value & this.mask;
+      if (value.toString(2).replace(/0/g, "").length === 1) {
+        return new ProductTerm(~value & this.value, ~value & this.mask, this.variableNames);
+      }
     }
 
-    var productTerm2, productTerm3;
-    var index = 0;
-    if (super.#numVars > 0) {
-      label_A: for (index = 1; index < this.numLevels; ++index) {
-        var toBreak = 0;
-        this.#levelTerms[index] = [];
-        label_B: for each (var productTerm1 in this.#levelTerms[index - 1]) {
-          var problem = false;
-          var elements = this.#levelTerms[index - 1].slice().reverse();
+    return null;
+  }
 
-          while (true) {
-            do {
-              if (!elements.length) {
-                if (!problem) {
-                  this.#levelTerms[index].push(productTerm1);
-                }
-                continue label_B;
-              }
+  covers(productTerm) {
+    return (this.value & this.mask) === (productTerm.value & this.mask);
+  }
 
-              productTerm2 = elements.pop();
-              productTerm3 = productTerm2.#reduces(productTerm1);
-            } while (!productTerm3);
-
-            toBreak++;
-            var notDone = false;
-            for each (var productTerm4 in this.#levelTerms[index]) {
-              if (productTerm3.equals(productTerm4)) {
-                var9 = true;
-                break;
-              }
-            }
-
-            if (!notDone) {
-              this.#levelTerms[index].push(productTerm3);
-              if (ProductTerm.#identity.equals(productTerm3)) {
-                break label_A;
-              }
-            }
-
-            problem = true;
+  toString() {
+    if (this.mask === 0) {
+      return "1";
+    } else {
+      var string = "";
+      for (var index = 0; index < this.#variableNames.length; index++) {
+        if ((this.mask & 1 << index) !== 0) {
+          string += this.#variableNames[index];
+          if ((this.value & 1 << index) === 0) {
+            string += "'";
           }
         }
-
-        if (!toBreak) {
-          break;
-        }
       }
+
+      return string;
     }
+  }
+}
 
-    this.#primeImplicants = this.#levelTerms[index].map(productTerm => new PrimeImplicant(productTerm));
+class PrimeImplicant extends ProductTerm {
+  coversArray = [];
 
-    for (var var16 = 0; var16 < super.#numMinterms; var16++) {
-      var productTerm = this.#levelTerms[0][var16];
+  constructor(productTerm) {
+    super(productTerm.value, productTerm.mask, productTerm.variableNames);
+  }
 
-      this.#primeImplicants.forEach(primeImplicant => {
-        if (primeImplicant.covers(productTerm)) {
-          productTerm.incrementCoverCount();
-          primeImplicant.addCover(productTerm);
-        }
-      });
+  #getCount() {
+    return this.coversArray.length;
+  }
 
-      if (!productTerm.#getCoverCount()) {
-        throw "Minterm " + this.#reverseBits(productTerm.#value, super.#numVars) + " is not covered by any prime implicants.";
-      }
-    }
-
-    this.primeImplicants.sort((p1, p2) => p1.#compareTo(p2));
-    var vector1 = this.#levelTerms[0].slice();
-    vector1.sort((p1, p2) => p1.#compareTo(p2));
-    var vector2 = this.#primeImplicants.slice();
-
-    while (vector1.length) {
-      for (var var23 = 0; var23 < vector2.length; var23++) {
-        if (vector2[var23].#covers(vector1[0])) {
-          this.minimum.push(vector2[var23]);
-          vector2[var23].#covers.forEach(productTerm => vector1 = vector1.filter(pt => !pt.#equals(productTerm)));
-          vector2 = vector2.filter(p => !p.#equals(vector2[var23]));
-        }
-      }
+  #addCover(productTerm) {
+    if (!productTerm.isMinterm()) {
+      throw "Attempt to add " + productTerm.toString() + " to the list of minterms covered by prime implicant " + super.toString() + ", but " + productTerm.toString() + " is not a minterm.";
+    } else if (!this.covers(productTerm)) {
+      throw "Attempt to add " + productTerm.toString() + " to the list of minterms covered by prime implicant " + super.toString() + ", but " + productTerm.toString() + " is not covered by " + super.toString();
+    } else {
+      this.coversArray.add(productTerm);
     }
   }
 
-  #toString() {
-    if (!this.#minimum.length) {
-      return "0";
-    } else {
-      return this.#minimum.map(productTerm => productTerm.#toString()).join(" + ");
-    }
+  compareTo(primeImplicant) {
+    return primeImplicant.coversArray.length - this.coversArray.length;
+  }
+
+  toString() {
+    return "[" + super.toString() + ": " + this.coversArray.map(cover => cover.toString()).join(", ") + "]";
   }
 }
 
@@ -117,28 +106,28 @@ class TruthTable {
   #NOT = '\'';
   #ZERO = '0';
   #ONE = '1';
-  #numMinterms;
+  numMinterms;
   #numRows;
   #mintermMask;
-  #numVars;
+  numVars;
   #variableNames = [];
   #namesReversed = [];
   #theTable;
-  #minterms = [];
+  minterms = [];
   #normalized = "Not Given";
 
   constructor(minterms) {
-    this.#numMinterms = minterms.length;
+    this.numMinterms = minterms.length;
 
-    if (!this.#numMinterms) {
+    if (!this.numMinterms) {
       this.#numRows = 0;
       this.#mintermMask = 0;
-      this.#numVars = 0;
+      this.numVars = 0;
       this.#theTable = [];
       this.#normalized = "";
     } else {
       minterms.sort();
-      var lastMinterm = minterms[this.#numMinterms - 1];
+      var lastMinterm = minterms[this.numMinterms - 1];
       if (lastMinterm < 0) {
         lastMinterm = 0;
       }
@@ -150,20 +139,20 @@ class TruthTable {
 
       this.#numRows = Math.pow(2, biggestBit + 1);
       this.#mintermMask = this.#numRows - 1;
-      this.#numVars = Math.ceil(Math.log(this.#numRows) / Math.log(2));
+      this.numVars = Math.ceil(Math.log(this.#numRows) / Math.log(2));
 
-      for (var index = 0; index < this.#numVars; index++) {
-        this.#variableNames.push(String.charCodeAt(65 + index));
+      for (var index = 0; index < this.numVars; index++) {
+        this.#variableNames.push(String.fromCharCode(65 + index));
       }
       for (var index = 0; index < this.numVars; index++) {
-        this.#namesReversed.push(this.#variableNames[this.#numVars - index - 1]);
+        this.#namesReversed.push(this.#variableNames[this.numVars - index - 1]);
       }
 
       this.#theTable = Array(this.#numRows).fill(false);
 
-      for (var index = 0; index < this.#numMinterms; index++) {
+      for (var index = 0; index < this.numMinterms; index++) {
         this.theTable[minterms[index]] = true;
-        this.minterms.push(new ProductTerm(this.#reverseBits(minterms[index], this.#numVars), this.#mintermMask, this.#variableNames));
+        this.minterms.push(new ProductTerm(this.reverseBits(minterms[index], this.numVars), this.#mintermMask, this.#variableNames));
       }
     }
   }
@@ -178,7 +167,7 @@ class TruthTable {
     return -1;
   }
 
-  #reverseBits(var0, var1) {
+  reverseBits(var0, var1) {
     var var2 = 1 << var1 - 1;
     var var3 = 1;
     var var4 = var0 & ~(Math.pow(2, var1) - 1);
@@ -196,111 +185,112 @@ class TruthTable {
   }
 }
 
-class PrimeImplicant extends ProductTerm {
-  #coversArray = [];
+class QuineMcCluskey extends TruthTable {
+  #numLevels;
+  #levelTerms;
+  #primeImplicants;
+  #minimum = [];
+  #timesCovered;
+  #findAll = true;
 
-  constructor(productTerm) {
-    super(productTerm.#value, productTerm.#mask, productTerm.variableNames);
-  }
+  constructor(minterms) {
+    super(minterms);
+    this.#numLevels = super.numVars + 1;
+    this.#levelTerms = Array(this.#numLevels);
 
-  #getCount() {
-    return this.#coversArray.length;
-  }
+    this.#levelTerms[0] = [];
 
-  #addCover(productTerm) {
-    if (!productTerm.#isMinterm()) {
-      throw "Attempt to add " + productTerm.#toString() + " to the list of minterms covered by prime implicant " + super.#toString() + ", but " + productTerm.#toString() + " is not a minterm.";
-    } else if (!this.#covers(productTerm)) {
-      throw "Attempt to add " + productTerm.#toString() + " to the list of minterms covered by prime implicant " + super.#toString() + ", but " + productTerm.#toString() + " is not covered by " + super.#toString();
-    } else {
-      this.#coversArray.add(productTerm);
-    }
-  }
-
-  #compareTo(primeImplicant) {
-    return primeImplicant.#coversArray.length - this.#coversArray.length;
-  }
-
-  #toString() {
-    return "[" + super.toString() + ": " + this.#coversArray.map(cover => cover.#toString()).join(", ") + "]";
-  }
-}
-
-class ProductTerm {
-  static #identity = new ProductTerm(0, 0, []);
-  #value;
-  #mask;
-  #numLiterals;
-  #variableNames;
-  #coverCount = 0;
-  constructor(value, mask, variableNames) {
-    this.#value = value;
-    this.#mask = mask;
-    this.#numLiterals = value.toString(2).replace(/0/g, "").length;
-    this.#variableNames = variableNames;
-  }
-
-  #isMinterm() {
-    return this.#numLiterals === this.#numVars;
-  }
-
-  #incrementCoverCount() {
-    this.coverCount++;
-  }
-
-  #compareTo(productTerm) {
-    return this.#coverCount - productTerm.#coverCount;
-  }
-
-  #equals(productTerm) {
-    return this.#value === productTerm.#value && this.#mask === productTerm.#mask;
-  }
-
-  #reduces(productTerm) {
-    if (productTerm.#mask === this.#mask) {
-      if (this.#mask === 0) {
-        return this.#identity;
-      }
-
-      var value = productTerm.#value & this.#mask ^ this.#value & this.#mask;
-      if (value.toString(2).replace(/0/g, "").length === 1) {
-        return new ProductTerm(~value & this.#value, ~value & this.#mask, this.variableNames);
-      }
+    for (var index = 0; index < super.numMinterms; index++) {
+      this.#levelTerms[0].push(super.minterms[index]);
     }
 
-    return null;
-  }
+    var productTerm2, productTerm3;
+    var index = 0;
+    if (super.numVars > 0) {
+      label_A: for (index = 1; index < this.numLevels; ++index) {
+        var toBreak = 0;
+        this.#levelTerms[index] = [];
+        label_B: for (var productTermIndex1 = 0; productTermIndex1 < this.#levelTerms[index - 1].length; productTermIndex1++) {
+          var problem = false;
+          var elements = this.#levelTerms[index - 1].slice().reverse();
 
-  #covers(productTerm) {
-    return (this.#value & this.#mask) === (productTerm.#value & this.#mask);
-  }
+          while (true) {
+            do {
+              if (!elements.length) {
+                if (!problem) {
+                  this.#levelTerms[index].push(this.#levelTerms[index - 1][productTermIndex1]);
+                }
+                continue label_B;
+              }
 
-  #toString() {
-    if (this.#mask === 0) {
-      return "1";
-    } else {
-      var string = "";
-      for (var index = 0; index < this.#variableNames.length; index++) {
-        if ((this.#mask & 1 << index) !== 0) {
-          string += this.#variableNames[index];
-          if ((this.#value & 1 << index) === 0) {
-            string += "'";
+              productTerm2 = elements.pop();
+              productTerm3 = productTerm2.reduces(this.#levelTerms[index - 1][productTermIndex1]);
+            } while (!productTerm3);
+
+            toBreak++;
+            var notDone = false;
+            for (var productTermIndex4 = 0; productTermIndex4 < this.#levelTerms[index].length; productTermIndex4++) {
+              if (productTerm3.equals(this.#levelTerms[index][productTermIndex4])) {
+                notDone = true;
+                break;
+              }
+            }
+
+            if (!notDone) {
+              this.#levelTerms[index].push(productTerm3);
+              if (ProductTerm.identity.equals(productTerm3)) {
+                break label_A;
+              }
+            }
+
+            problem = true;
           }
         }
-      }
 
-      return string;
+        if (!toBreak) {
+          break;
+        }
+      }
+    }
+
+    this.#primeImplicants = this.#levelTerms[index].map(productTerm => new PrimeImplicant(productTerm));
+
+    for (var var16 = 0; var16 < super.numMinterms; var16++) {
+      var productTerm = this.#levelTerms[0][var16];
+
+      this.#primeImplicants.forEach(primeImplicant => {
+        if (primeImplicant.covers(productTerm)) {
+          productTerm.incrementCoverCount();
+          primeImplicant.addCover(productTerm);
+        }
+      });
+
+      if (!productTerm.coverCount) {
+        throw "Minterm " + this.reverseBits(productTerm.value, super.numVars) + " is not covered by any prime implicants.";
+      }
+    }
+
+    this.primeImplicants.sort((p1, p2) => p1.compareTo(p2));
+    var vector1 = this.#levelTerms[0].slice();
+    vector1.sort((p1, p2) => p1.compareTo(p2));
+    var vector2 = this.#primeImplicants.slice();
+
+    while (vector1.length) {
+      for (var var23 = 0; var23 < vector2.length; var23++) {
+        if (vector2[var23].covers(vector1[0])) {
+          this.minimum.push(vector2[var23]);
+          vector2[var23].coversArray.forEach(productTerm => vector1 = vector1.filter(pt => !pt.equals(productTerm)));
+          vector2 = vector2.filter(p => !p.equals(vector2[var23]));
+        }
+      }
+    }
+  }
+
+  toString() {
+    if (!this.#minimum.length) {
+      return "0";
+    } else {
+      return this.#minimum.map(productTerm => productTerm.toString()).join(" + ");
     }
   }
 }
-
-//IntVector.append      array.push
-//IntVector.toArray     array.slice
-//IntVector.toString    "["+array.join(", ")+"]"
-
-
-//CharStack.pop         array.pop
-//CharStack.push        array.push
-//CharStack.isEmpty     array.length===0
-//CharStack.peek        array[array.length-1];
-//CharStack.toString()  "["+array.join("")+"]"
