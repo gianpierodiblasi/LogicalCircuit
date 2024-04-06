@@ -137,3 +137,22 @@ var logicalCircuit = new LogicalCircuit();
   - input:
     - name: the name (STRING)
   - output: (NOTHING)
+
+## How To Use
+The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
+
+- reference all the not versioned files logicalcircuit-*.js
+- reference only the logicalcircuit-bundle-<version>.js
+- reference only the logicalcircuit-bundle-min-<version>.js
+
+In order to show the behavior of:
+- the simplify method an implementation of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm) is provided
+- the tidy up functionality a reference to the [dagre](https://github.com/dagrejs/dagre) library is provided
+
+Open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example.
+
+## Dependencies
+- dagre.js (optional) - [link](https://github.com/dagrejs/dagre)
+
+## Donate
+If you would like to support the development of this and/or other projects, consider making a [donation](https://www.paypal.com/donate/?business=HCDX9BAEYDF4C&no_recurring=0&currency_code=EUR).
