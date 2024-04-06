@@ -84,18 +84,19 @@ class ProductTerm {
     if (this.mask === 0) {
       return "1";
     } else {
-      var var1 = "";
+      var var1 = [];
 
       for (var var2 = 0; var2 < this.numVars; ++var2) {
         if ((this.mask & 1 << var2) !== 0) {
-          var1 += this.variableNames[var2];
           if ((this.value & 1 << var2) === 0) {
-            var1 += '\'';
+            var1.push('NOT ' + this.variableNames[var2]);
+          } else {
+            var1.push(this.variableNames[var2]);
           }
         }
       }
 
-      return var1;
+      return "(" + var1.join(" AND ") + ")";
     }
   }
 
@@ -402,7 +403,7 @@ class QuineMcCluskey extends TruthTable {
         var var3 = this.minimum[var2];
         var1 += var3.ptString();
         if (var2 < this.minimum.length - 1) {
-          var1 += " + ";
+          var1 += " OR ";
         }
       }
 
