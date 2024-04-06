@@ -101,6 +101,13 @@ var logicalCircuit = new LogicalCircuit();
     - name: the name of the node (STRING)
     - index: the index in the *from* array of the node (INTEGER)
   - output: NOTHING
+- *remove(name)*: removes a node
+  - input:
+    - name: the node name (STRING)
+  - output: NOTHING
+- *clear()*: clears the logical circuit
+  - input: NOTHING
+  - output: NOTHING
 - *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name:
   - has to respect the following regular expression
     ```javascript

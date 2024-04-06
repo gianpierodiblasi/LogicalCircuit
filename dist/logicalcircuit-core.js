@@ -213,6 +213,17 @@ class LogicalCircuitCore {
     }
   }
 
+  remove(name) {
+    if (this.#json[name]) {
+      delete this.#json[name];
+      Object.keys(this.#json).filter(property => this.#json[property].type !== "IN").forEach(property => this.#json[property].from = this.#json[property].from.map(element => element === name ? "" : element));
+    }
+  }
+
+  clear() {
+    this.#json = {};
+  }
+
   isNameValid(name) {
     return typeof name === 'string' && /^[a-z]+[a-z0-9_]*$/i.test(name) && !this.#blackListNames.includes(name.toUpperCase());
   }
