@@ -107,3 +107,44 @@ class ProductTerm {
     return var1;
   }
 }
+
+class PrimeImplicant extends ProductTerm {
+  coversArray = [];
+
+  constructor(var1) {
+    super(var1.getValue(), var1.getMask(), var1.getVariableNames());
+  }
+
+  addCover(var1) {
+    if (!var1.isMinterm()) {
+      throw "Attempt to add " + var1.toString() + " to the list of minterms covered by prime implicant " + super.toString() + ", but " + var1.toString() + " is not a minterm.";
+    } else if (!this.covers(var1)) {
+      throw "Attempt to add " + var1.toString() + " to the list of minterms covered by prime implicant " + super.toString() + ", but " + var1.toString() + " is not covered by " + super.toString();
+    } else {
+      this.coversArray.push(var1);
+    }
+  }
+
+  getCount() {
+    return this.coversArray.length;
+  }
+
+  compareTo(var1) {
+    return var1.coversArray.length - this.coversArray.length;
+  }
+
+  toString() {
+    var var1 = "[ " + super.toString() + ": ";
+
+    for (var var2 = 0; var2 < this.coversArray.size(); ++var2) {
+      var1 += this.coversArray.elementAt(var2);
+      if (var2 < this.coversArray.length - 1) {
+        var1 += ", ";
+      }
+    }
+
+    var1 += " ]";
+    return var1;
+  }
+}
+
