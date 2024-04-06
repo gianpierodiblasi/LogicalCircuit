@@ -42,12 +42,15 @@ var logicalCircuit = new LogicalCircuit();
   - it has to provide a SOP (Sum Of Products) logical expression
   - it has to be of the following type (numberOfProperties: INTEGER, minterms: \[INTEGER\]) => STRING
   - the output has to be a string representing the simplified logical circuit
-  - the output string has to use:
-    - capital letters for properties
+  - the output string has to use (example: ```(A AND NOT B) OR (NOT A AND B)```):
+    - capital letters for properties (in the sequence order: A, B, C,...)
     - AND, OR and NOT for logical operators
   - input:
     - simplifier: the simplifier (FUNCTION)
   - output: NOTHING
+- *simplify()*: simplifies the logical circuit
+  - input: NOTHING
+  - output: true if the simplification has been performed, false otherwise (BOOLEAN)
 - *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input:
     - parameters: the input parameters (JSON)

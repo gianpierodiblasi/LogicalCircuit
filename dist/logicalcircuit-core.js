@@ -42,6 +42,92 @@ class LogicalCircuitCore {
     this.#simplifier = simplifier;
   }
 
+  simplify() {
+    if (!this.#simplifier || !this.isValid()) {
+      return false;
+    } else {
+      var newJSON = {};
+      Object.keys(this.#json).filter(name => this.#json[name].type === "IN").forEach(input => newJSON[input] = {"type": "IN"});
+
+      var canSimplify = true;
+      Object.keys(this.#json).filter(name => this.#json[name].type === "OUT").forEach(name => {
+        var inputs = [];
+        this.#findInputs(name, inputs);
+
+        var minterms = [];
+        for (var index = 0; index < Math.pow(2, inputs.length); index++) {
+          var parameters = {};
+          var binary = index.toString(2).padStart(inputs.length, "0");
+          inputs.forEach((input, idx) => parameters[input] = !!parseInt(binary[idx]));
+
+          if (this.computeExpression(name, parameters)) {
+            minterms.push(index);
+          }
+        }
+
+        newJSON[name] = {"type": "OUT", "from": []};
+        try {
+          var expression = this.#simplifier(inputs.length, minterms);
+          this.#getSimplified(newJSON, name, inputs, expression);
+        } catch (exception) {
+          canSimplify = false;
+        }
+      });
+
+      if (canSimplify) {
+        this.#json = newJSON;
+      }
+      return canSimplify;
+    }
+  }
+
+  #findInputs(name, array) {
+    if (this.#json[name].type === "IN") {
+      if (!array.includes(name)) {
+        array.push(name);
+      }
+    } else if (this.#json[name].type === "NOT") {
+      this.#findInputs(this.#json[name].from[0], array);
+    } else {
+      this.#json[name].from.forEach(element => this.#findInputs(element, array));
+    }
+  }
+
+  #getSimplified(newJSON, name, inputs, expression) {
+    expression = expression.split(" OR ");
+
+    if (expression.length === 1) {
+      this.#getSimplifiedSubExpression(newJSON, name, inputs, expression[0]);
+    } else {
+      var uniqueName = this.#getUniqueName();
+      newJSON[uniqueName] = {"type": "OR", "from": []};
+      expression.forEach(subExpression => this.#getSimplifiedSubExpression(newJSON, uniqueName, inputs, subExpression));
+      newJSON[name].from.push(uniqueName);
+    }
+  }
+
+  #getSimplifiedSubExpression(newJSON, uniqueName, inputs, subExpression) {
+    subExpression = subExpression.replace("(", "").replace(")", "").split(" AND ");
+    if (subExpression.length === 1) {
+      this.#getSimplifiedElement(newJSON, uniqueName, inputs, subExpression[0]);
+    } else {
+      var uniqueNameSub = this.#getUniqueName();
+      newJSON[uniqueNameSub] = {"type": "AND", "from": []};
+      subExpression.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameSub, inputs, element));
+      newJSON[uniqueName].from.push(uniqueNameSub);
+    }
+  }
+
+  #getSimplifiedElement(newJSON, uniqueName, inputs, element) {
+    if (element.startsWith("NOT ")) {
+      var uniqueNameNOT = this.#getUniqueName();
+      newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[element.charCodeAt(4) - 65]]};
+      newJSON[uniqueName].from.push(uniqueNameNOT);
+    } else {
+      newJSON[uniqueName].from.push(inputs[element.charCodeAt(0) - 65]);
+    }
+  }
+
   computeExpressions(parameters) {
     var expressions = {};
     if (this.isValid()) {
