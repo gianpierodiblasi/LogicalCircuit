@@ -67,3 +67,40 @@ var logicalCircuit = new LogicalCircuit();
 - *isValid()*: checks if this object represents a set of valid logical circuits
   - input: NOTHING
   - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+- *addInput(name)*: adds an input node
+  - input:
+    - name: the node name (STRING)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
+- *addOutput(name)*: adds an output node
+  - input:
+    - name: the node name (STRING)
+  - output: true if the node is added, false otherwise; a node is not added if and only if the name is not valid or is already used (BOOLEAN)
+- *add\<Operator>()*: adds an operator node (an operator is always added)
+  - input: NOTHING
+  - output: the unique name assigned to the operator (STRING)
+- *incConnector(name)*: increments the number of connectors in an operator
+  - input:
+    - name: the operator name (STRING)
+  - output: NOTHING
+- *decConnector(name)*: decrements the number of connectors in an operator
+  - input:
+    - name: the operator name (STRING)
+  - output: NOTHING
+- *isNameValid(name)*: an utility method to check if a name is valid as input/output parameter; to be valid a name:
+  - has to respect the following regular expression
+    ```javascript
+    /^[a-z]+[a-z0-9_]*$/i
+    ```
+  - cannot be one of the following blacklist words: OR, NOR, AND, NAND, XOR, NXOR, NOT (case insensitive)
+  - cannot be a JavaScript reserved word (case insensitive)
+  - input:
+    - name: the name (STRING)
+  - output: true if the name is valid, false otherwise (BOOLEAN)
+- *isNameAlreadyUsed(name)*: an utility method to check if a name is already used
+  - input:
+    - name: the name (STRING)
+  - output: true if the name is already used, false otherwise (BOOLEAN)
+- *addBlackListWord(name)*: adds a new word in the blacklist
+  - input:
+    - name: the name (STRING)
+  - output: (NOTHING)

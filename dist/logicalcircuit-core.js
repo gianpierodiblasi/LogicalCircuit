@@ -107,4 +107,90 @@ class LogicalCircuitCore {
     });
     return !!connected;
   }
+
+  addInput(name) {
+    return this.#add(name, {"type": "IN"});
+  }
+
+  addOutput(name) {
+    return this.#add(name, {"type": "OUT", "from": [""]});
+  }
+
+  addOR() {
+    return this.#addOperator("OR", ["", ""]);
+  }
+
+  addNOR() {
+    return this.#addOperator("NOR", ["", ""]);
+  }
+
+  addAND() {
+    return this.#addOperator("AND", ["", ""]);
+  }
+
+  addNAND() {
+    return this.#addOperator("NAND", ["", ""]);
+  }
+
+  addXOR() {
+    return this.#addOperator("XOR", ["", ""]);
+  }
+
+  addNXOR() {
+    return this.#addOperator("NXOR", ["", ""]);
+  }
+
+  addNOT() {
+    return this.#addOperator("NOT", [""]);
+  }
+
+  #addOperator(operator, from) {
+    var name = this.#getUniqueName();
+    this.#add(name, {"type": operator, "from": from});
+    return name;
+  }
+
+  #add(name, json) {
+    if (this.isNameValid(name) && !this.isNameAlreadyUsed(name)) {
+      this.#json[name] = json;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  #getUniqueName() {
+    return "LogicalCircuitOperator_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
+  }
+
+  incConnector(name) {
+    if (this.#json[name] && !["IN", "OUT", "NOT"].includes(this.#json[name].type)) {
+      this.#json[name].from.push("");
+    }
+  }
+
+  decConnector(name) {
+    if (this.#json[name] && !["IN", "OUT", "NOT"].includes(this.#json[name].type) && this.#json[name].from.length > 2) {
+      var index = this.#json[name].from.indexOf("");
+      if (index !== -1) {
+        this.#json[name].from.splice(index, 1);
+      } else {
+        this.#json[name].from.pop();
+      }
+    }
+  }
+
+  isNameValid(name) {
+    return typeof name === 'string' && /^[a-z]+[a-z0-9_]*$/i.test(name) && !this.#blackListNames.includes(name.toUpperCase());
+  }
+
+  isNameAlreadyUsed(name) {
+    return !!this.#json[name];
+  }
+
+  addBlackListWord(name) {
+    if (name) {
+      this.#blackListNames.push(name.toUpperCase());
+    }
+  }
 }
