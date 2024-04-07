@@ -99,7 +99,7 @@ class LogicalCircuitCore {
     if (expression.length === 1) {
       this.#getSimplifiedSubExpression(newJSON, name, inputs, expression[0]);
     } else {
-      var uniqueName = this.#getUniqueName();
+      var uniqueName = this.#getUniqueName("OR");
       newJSON[uniqueName] = {"type": "OR", "from": []};
       expression.forEach(subExpression => this.#getSimplifiedSubExpression(newJSON, uniqueName, inputs, subExpression));
       newJSON[name].from.push(uniqueName);
@@ -111,7 +111,7 @@ class LogicalCircuitCore {
     if (subExpression.length === 1) {
       this.#getSimplifiedElement(newJSON, uniqueName, inputs, subExpression[0]);
     } else {
-      var uniqueNameSub = this.#getUniqueName();
+      var uniqueNameSub = this.#getUniqueName("AND");
       newJSON[uniqueNameSub] = {"type": "AND", "from": []};
       subExpression.forEach(element => this.#getSimplifiedElement(newJSON, uniqueNameSub, inputs, element));
       newJSON[uniqueName].from.push(uniqueNameSub);
@@ -120,7 +120,7 @@ class LogicalCircuitCore {
 
   #getSimplifiedElement(newJSON, uniqueName, inputs, element) {
     if (element.startsWith("NOT ")) {
-      var uniqueNameNOT = this.#getUniqueName();
+      var uniqueNameNOT = this.#getUniqueName("NOT");
       newJSON[uniqueNameNOT] = {"type": "NOT", "from": [inputs[element.charCodeAt(4) - 65]]};
       newJSON[uniqueName].from.push(uniqueNameNOT);
     } else {
@@ -231,7 +231,7 @@ class LogicalCircuitCore {
   }
 
   #addOperator(operator, from) {
-    var name = this.#getUniqueName();
+    var name = this.#getUniqueName(operator);
     this.#add(name, {"type": operator, "from": from});
     return name;
   }
@@ -245,8 +245,8 @@ class LogicalCircuitCore {
     }
   }
 
-  #getUniqueName() {
-    return "LogicalCircuitOperator_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
+  #getUniqueName(operator) {
+    return "$_" + operator.padEnd(4, "_") + new Date().getTime() + "_" + parseInt(Math.random() * 10000).toFixed(0).padStart(4, "0");
   }
 
   incConnector(name) {

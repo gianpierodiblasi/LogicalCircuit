@@ -4,9 +4,11 @@
     <title>Test Logical Circuit Core</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" type="image/png" href="../or.png">
+    <script src="../dist/quinemccluskey.js"></script>
     <script src="../dist/logicalcircuit-core.js"></script>
     <script>
       var core = new LogicalCircuitCore();
+      core.setSimplifier(minterms => new QuineMcCluskey(minterms).toString());
       core.setJSON({
         "x": {"type": "IN"},
         "y": {"type": "IN"},
@@ -21,6 +23,76 @@
       console.log(core.getJavaScriptExpressions());
       console.log("computeExpressions");
       console.log(core.computeExpressions({"x": true, "y": false}));
+
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+
+      console.log("equality");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "out1": {"type": "OUT", "from": ["x"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+
+      console.log("not");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "n": {"type": "NOT", "from": ["x"]},
+        "out1": {"type": "OUT", "from": ["n"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+
+      console.log("and");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "y": {"type": "IN"},
+        "o1": {"type": "AND", "from": ["x", "y"]},
+        "out1": {"type": "OUT", "from": ["o1"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+
+      console.log("or");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "y": {"type": "IN"},
+        "o2": {"type": "OR", "from": ["x", "y"]},
+        "out1": {"type": "OUT", "from": ["o2"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+
+      console.log("or multiple");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "y": {"type": "IN"},
+        "z": {"type": "IN"},
+        "o2": {"type": "OR", "from": ["x", "y", "z"]},
+        "out1": {"type": "OUT", "from": ["o2"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
+      
+      console.log("or multiple and not");
+      core.setJSON({
+        "x": {"type": "IN"},
+        "y": {"type": "IN"},
+        "z": {"type": "IN"},
+        "n": {"type": "NOT", "from": ["x"]},
+        "o2": {"type": "OR", "from": ["n", "y", "z"]},
+        "out1": {"type": "OUT", "from": ["o2"]}
+      });
+      core.simplify();
+      console.log(core.getJavaScriptExpressions());
+      console.log(core.getJSON());
     </script>
   </head>
   <body>
