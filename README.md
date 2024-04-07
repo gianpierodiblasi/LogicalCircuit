@@ -198,6 +198,14 @@ where:
   - input:
     - simplifier: the simplifier (FUNCTION)
   - output: NOTHING
+- *setBezierConnector(bezierConnector)*: sets the bezier connector
+  - input:
+    - bezierConnector: true to connect the object by means of a bezier curve, false otherwise (BOOLEAN)
+  - output: NOTHING
+- *setShowOperatorType(showOperatorType)*: sets the visualization of the operator type
+  - input:
+    - showOperatorType: true to show the operator type, false otherwise (BOOLEAN)
+  - output: NOTHING
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:

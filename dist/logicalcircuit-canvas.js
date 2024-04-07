@@ -29,4 +29,14 @@ class LogicalCircuitCanvas {
     this.#ctx.lineJoin = "round";
 //    this.#draw();
   }
+  
+  setBezierConnector(bezierConnector) {
+    this.#default.bezierConnector = bezierConnector;
+//    this.#draw();
+  }
+
+  setShowOperatorType(showOperatorType) {
+    this.#default.showOperatorType = showOperatorType;
+//    this.#draw();
+  }
 }
