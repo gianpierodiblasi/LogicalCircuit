@@ -1,0 +1,42 @@
+.LogicalCircuitUI_Container {
+}
+
+.LogicalCircuitUI_Toolbar {
+  display: flex;
+  margin-bottom: 5px;
+}
+.LogicalCircuitUI_Toolbar button {
+  height: 23px;
+}
+.LogicalCircuitUI_Toolbar button.small {
+  width: 30px;
+}
+.LogicalCircuitUI_Toolbar button.medium {
+  width: 60px;
+}
+.LogicalCircuitUI_Toolbar button.large {
+  width: 90px;
+}
+
+.LogicalCircuitUI_Toolbar_ButtonContainer {
+  display: flex;
+  flex-flow: column wrap;
+}
+
+.LogicalCircuitUI_Toolbar_TextContainer {
+  width: 120px;
+  display: flex;
+  flex-flow: row wrap;
+}
+.LogicalCircuitUI_Toolbar_TextContainer > input[type=text] {
+  width: 100%;
+  height: 17px;
+}
+
+.LogicalCircuitUI_Toolbar_ButtonContainer.Divide_On_Right, .LogicalCircuitUI_Toolbar_TextContainer.Divide_On_Right {
+  margin-right: 5px;
+}
+
+.LogicalCircuitUI_Canvas {
+  border: 1px solid black;
+}

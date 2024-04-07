@@ -175,6 +175,30 @@ where:
   "//": "false otherwise (default: false)"
 }
 ```
+
+#### methods
+- *setJSONs(json, jsonUI)*: sets the JSON objects describing the structure (visual and not) used by the class to manage the circuit; no check is done on the correctness of the JSON objects
+  - input:
+    - json: the JSON object, as described above (JSON)
+    - jsonUI: the JSON object, as described above (JSON)
+  - output: NOTHING
+- *getJSON()*: returns the JSON object describing the structure used by the class to manage the circuit
+  - input: NOTHING
+  - output: the JSON object, as described above (JSON)
+- *getJSONUI()*: returns the JSON object describing the visual structure used by the class to manage the circuit
+  - input: NOTHING
+  - output: the JSON object, as described above (JSON)
+- *setSimplifier(simplifier)*: sets a function able to simplify the logical circuit; the function has to respect the following constraints:
+  - it has to provide a SOP (Sum Of Products) logical expression (example: ```(A AND NOT B) OR (NOT A AND B)```)
+  - it has to be of the following type ```(minterms: [INTEGER]) => STRING```
+  - the output has to be a string representing the simplified logical circuit
+  - the output string has to use:
+    - capital letters for properties (in the sequence order: A, B, C,...)
+    - AND, OR and NOT for logical operators
+  - input:
+    - simplifier: the simplifier (FUNCTION)
+  - output: NOTHING
+
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
 

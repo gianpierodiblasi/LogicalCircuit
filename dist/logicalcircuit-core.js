@@ -246,7 +246,7 @@ class LogicalCircuitCore {
   }
 
   #getUniqueName(operator) {
-    return "$_" + operator.padEnd(4, "_") + new Date().getTime() + "_" + parseInt(Math.random() * 10000).toFixed(0).padStart(4, "0");
+    return "$_" + operator.padEnd(5, "_") + new Date().getTime() + "_" + parseInt(Math.random() * 10000).toFixed(0).padStart(4, "0");
   }
 
   incConnector(name) {

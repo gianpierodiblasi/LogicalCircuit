@@ -78,8 +78,10 @@
 //  "output2": {"top": 400, "left": 257.390625}
 //};
 //
-//window.onload = (event) => {
-//  var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
+window.onload = (event) => {
+  var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
+  logicalCircuitUI.setSimplifier(minterms => new QuineMcCluskey(minterms).toString());
+
 //  document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
 //  document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
 //  document.querySelector("#load3").onclick = () => logicalCircuitUI.setJSONs(json3, jsonUI3);
@@ -98,4 +100,4 @@
 //      }
 //    }
 //  });
-//};
+};
