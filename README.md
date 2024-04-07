@@ -40,7 +40,7 @@ var logicalCircuit = new LogicalCircuit();
   - output: the JSON object, as described above (JSON)
 - *setSimplifier(simplifier)*: sets a function able to simplify the logical circuit; the function has to respect the following constraints:
   - it has to provide a SOP (Sum Of Products) logical expression (example: ```(A AND NOT B) OR (NOT A AND B)```)
-  - it has to be of the following type ```(minterms: \[INTEGER\]) => STRING```
+  - it has to be of the following type ```(minterms: [INTEGER]) => STRING```
   - the output has to be a string representing the simplified logical circuit
   - the output string has to use:
     - capital letters for properties (in the sequence order: A, B, C,...)
