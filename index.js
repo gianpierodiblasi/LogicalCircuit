@@ -1,3 +1,5 @@
+/* global dagre */
+
 var json1 = {
   "x": {"type": "IN"},
   "y": {"type": "IN"},
@@ -81,6 +83,36 @@ var jsonUI3 = {
 window.onload = (event) => {
   var logicalCircuitUI = new LogicalCircuitUI(document.querySelector("#container"), {});
   logicalCircuitUI.setSimplifier(minterms => new QuineMcCluskey(minterms).toString());
+
+  logicalCircuitUI.setReorganizer((symbolSize, edges, width, height) => {
+    var g = new dagre.graphlib.Graph();
+    g.setGraph({
+      "rankdir": "LR",
+      "marginx": 20,
+      "marginy": 20
+    });
+    g.setDefaultEdgeLabel(() => {
+      return {};
+    });
+
+    Object.keys(symbolSize).forEach(property => g.setNode(property, {width: symbolSize[property].width, height: symbolSize[property].height}));
+    edges.forEach(edge => g.setEdge(edge.from, edge.to));
+
+    dagre.layout(g);
+    var graph = g.graph();
+
+    var scale = graph.width > width || graph.height > height ? Math.min(width / graph.width, height, graph.height) : 1;
+
+    var json = {};
+    g.nodes().forEach(v => {
+      var node = g.node(v);
+      json[v] = {
+        "left": node.x * scale - node.width / 2,
+        "top": node.y * scale - node.height / 2
+      };
+    });
+    return json;
+  });
 
   document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
   document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);

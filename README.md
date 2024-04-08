@@ -201,6 +201,37 @@ where:
   - input:
     - simplifier: the simplifier (FUNCTION)
   - output: NOTHING
+-*setReorganizer(reorganizer)*: sets a function able to reorganize the logical circuit; the function has to respect the following constraints:
+  - it has to provide a JSON object with the same structure as described above
+  - it has to be of the following type ```(symbolSize: [JSON], edges: [ARRAY], width: [INTEGER], height: [INTEGER]) => JSON```
+  - *symbolSize* has to represent the size of all nodes by means of a JSON with the following structure
+  ```json
+    {
+      "x": {"width": 100, "height": 20},
+      "y": {"width": 100, "height": 20},
+      "o1": {"width": 150, "height": 50},
+      "o2": {"width": 150, "height": 50},
+      "o12": {"width": 100, "height": 20},
+      "out1": {"width": 120, "height": 20}
+    }
+    ```
+  - *edges* has to represent the edges between nodes by means of an array with the following structure
+  ```json
+  [
+    {"from": "x", "to": "o1"},
+    {"from": "y", "to": "o1"},
+    {"from": "x", "to": "o2"},
+    {"from": "y", "to": "o2"},
+    {"from": "o1", "to": "o12"},
+    {"from": "o2", "to": "o12"},
+    {"from": "o12", "to": "out1"},
+  ]
+  ```
+  - *width* and *height* has to be the canvas size
+  - the output has to be a JSON object with the same structure as described above
+  - input:
+    - reorganizer: the reorganizer (FUNCTION)
+  - output: NOTHING
 - *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
   - input:
     - parameters: the input parameters (JSON)

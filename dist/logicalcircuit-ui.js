@@ -27,6 +27,8 @@ class LogicalCircuitUI {
   #canvas;
   #toolbar;
 
+  #reorganizer;
+
   constructor(container, options) {
     this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
 
@@ -75,6 +77,11 @@ class LogicalCircuitUI {
   setSimplifier(simplifier) {
     this.#core.setSimplifier(simplifier);
     this.#toolbar.setSimplifierVisible(!!simplifier);
+  }
+
+  setReorganizer(reorganizer) {
+    this.reorganizer = reorganizer;
+    this.#toolbar.setReorganizeVisible(!!reorganizer);
   }
 
   computeExpressions(parameters) {
