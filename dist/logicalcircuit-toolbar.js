@@ -210,8 +210,8 @@ class LogicalCircuitToolbar {
       "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
     });
 
-    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = true;
-    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = false;
+    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = false;
+    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
   }
 
   setJSONUI() {

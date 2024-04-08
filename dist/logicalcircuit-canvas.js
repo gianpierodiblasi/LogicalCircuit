@@ -127,6 +127,7 @@ class LogicalCircuitCanvas {
   }
 
   getSymbolSize() {
+    Object.keys(this.#symbolSize).filter(property => !this.#jsonUI[property]).forEach(property => delete this.#symbolSize[property]);
     return JSON.parse(JSON.stringify(this.#symbolSize));
   }
 
