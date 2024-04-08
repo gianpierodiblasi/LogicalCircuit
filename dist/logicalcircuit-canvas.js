@@ -39,4 +39,21 @@ class LogicalCircuitCanvas {
     this.#default.showOperatorType = showOperatorType;
 //    this.#draw();
   }
+  
+  setInteractive(interactive) {
+//    this.#default.interactive = !!interactive;
+//    this.#onInteractive.selected = false;
+//
+//    this.#interactive = {};
+//
+//    if (interactive) {
+//      for (var property in this.#jsonUI) {
+//        if (this.#core.getType(property) === "IN") {
+//          this.#interactive[property] = false;
+//        }
+//      }
+//    }
+//
+//    this.#draw();
+  }
 }

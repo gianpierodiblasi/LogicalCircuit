@@ -37,12 +37,9 @@ class LogicalCircuitUI {
     this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, options);
     this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, options);
 
-    if (options.bezierConnector) {
-      this.setBezierConnector(true);
-    }
-    if (options.showOperatorType) {
-      this.setShowOperatorType(true);
-    }
+    this.setBezierConnector(options.bezierConnector);
+    this.setShowOperatorType(options.showOperatorType);
+    this.setInteractive(options.interactive);
   }
 
   getJSON() {
@@ -64,5 +61,9 @@ class LogicalCircuitUI {
 
   setShowOperatorType(showOperatorType) {
     this.#canvas.setShowOperatorType(!!showOperatorType);
+  }
+
+  setInteractive(interactive) {
+    this.#canvas.setInteractive(!!interactive);
   }
 }

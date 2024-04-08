@@ -206,6 +206,10 @@ where:
   - input:
     - showOperatorType: true to show the operator type, false otherwise (BOOLEAN)
   - output: NOTHING
+- *setInteractive(interactive)*: sets the interactive mode
+  - input:
+    - interactive: true to set the interactive mode (it is possibile to test in real time the logical circuits), false otherwise (BOOLEAN)
+  - output: NOTHING
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
