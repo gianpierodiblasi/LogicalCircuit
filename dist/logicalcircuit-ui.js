@@ -17,8 +17,11 @@ class LogicalCircuitUI {
   };
 
   #history = {
-    index: -1,
-    array: []
+    index: 0,
+    array: [{
+        "json": "{}",
+        "jsonUI": "{}"
+      }]
   };
 
   #onChangeListener = [];
@@ -51,9 +54,12 @@ class LogicalCircuitUI {
   }
 
   setJSONs(json, jsonUI) {
-    this.#history.index = -1;
-    this.#history.array = [];
-    
+    this.#history.index = 0;
+    this.#history.array = [{
+        "json": JSON.stringify(json),
+        "jsonUI": JSON.stringify(jsonUI)
+      }];
+
     this.#core.setJSON(json);
     Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
     Object.assign(this.#jsonUI, jsonUI);

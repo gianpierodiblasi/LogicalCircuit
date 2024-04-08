@@ -97,17 +97,40 @@ class LogicalCircuitToolbar {
   }
 
   #undo() {
+    this.#history.index--;
 
+    this.#core.setJSON(JSON.parse(this.#history.array[this.#history.index].json));
+    Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+    Object.assign(this.#jsonUI, JSON.parse(this.#history.array[this.#history.index].jsonUI));
+
+    this.setJSONUI();
+    this.#canvas.setJSONUI();
+
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   #redo() {
+    this.#history.index++;
 
+    this.#core.setJSON(JSON.parse(this.#history.array[this.#history.index].json));
+    Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+    Object.assign(this.#jsonUI, JSON.parse(this.#history.array[this.#history.index].jsonUI));
+
+    this.setJSONUI();
+    this.#canvas.setJSONUI();
+
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   #clear() {
     if (confirm("Do you really want to clear the current logical circuit?")) {
-      this.#history.index = -1;
-      this.#history.array = [];
+      this.#history.index = 0;
+      this.#history.array = [{
+          "json": "{}",
+          "jsonUI": "{}"
+        }];
 
       this.#core.clear();
       Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
@@ -121,10 +144,9 @@ class LogicalCircuitToolbar {
   }
 
   #addInput(name) {
-    this.#incHistory();
-
     this.#core.addInput(name);
     this.#addPosition(name);
+    this.#incHistory();
 
     this.#resetText();
     this.#resetButtons();
@@ -136,10 +158,9 @@ class LogicalCircuitToolbar {
   }
 
   #addOutput(name) {
-    this.#incHistory();
-
     this.#core.addOutput(name);
     this.#addPosition(name);
+    this.#incHistory();
 
     this.#resetText();
     this.#resetButtons();
@@ -150,11 +171,10 @@ class LogicalCircuitToolbar {
   }
 
   #add(type) {
-    this.#incHistory();
-    
     var name = this.#core["add" + type]();
     this.#addPosition(name);
-
+    this.#incHistory();
+    
     this.#resetText();
     this.#resetButtons();
 
@@ -171,15 +191,7 @@ class LogicalCircuitToolbar {
   }
 
   #simplify() {
-    var history = {
-      "json": this.#core.getJSON(),
-      "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
-    };
-
     if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
-      this.#incHistory(history);
-      this.#resetButtons();
-
       var json = this.#core.getJSON();
       Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
       Object.keys(json).filter(name => this.#core.getType(name) === "IN").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, this.#addedElementPosition.left));
@@ -200,6 +212,9 @@ class LogicalCircuitToolbar {
       } catch (exception) {
       }
 
+      this.#incHistory();
+      this.#resetButtons();
+      
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     }
@@ -212,11 +227,10 @@ class LogicalCircuitToolbar {
         Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
         var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#default.width, this.#default.height);
 
-        this.#incHistory();
-
         Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
         Object.assign(this.#jsonUI, jsonUI);
 
+        this.#incHistory();
         this.#resetButtons();
         this.#canvas.draw();
 
@@ -227,18 +241,14 @@ class LogicalCircuitToolbar {
     }
   }
 
-  #incHistory(history) {
-    if (this.#history.index > -1) {
-      this.#history.array.splice(this.#history.index + 1);
-    }
-
-    history = history ? history : {
-      "json": this.#core.getJSON(),
-      "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
-    };
+  #incHistory() {
+    this.#history.array.splice(this.#history.index + 1);
 
     this.#history.index++;
-    this.#history.array.push(history);
+    this.#history.array.push({
+      "json": JSON.stringify(this.#core.getJSON()),
+      "jsonUI": JSON.stringify(this.#jsonUI)
+    });
   }
 
   setJSONUI() {
@@ -249,8 +259,8 @@ class LogicalCircuitToolbar {
   #resetButtons() {
     var disabled = this.#core.isEmpty() || !this.#core.isValid();
 
-    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = this.#history.index === -1;
-    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = this.#history.index === 0;
+    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = this.#history.index === this.#history.array.length - 1;
     document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = this.#core.isEmpty();
     document.querySelector("." + this.#uniqueClass + " button.SIMPLIFY").disabled = disabled;
     document.querySelector("." + this.#uniqueClass + " button.REORGANIZE").disabled = disabled;
