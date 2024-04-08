@@ -254,7 +254,7 @@ The API has no dependencies, so in order to use the API it is necessary only to 
 
 In order to show the behavior of:
 - the simplify method an implementation of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm) is provided
-- the tidy up functionality a reference to the [dagre](https://github.com/dagrejs/dagre) library is provided
+- the reorganize functionality a reference to the [dagre](https://github.com/dagrejs/dagre) library is provided
 
 Open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example.
 

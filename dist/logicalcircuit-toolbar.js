@@ -32,7 +32,7 @@ class LogicalCircuitToolbar {
     this.#addButtons(toolbar, "AND", null, null, null, () => this.#add("AND"), () => this.#add("NAND"), null, "medium", false, true);
     this.#addButtons(toolbar, "XOR", null, null, null, () => this.#add("XOR"), () => this.#add("NXOR"), null, "medium", false, true);
     this.#addButtons(toolbar, "NOT", null, null, null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true);
-    this.#addButtons(toolbar, "SIMPLIFY", "TIDY UP", null, null, () => this.#simplify(), () => this.#tidyUp(false), null, "large", true, false);
+    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(false), null, "large", true, false);
   }
 
   #addButtons(toolbar, label1, label2, tooltip1, tooltip2, listener1, listener2, otherClass, size, disabled, visible) {
@@ -126,7 +126,7 @@ class LogicalCircuitToolbar {
   }
 
   #simplify() {
-//    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
+    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
 //      Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
 //      this.#resetButtons();
 //      this.#resetText();
@@ -138,7 +138,7 @@ class LogicalCircuitToolbar {
 //        this.setInteractive(this.#default.interactive);
 //        this.#onChangeListener.forEach(listener => listener());
 //
-//        this.#tidyUp(true);
+//        this.#reorganize(true);
 //      } catch (exception) {
 //        var json = this.getJSON();
 //
@@ -153,11 +153,49 @@ class LogicalCircuitToolbar {
 //        this.#onChangeUIListener.forEach(listener => listener());
 //        this.#draw();
 //      }
-//    }
+    }
   }
 
-  #tidyUp(doNotAsk) {
-
+  #reorganize(doNotAsk) {
+    if (doNotAsk || confirm("Do you really want to reorganize the current logical circuit?")) {
+//      var g = new dagre.graphlib.Graph();
+//      g.setGraph({
+//        "rankdir": "LR",
+//        "marginx": 20,
+//        "marginy": 20
+//      });
+//      g.setDefaultEdgeLabel(() => {
+//        return {};
+//      });
+//
+//      for (var property in this.#jsonUI) {
+//        g.setNode(property, {width: this.#symbolSize[property].width, height: this.#symbolSize[property].height});
+//
+//        switch (this.#core.getType(property)) {
+//          case "IN":
+//            break;
+//          case "OUT":
+//            g.setEdge(this.#core.getFrom(property)[0], property);
+//            break;
+//          default:
+//            this.#core.getFrom(property).forEach(name => g.setEdge(name, property));
+//            break;
+//        }
+//      }
+//
+//      dagre.layout(g);
+//      var graph = g.graph();
+//      var scale = graph.width > this.#canvas.width || graph.height > this.#canvas.height ? Math.min(this.#canvas.width / graph.width, this.#canvas.height, graph.height) : 1;
+//
+//      g.nodes().forEach(v => {
+//        var node = g.node(v);
+//        this.#jsonUI[v].left = node.x * scale - node.width / 2;
+//        this.#jsonUI[v].top = node.y * scale - node.height / 2;
+//      });
+//
+//      this.#onChangeUIListener.forEach(listener => listener());
+//      this.#draw();
+    }
   }
 
   setJSONUI() {
@@ -172,7 +210,7 @@ class LogicalCircuitToolbar {
     document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
     document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = true;
     document.querySelector("." + this.#uniqueClass + " button.SIMPLIFY").disabled = disabled;
-    document.querySelector("." + this.#uniqueClass + " button.TIDY-UP").disabled = disabled;
+    document.querySelector("." + this.#uniqueClass + " button.REORGANIZE").disabled = disabled;
   }
 
   #resetText() {
