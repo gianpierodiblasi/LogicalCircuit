@@ -3,14 +3,16 @@ class LogicalCircuitToolbar {
   #core;
   #jsonUI;
   #default;
+  #history;
   #onChangeListener = [];
   #onChangeUIListener = [];
 
-  constructor(container, uniqueClass, core, jsonUI, def, onChangeListener, onChangeUIListener, options) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
+    this.#history = history;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
@@ -110,7 +112,34 @@ class LogicalCircuitToolbar {
   }
 
   #simplify() {
+//    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
+//      Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+//      this.#resetButtons();
+//      this.#resetText();
 
+//      try {
+//        var g = new dagre.graphlib.Graph();
+//        Object.keys(this.getJSON()).forEach(name => this.#addPosition(name));
+//
+//        this.setInteractive(this.#default.interactive);
+//        this.#onChangeListener.forEach(listener => listener());
+//
+//        this.#tidyUp(true);
+//      } catch (exception) {
+//        var json = this.getJSON();
+//
+//        Object.keys(json).filter(name => this.#core.getType(name) === "IN").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#addedElementPosition.left));
+//        Object.keys(json).filter(name => this.#core.getType(name) === "NOT").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#canvas.width / 5));
+//        Object.keys(json).filter(name => this.#core.getType(name) === "AND").forEach((name, index, array) => this.#assignPosition(name, index, array, 2 * this.#canvas.width / 5));
+//        Object.keys(json).filter(name => this.#core.getType(name) === "OR").forEach((name, index, array) => this.#assignPosition(name, index, array, 3 * this.#canvas.width / 5));
+//        Object.keys(json).filter(name => this.#core.getType(name) === "OUT").forEach((name, index, array) => this.#assignPosition(name, index, array, 4 * this.#canvas.width / 5));
+//
+//        this.setInteractive(this.#default.interactive);
+//        this.#onChangeListener.forEach(listener => listener());
+//        this.#onChangeUIListener.forEach(listener => listener());
+//        this.#draw();
+//      }
+//    }
   }
 
   #tidyUp(doNotAsk) {

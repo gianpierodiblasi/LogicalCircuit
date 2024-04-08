@@ -87,7 +87,7 @@ window.onload = (event) => {
   document.querySelector("#load3").onclick = () => logicalCircuitUI.setJSONs(json3, jsonUI3);
 //  document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
 //  document.querySelector("#type").onchange = (event) => logicalCircuitUI.setShowOperatorType(event.srcElement.checked);
-//  document.querySelector("#interactive").onchange = (event) => logicalCircuitUI.setInteractive(event.srcElement.checked);
+  document.querySelector("#interactive").onchange = (event) => logicalCircuitUI.setInteractive(event.srcElement.checked);
   logicalCircuitUI.addOnChangeListener(() => {
     var div = document.querySelector("#expressions");
     div.textContent = "";

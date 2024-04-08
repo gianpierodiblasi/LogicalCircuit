@@ -3,17 +3,25 @@ class LogicalCircuitCanvas {
   #core;
   #jsonUI;
   #default;
+  #history;
   #onChangeListener = [];
   #onChangeUIListener = [];
 
   #canvas;
   #ctx;
 
-  constructor(container, uniqueClass, core, jsonUI, def, onChangeListener, onChangeUIListener, options) {
+  #onInteractive = {
+    "selected": false
+  }
+  #interactive = {};
+  #interactivePath = {};
+
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
+    this.#history = history;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
@@ -31,38 +39,42 @@ class LogicalCircuitCanvas {
     this.#ctx.textBaseline = "middle";
     this.#ctx.lineWidth = this.#default.lineWidth;
     this.#ctx.lineJoin = "round";
-//    this.#draw();
+    this.#draw();
   }
 
   setJSONUI() {
     this.setInteractive(this.#default.interactive);
-//    this.#draw();
+    this.#draw();
   }
 
   setBezierConnector(bezierConnector) {
     this.#default.bezierConnector = bezierConnector;
-//    this.#draw();
+    this.#draw();
   }
 
   setShowOperatorType(showOperatorType) {
     this.#default.showOperatorType = showOperatorType;
-//    this.#draw();
+    this.#draw();
   }
 
   setInteractive(interactive) {
     this.#default.interactive = !!interactive;
-//    this.#onInteractive.selected = false;
-//
-//    this.#interactive = {};
-//
-//    if (interactive) {
-//      for (var property in this.#jsonUI) {
-//        if (this.#core.getType(property) === "IN") {
-//          this.#interactive[property] = false;
-//        }
-//      }
-//    }
-//
-//    this.#draw();
+    this.#onInteractive.selected = false;
+
+    this.#interactive = {};
+
+    if (interactive) {
+      Object.keys(this.#jsonUI).forEach(property => {
+        if (this.#core.getType(property) === "IN") {
+          this.#interactive[property] = false;
+        }
+      });
+    }
+
+    this.#draw();
+  }
+
+  #draw() {
+
   }
 }

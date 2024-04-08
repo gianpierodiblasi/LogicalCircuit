@@ -16,6 +16,11 @@ class LogicalCircuitUI {
     "interactive": false
   };
 
+  #history = {
+    index: -1,
+    array: []
+  };
+
   #onChangeListener = [];
   #onChangeUIListener = [];
 
@@ -37,8 +42,8 @@ class LogicalCircuitUI {
     container.classList.add(this.#uniqueClass);
     container.style.width = (options.width + 2) + "px";
 
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#onChangeListener, this.#onChangeUIListener, options);
-    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#onChangeListener, this.#onChangeUIListener, options);
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, options);
+    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, options);
 
     this.setBezierConnector(options.bezierConnector);
     this.setShowOperatorType(options.showOperatorType);
@@ -53,6 +58,8 @@ class LogicalCircuitUI {
     this.#toolbar.setJSONUI();
     this.#canvas.setJSONUI();
 
+    this.#history.index = -1;
+    this.#history.array = [];
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
   }
