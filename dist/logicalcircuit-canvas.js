@@ -796,40 +796,43 @@ class LogicalCircuitCanvas {
         this.#onKnob.event = event;
         break;
       case "symbolPath":
-//        if (this.#onArrow.selected) {
-//          var fromLength = this.#core.getFrom(this.#onArrow.name).length;
-//
-//          switch (this.#onArrow.direction) {
-//            case "UP":
-//              if (fromLength > 2) {
-//                this.#core.decConnector(this.#onArrow.name);
-//                this.#jsonUI[this.#onArrow.name].top += this.#operator.oneHeight / 2;
-//
-//                this.#onChangeListener.forEach(listener => listener());
-//                this.#onChangeUIListener.forEach(listener => listener());
-//              }
-//              break;
-//            case "DOWN":
-//              if (fromLength < this.#onArrow.max) {
-//                this.#core.incConnector(this.#onArrow.name);
-//                this.#jsonUI[this.#onArrow.name].top -= this.#operator.oneHeight / 2;
-//
-//                this.#onChangeListener.forEach(listener => listener());
-//                this.#onChangeUIListener.forEach(listener => listener());
-//              }
-//              break;
-//          }
-//
-//          this.#draw();
-//        } else if (this.#onInteractive.selected) {
+        if (this.#onArrow.selected) {
+          var done = false;
+          var fromLength = this.#core.getFrom(this.#onArrow.name).length;
+
+          switch (this.#onArrow.direction) {
+            case "UP":
+              if (fromLength > 2) {
+                done = true;
+                this.#core.decConnector(this.#onArrow.name);
+                this.#jsonUI[this.#onArrow.name].top += this.#operator.oneHeight / 2;
+              }
+              break;
+            case "DOWN":
+              if (fromLength < this.#onArrow.max) {
+                done = true;
+                this.#core.incConnector(this.#onArrow.name);
+                this.#jsonUI[this.#onArrow.name].top -= this.#operator.oneHeight / 2;
+              }
+              break;
+          }
+
+          if (done) {
+            this.#incHistory();
+            this.#toolbar.resetButtons();
+            this.draw();
+            this.#onChangeListener.forEach(listener => listener());
+            this.#onChangeUIListener.forEach(listener => listener());
+          }
+        } else if (this.#onInteractive.selected) {
 //          this.#interactive[this.#onMouse.name] = !this.#interactive[this.#onMouse.name];
 //          this.#draw();
-//        } else {
+        } else {
 //          this.#onSymbol.pressed = true;
 //          this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
 //          this.#onSymbol.offsetTop = event.offsetY - this.#jsonUI[this.#onMouse.name].top;
 //          this.#canvas.style.cursor = this.#cursor.grabbing;
-//        }
+        }
         break;
       case "connectorPath":
         this.#core.removeConnection(this.#onMouse.name, this.#onMouse.index);
