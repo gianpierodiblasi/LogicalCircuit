@@ -5,7 +5,7 @@
   
   <target name="clean"> 
     <delete>
-      <fileset dir="${build.dir}" includes="**/*-bundle-*.js"/>
+      <fileset dir="${dist.dir}" includes="**/*-bundle-*.js"/>
     </delete>
   </target> 
   
