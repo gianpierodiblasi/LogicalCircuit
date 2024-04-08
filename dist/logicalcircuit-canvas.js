@@ -16,6 +16,12 @@ class LogicalCircuitCanvas {
   #interactive = {};
   #interactivePath = {};
 
+  #knobPath = {};
+  #knobCenter = {};
+  #symbolPath = {};
+  #symbolSize = {};
+  #connectorPath = {};
+
   constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
@@ -44,7 +50,6 @@ class LogicalCircuitCanvas {
 
   setJSONUI() {
     this.setInteractive(this.#default.interactive);
-    this.#draw();
   }
 
   setBezierConnector(bezierConnector) {
@@ -74,6 +79,10 @@ class LogicalCircuitCanvas {
     this.#draw();
   }
 
+  getSymbolSize() {
+    return JSON.parse(JSON.stringify(this.#symbolSize));
+  }
+  
   #draw() {
 
   }

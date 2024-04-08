@@ -159,44 +159,38 @@ class LogicalCircuitToolbar {
 
   #reorganize(doNotAsk) {
     if (doNotAsk || confirm("Do you really want to reorganize the current logical circuit?")) {
-//      var g = new dagre.graphlib.Graph();
-//      g.setGraph({
-//        "rankdir": "LR",
-//        "marginx": 20,
-//        "marginy": 20
-//      });
-//      g.setDefaultEdgeLabel(() => {
-//        return {};
-//      });
-//
-//      for (var property in this.#jsonUI) {
-//        g.setNode(property, {width: this.#symbolSize[property].width, height: this.#symbolSize[property].height});
-//
-//        switch (this.#core.getType(property)) {
-//          case "IN":
-//            break;
-//          case "OUT":
-//            g.setEdge(this.#core.getFrom(property)[0], property);
-//            break;
-//          default:
-//            this.#core.getFrom(property).forEach(name => g.setEdge(name, property));
-//            break;
-//        }
-//      }
-//
-//      dagre.layout(g);
-//      var graph = g.graph();
-//      var scale = graph.width > this.#canvas.width || graph.height > this.#canvas.height ? Math.min(this.#canvas.width / graph.width, this.#canvas.height, graph.height) : 1;
-//
-//      g.nodes().forEach(v => {
-//        var node = g.node(v);
-//        this.#jsonUI[v].left = node.x * scale - node.width / 2;
-//        this.#jsonUI[v].top = node.y * scale - node.height / 2;
-//      });
-//
-//      this.#onChangeUIListener.forEach(listener => listener());
-//      this.#draw();
+      try {
+        var edges = [];
+        Object.keys(this.#jsonUI).fiter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
+        var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#options.width, this.#options.height);
+
+        this.#incHistory();
+
+        Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+        Object.assign(this.#jsonUI, jsonUI);
+
+        this.#canvas.setJSONUI();
+
+        this.#onChangeListener.forEach(listener => listener());
+        this.#onChangeUIListener.forEach(listener => listener());
+      } catch (exception) {
+      }
     }
+  }
+
+  #incHistory() {
+    if (this.#history.index > -1) {
+      this.#history.array.splice(this.#history.index + 1);
+    }
+
+    this.#history.index++;
+    this.#history.array.push({
+      "json": this.#core.getJSON(),
+      "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
+    });
+
+    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = false;
   }
 
   setJSONUI() {
