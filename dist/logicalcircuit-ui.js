@@ -35,15 +35,15 @@ class LogicalCircuitUI {
     } catch (exception) {
       options = {};
     }
-    options.width = isNaN(options.width) || options.width < 0 ? this.#default.width : options.width;
-    options.height = isNaN(options.height) || options.height < 0 ? this.#default.height : options.height;
+    this.#default.width = isNaN(options.width) || options.width < 0 ? this.#default.width : options.width;
+    this.#default.height = isNaN(options.height) || options.height < 0 ? this.#default.height : options.height;
 
     container.classList.add("LogicalCircuitUI_Container");
     container.classList.add(this.#uniqueClass);
-    container.style.width = (options.width + 2) + "px";
+    container.style.width = (this.#default.width + 2) + "px";
 
-    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, options);
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, this.#canvas, options);
+    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener);
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, this.#canvas);
 
     this.setBezierConnector(options.bezierConnector);
     this.setShowOperatorType(options.showOperatorType);
@@ -78,7 +78,7 @@ class LogicalCircuitUI {
   }
 
   setReorganizer(reorganizer) {
-    this.#toolbar.setReorganize(reorganizer);
+    this.#toolbar.setReorganizer(reorganizer);
   }
 
   computeExpressions(parameters) {

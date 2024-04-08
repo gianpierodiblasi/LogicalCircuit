@@ -22,7 +22,7 @@ class LogicalCircuitCanvas {
   #symbolSize = {};
   #connectorPath = {};
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, options) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
@@ -33,8 +33,8 @@ class LogicalCircuitCanvas {
 
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
-    this.#canvas.width = options.width;
-    this.#canvas.height = options.height;
+    this.#canvas.width = this.#default.width;
+    this.#canvas.height = this.#default.height;
 //    this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
 //    this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
 //    this.#canvas.onmouseup = (event) => this.#onMouseUp(event);

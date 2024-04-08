@@ -10,7 +10,7 @@ class LogicalCircuitToolbar {
   #canvas
   #reorganizer;
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas, options) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
@@ -22,8 +22,8 @@ class LogicalCircuitToolbar {
 
     var toolbar = document.createElement("div");
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
-    toolbar.style.width = (options.width + 2) + "px";
-    container.append(toolbar);
+    toolbar.style.width = (this.#default.width + 2) + "px";
+    container.prepend(toolbar);
 
     this.#addButtons(toolbar, "\u{21B6}", null, "UNDO", null, () => this.#undo(), null, null, "small", true, true);
     this.#addButtons(toolbar, "\u{21B7}", null, "REDO", null, () => this.#redo(), null, null, "small", true, true);
@@ -161,8 +161,8 @@ class LogicalCircuitToolbar {
     if (doNotAsk || confirm("Do you really want to reorganize the current logical circuit?")) {
       try {
         var edges = [];
-        Object.keys(this.#jsonUI).fiter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
-        var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#options.width, this.#options.height);
+        Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
+        var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#default.width, this.#default.height);
 
         this.#incHistory();
 
@@ -219,7 +219,7 @@ class LogicalCircuitToolbar {
   }
 
   setReorganizer(reorganizer) {
-    this.reorganizer = reorganizer;
+    this.#reorganizer = reorganizer;
     document.querySelector("." + this.#uniqueClass + " .REORGANIZE").style.visibility = !!reorganizer ? "visible" : "hidden";
   }
 }
