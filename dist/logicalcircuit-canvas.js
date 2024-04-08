@@ -825,13 +825,13 @@ class LogicalCircuitCanvas {
             this.#onChangeUIListener.forEach(listener => listener());
           }
         } else if (this.#onInteractive.selected) {
-//          this.#interactive[this.#onMouse.name] = !this.#interactive[this.#onMouse.name];
-//          this.#draw();
+          this.#interactive[this.#onMouse.name] = !this.#interactive[this.#onMouse.name];
+          this.draw();
         } else {
-//          this.#onSymbol.pressed = true;
-//          this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
-//          this.#onSymbol.offsetTop = event.offsetY - this.#jsonUI[this.#onMouse.name].top;
-//          this.#canvas.style.cursor = this.#cursor.grabbing;
+          this.#onSymbol.pressed = true;
+          this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
+          this.#onSymbol.offsetTop = event.offsetY - this.#jsonUI[this.#onMouse.name].top;
+          this.#canvas.style.cursor = this.#cursor.grabbing;
         }
         break;
       case "connectorPath":
