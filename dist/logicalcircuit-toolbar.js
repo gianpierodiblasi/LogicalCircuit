@@ -223,7 +223,6 @@ class LogicalCircuitToolbar {
         this.#incHistory();
         this.resetButtons();
         this.#canvas.draw();
-        this.#onChangeListener.forEach(listener => listener());
         this.#onChangeUIListener.forEach(listener => listener());
       } catch (exception) {
       }

@@ -847,7 +847,9 @@ class LogicalCircuitCanvas {
 
   #onMouseUp(event) {
     if (this.#onMouse.name && this.#onSymbol.pressed) {
+      var deleted = false;
       if (this.#intersects(this.#canvas.width, this.#canvas.height, this.#trash.lineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height)) {
+        deleted = true;
         this.#core.remove(this.#onMouse.name);
         delete this.#jsonUI[this.#onMouse.name];
         this.#onMouse.name = "";
@@ -856,7 +858,9 @@ class LogicalCircuitCanvas {
       this.#incHistory();
       this.#toolbar.resetButtons();
       this.draw();
-      this.#onChangeListener.forEach(listener => listener());
+      if (deleted) {
+        this.#onChangeListener.forEach(listener => listener());
+      }
       this.#onChangeUIListener.forEach(listener => listener());
     } else if (this.#onKnob.pressed && this.#onKnob.name &&
             this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index)) {
