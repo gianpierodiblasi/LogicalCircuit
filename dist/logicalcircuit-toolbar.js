@@ -8,6 +8,7 @@ class LogicalCircuitToolbar {
   #onChangeUIListener = [];
 
   #canvas
+  #reorganizer;
 
   constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas, options) {
     this.#uniqueClass = uniqueClass;
@@ -222,8 +223,9 @@ class LogicalCircuitToolbar {
   setSimplifierVisible(visible) {
     document.querySelector("." + this.#uniqueClass + " .SIMPLIFY").style.visibility = visible ? "visible" : "hidden";
   }
-  
-  setReorganizeVisible(visible) {
-    document.querySelector("." + this.#uniqueClass + " .REORGANIZE").style.visibility = visible ? "visible" : "hidden";
+
+  setReorganizer(reorganizer) {
+    this.reorganizer = reorganizer;
+    document.querySelector("." + this.#uniqueClass + " .REORGANIZE").style.visibility = !!reorganizer ? "visible" : "hidden";
   }
 }
