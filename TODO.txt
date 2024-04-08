@@ -1,1 +1,1 @@
-- add tramite Drag&Drop
+- gestire add tramite Drag&Drop
