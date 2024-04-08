@@ -100,8 +100,8 @@ class LogicalCircuitCanvas {
     "up": "-", //"\u{02191}",
     "down": "+", // "\u{02193}",
     "max": 6,
-    "canDoStrokeStyle": "white",
-    "cannotDoStrokeStyle": "gray"
+    "canDoFillStyle": "white",
+    "cannotDoFillStyle": "gray"
   };
 
   constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
@@ -505,21 +505,127 @@ class LogicalCircuitCanvas {
   }
 
   #drawOnMouse() {
-//    if (!this.#onMouse.name) {
-//    } else {
-//      var type = this.#core.getType(this.#onMouse.name);
-//      if (this.#onMouse.referencePath !== "symbolPath") {
-//      } else if (this.#default.interactive && type === "IN") {
-//        this.#onInteractive.selected = this.#ctx.isPointInPath(this.#interactivePath[this.#onMouse.name], this.#currentEvent.offsetX, this.#currentEvent.offsetY);
-//        this.#canvas.style.cursor = this.#onInteractive.selected ? this.#cursor.pointer : this.#cursor.grab;
-//      } else if (!["IN", "OUT", "NOT"].includes(type)) {
-//        this.#drawArrow();
-//      } else {
-//        this.#canvas.style.cursor = this.#cursor.grab;
-//      }
-//
-//      this.#drawPath();
-//    }
+    if (!this.#onMouse.name) {
+    } else {
+      var type = this.#core.getType(this.#onMouse.name);
+      if (this.#onMouse.referencePath !== "symbolPath") {
+      } else if (this.#default.interactive && type === "IN") {
+        this.#onInteractive.selected = this.#ctx.isPointInPath(this.#interactivePath[this.#onMouse.name], this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+        this.#canvas.style.cursor = this.#onInteractive.selected ? this.#cursor.pointer : this.#cursor.grab;
+      } else if (!["IN", "OUT", "NOT"].includes(type)) {
+        this.#drawArrow();
+      } else {
+        this.#canvas.style.cursor = this.#cursor.grab;
+      }
+
+      this.#drawPath();
+    }
+  }
+
+  #drawArrow() {
+    var arrowLeft = this.#jsonUI[this.#onMouse.name].left + 3 * this.#symbolSize[this.#onMouse.name].width / 5;
+    switch (this.#core.getType(this.#onMouse.name)) {
+      case "OR":
+      case "AND":
+      case "XOR":
+        break;
+      case "NOR":
+      case "NAND":
+      case "NXOR":
+        arrowLeft -= this.#operator.notRadius;
+        break;
+    }
+
+    var fromLength = this.#core.getFrom(this.#onMouse.name).length;
+    var arrowUP = this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 4;
+    var arrowDOWN = this.#jsonUI[this.#onMouse.name].top + 3 * this.#symbolSize[this.#onMouse.name].height / 4;
+
+    this.#ctx.font = this.#onArrow.font;
+    var wUP = this.#ctx.measureText(this.#onArrow.up).width;
+    var wDOWN = this.#ctx.measureText(this.#onArrow.down).width;
+    var width = Math.max(wUP, wDOWN);
+
+    var totPath = new Path2D();
+
+    var path = new Path2D();
+    this.#ctx.fillStyle = fromLength > 2 ? this.#onArrow.canDoFillStyle : this.#onArrow.cannotDoFillStyle;
+    path.rect(arrowLeft - 2, this.#jsonUI[this.#onMouse.name].top + 3, width + 4, this.#symbolSize[this.#onMouse.name].height / 2 - 3);
+    totPath.addPath(path);
+    this.#ctx.fill(path);
+    this.#ctx.stroke(path);
+    path = new Path2D();
+    this.#ctx.fillStyle = fromLength < this.#onArrow.max ? this.#onArrow.canDoFillStyle : this.#onArrow.cannotDoFillStyle;
+    path.rect(arrowLeft - 2, this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 2, width + 4, this.#symbolSize[this.#onMouse.name].height / 2 - 3);
+    totPath.addPath(path);
+    this.#ctx.fill(path);
+    this.#ctx.stroke(path);
+
+    this.#ctx.fillStyle = this.#default.fillStyle;
+    this.#ctx.fillText(this.#onArrow.up, arrowLeft + (width - wUP) / 2, arrowUP);
+    this.#ctx.fillText(this.#onArrow.down, arrowLeft + (width - wDOWN) / 2, arrowDOWN);
+    this.#ctx.font = this.#default.font;
+
+    this.#onArrow.selected = this.#ctx.isPointInPath(totPath, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+    this.#onArrow.name = this.#onMouse.name;
+    this.#onArrow.direction = this.#currentEvent.offsetY < this.#jsonUI[this.#onMouse.name].top + this.#symbolSize[this.#onMouse.name].height / 2 ? "UP" : "DOWN";
+
+    if (!this.#onArrow.selected) {
+      this.#canvas.style.cursor = this.#cursor.grab;
+    } else if (this.#onArrow.direction === "UP" && fromLength > 2) {
+      this.#canvas.style.cursor = this.#cursor.pointer;
+    } else if (this.#onArrow.direction === "DOWN" && fromLength < this.#onArrow.max) {
+      this.#canvas.style.cursor = this.#cursor.pointer;
+    } else {
+      this.#canvas.style.cursor = this.#cursor.notAllowed;
+    }
+  }
+
+  #drawPath() {
+    this.#ctx.lineWidth = this.#onMouse.lineWidth;
+
+    if (this.#onSymbol.pressed) {
+      this.#canvas.style.cursor = this.#cursor.grabbing;
+      this.#ctx.strokeStyle = this.#intersects(this.#canvas.width, this.#canvas.height, this.#trash.lineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height) ? this.#trash.strokeStyle : this.#onMouse.strokeStyle;
+    } else {
+      this.#ctx.strokeStyle = this.#onMouse.referencePath === "connectorPath" ? this.#trash.strokeStyle : this.#onMouse.strokeStyle;
+    }
+    this.#ctx.stroke(this.#getPath(this.#onMouse.referencePath, this.#onMouse.referenceName));
+
+    this.#ctx.lineWidth = this.#default.lineWidth;
+    this.#ctx.strokeStyle = this.#default.strokeStyle;
+  }
+
+  #intersects(cx, cy, radius, rx, ry, rw, rh) {
+    var testX = cx;
+    var testY = cy;
+
+    if (cx < rx) {
+      testX = rx;
+    } else if (cx > rx + rw) {
+      testX = rx + rw;
+    }
+    if (cy < ry) {
+      testY = ry;
+    } else if (cy > ry + rh) {
+      testY = ry + rh;
+    }
+
+    var distX = cx - testX;
+    var distY = cy - testY;
+    var distance = Math.sqrt((distX * distX) + (distY * distY));
+
+    return distance <= radius;
+  }
+
+  #getPath(referencePath, referenceName) {
+    switch (referencePath) {
+      case "symbolPath":
+        return this.#symbolPath[referenceName];
+      case "knobPath":
+        return this.#knobPath[referenceName];
+      case "connectorPath":
+        return this.#connectorPath[referenceName];
+    }
   }
 
   #drawOnKnob() {
@@ -547,7 +653,7 @@ class LogicalCircuitCanvas {
 //
 //      if (this.#onKnob.name) {
 //        this.#ctx.lineWidth = this.#onKnob.lineWidth;
-//        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index) ? this.#onKnob.canDoStrokeStyle : this.#onKnob.cannotDoStrokeStyle;
+//        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index) ? this.#onKnob.canDoStokeStyle : this.#onKnob.cannotDoStokeStyle;
 //        this.#ctx.stroke(this.#knobPath[this.#onKnob.referenceName]);
 //        this.#ctx.lineWidth = this.#default.lineWidth;
 //        this.#ctx.strokeStyle = this.#default.strokeStyle;
@@ -578,41 +684,41 @@ class LogicalCircuitCanvas {
   #findKnob(event) {
     this.#onKnob.name = "";
 
-//    for (var property in this.#jsonUI) {
-//      switch (this.#core.getType(property)) {
-//        case "IN":
-//          if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
-//            this.#onKnob.name = property;
-//            this.#onKnob.index = -1;
-//            this.#onKnob.referenceName = property + "*exit";
-//          }
-//          break;
-//        case "OUT":
-//          this.#core.getFrom(property).forEach((element, index) => {
-//            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
-//              this.#onKnob.name = property;
-//              this.#onKnob.index = index;
-//              this.#onKnob.referenceName = property + "*" + index;
-//            }
-//          });
-//          break;
-//        default:
-//          if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
-//            this.#onKnob.name = property;
-//            this.#onKnob.index = -1;
-//            this.#onKnob.referenceName = property + "*exit";
-//          }
-//
-//          this.#core.getFrom(property).forEach((element, index) => {
-//            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
-//              this.#onKnob.name = property;
-//              this.#onKnob.index = index;
-//              this.#onKnob.referenceName = property + "*" + index;
-//            }
-//          });
-//          break;
-//      }
-//    }
+    Object.keys(this.#jsonUI).forEach(property => {
+      switch (this.#core.getType(property)) {
+        case "IN":
+          if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
+            this.#onKnob.name = property;
+            this.#onKnob.index = -1;
+            this.#onKnob.referenceName = property + "*exit";
+          }
+          break;
+        case "OUT":
+          this.#core.getFrom(property).forEach((element, index) => {
+            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
+              this.#onKnob.name = property;
+              this.#onKnob.index = index;
+              this.#onKnob.referenceName = property + "*" + index;
+            }
+          });
+          break;
+        default:
+          if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*exit"], event.offsetX, event.offsetY)) {
+            this.#onKnob.name = property;
+            this.#onKnob.index = -1;
+            this.#onKnob.referenceName = property + "*exit";
+          }
+
+          this.#core.getFrom(property).forEach((element, index) => {
+            if (!this.#onKnob.name && this.#ctx.isPointInPath(this.#knobPath[property + "*" + index], event.offsetX, event.offsetY)) {
+              this.#onKnob.name = property;
+              this.#onKnob.index = index;
+              this.#onKnob.referenceName = property + "*" + index;
+            }
+          });
+          break;
+      }
+    });
   }
 
   #findPath(event) {
