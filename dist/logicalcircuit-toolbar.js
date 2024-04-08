@@ -136,11 +136,31 @@ class LogicalCircuitToolbar {
   }
 
   #addOutput(name) {
+    this.#incHistory();
 
+    this.#core.addOutput(name);
+    this.#addPosition(name);
+
+    this.#resetText();
+    this.#resetButtons();
+
+    this.#canvas.draw();
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   #add(type) {
+    this.#incHistory();
+    
+    var name = this.#core["add" + type]();
+    this.#addPosition(name);
 
+    this.#resetText();
+    this.#resetButtons();
+
+    this.#canvas.draw();
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   #addPosition(name) {
@@ -176,6 +196,7 @@ class LogicalCircuitToolbar {
         var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#default.width, this.#default.height);
 
         Object.assign(this.#jsonUI, jsonUI);
+        this.#canvas.draw();
       } catch (exception) {
       }
 

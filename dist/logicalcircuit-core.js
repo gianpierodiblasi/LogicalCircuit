@@ -236,12 +236,15 @@ class LogicalCircuitCore {
 
   #addOperator(operator, from) {
     var name = this.#getUniqueName(operator);
-    this.#add(name, {"type": operator, "from": from});
+    this.#add(name, {"type": operator, "from": from}, true);
     return name;
   }
 
-  #add(name, json) {
-    if (this.isNameValid(name) && !this.isNameAlreadyUsed(name)) {
+  #add(name, json, skip) {
+    if (skip) {
+      this.#json[name] = json;
+      return true;
+    } else if (this.isNameValid(name) && !this.isNameAlreadyUsed(name)) {
       this.#json[name] = json;
       return true;
     } else {
