@@ -22,6 +22,8 @@ class LogicalCircuitCanvas {
   #symbolSize = {};
   #connectorPath = {};
 
+  #currentEvent;
+
   #trash = {
     "font": "48px sans-serif",
     "text": "\u{1F5D1}",
@@ -67,6 +69,41 @@ class LogicalCircuitCanvas {
     "radius": 5
   };
 
+  #cursor = {
+    "grab": "grab",
+    "pointer": "pointer",
+    "notAllowed": "not-allowed",
+    "grabbing": "grabbing"
+  }
+
+  #onMouse = {
+    "name": "",
+    "index": -1,
+    "referencePath": "",
+    "referenceName": "",
+    "lineWidth": 3,
+    "strokeStyle": "green"
+  };
+
+  #onSymbol = {
+    "pressed": false,
+    "name": "",
+    "offsetLeft": 0,
+    "offsetTop": 0
+  };
+
+  #onArrow = {
+    "selected": false,
+    "name": "",
+    "direction": "",
+    "font": "14px sans-serif",
+    "up": "-", //"\u{02191}",
+    "down": "+", // "\u{02193}",
+    "max": 6,
+    "canDoStrokeStyle": "white",
+    "cannotDoStrokeStyle": "gray"
+  };
+
   constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
@@ -80,9 +117,9 @@ class LogicalCircuitCanvas {
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
     this.#canvas.width = this.#default.width;
     this.#canvas.height = this.#default.height;
-//    this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
-//    this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
-//    this.#canvas.onmouseup = (event) => this.#onMouseUp(event);
+    this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
+    this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
+    this.#canvas.onmouseup = (event) => this.#onMouseUp(event);
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
@@ -465,5 +502,17 @@ class LogicalCircuitCanvas {
 
       this.#ctx.stroke(this.#connectorPath[endName + "*" + endIndex]);
     }
+  }
+
+  #onMouseMove(event) {
+
+  }
+
+  #onMouseDown(event) {
+
+  }
+
+  #onMouseUp(event) {
+
   }
 }
