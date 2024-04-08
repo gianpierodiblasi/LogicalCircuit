@@ -201,7 +201,7 @@ where:
   - input:
     - simplifier: the simplifier (FUNCTION)
   - output: NOTHING
--*setReorganizer(reorganizer)*: sets a function able to reorganize the logical circuit; the function has to respect the following constraints:
+- *setReorganizer(reorganizer)*: sets a function able to reorganize the logical circuit; the function has to respect the following constraints:
   - it has to provide a JSON object with the same structure as described above
   - it has to be of the following type ```(symbolSize: [JSON], edges: [ARRAY], width: [INTEGER], height: [INTEGER]) => JSON```
   - *symbolSize* has to represent the size of all nodes by means of a JSON with the following structure
