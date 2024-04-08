@@ -634,34 +634,34 @@ class LogicalCircuitCanvas {
 
   #drawOnKnob() {
     if (this.#onKnob.pressed) {
-//      this.#ctx.beginPath();
-//      this.#ctx.moveTo(this.#onKnob.event.offsetX, this.#onKnob.event.offsetY);
-//
-//      if (this.#default.bezierConnector) {
-//        var cp1 = {
-//          "left": this.#onKnob.event.offsetX + (this.#currentEvent.offsetX - this.#onKnob.event.offsetX) / 2,
-//          "top": this.#onKnob.event.offsetY
-//        };
-//
-//        var cp2 = {
-//          "left": cp1.left,
-//          "top": this.#currentEvent.offsetY
-//        };
-//
-//        this.#ctx.bezierCurveTo(cp1.left, cp1.top, cp2.left, cp2.top, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
-//      } else {
-//        this.#ctx.lineTo(this.#currentEvent.offsetX, this.#currentEvent.offsetY);
-//      }
-//
-//      this.#ctx.stroke();
-//
-//      if (this.#onKnob.name) {
-//        this.#ctx.lineWidth = this.#onKnob.lineWidth;
-//        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index) ? this.#onKnob.canDoStokeStyle : this.#onKnob.cannotDoStokeStyle;
-//        this.#ctx.stroke(this.#knobPath[this.#onKnob.referenceName]);
-//        this.#ctx.lineWidth = this.#default.lineWidth;
-//        this.#ctx.strokeStyle = this.#default.strokeStyle;
-//      }
+      this.#ctx.beginPath();
+      this.#ctx.moveTo(this.#onKnob.event.offsetX, this.#onKnob.event.offsetY);
+
+      if (this.#default.bezierConnector) {
+        var cp1 = {
+          "left": this.#onKnob.event.offsetX + (this.#currentEvent.offsetX - this.#onKnob.event.offsetX) / 2,
+          "top": this.#onKnob.event.offsetY
+        };
+
+        var cp2 = {
+          "left": cp1.left,
+          "top": this.#currentEvent.offsetY
+        };
+
+        this.#ctx.bezierCurveTo(cp1.left, cp1.top, cp2.left, cp2.top, this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+      } else {
+        this.#ctx.lineTo(this.#currentEvent.offsetX, this.#currentEvent.offsetY);
+      }
+
+      this.#ctx.stroke();
+
+      if (this.#onKnob.name) {
+        this.#ctx.lineWidth = this.#onKnob.lineWidth;
+        this.#ctx.strokeStyle = this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index) ? this.#onKnob.canDoStrokeStyle : this.#onKnob.cannotDoStrokeStyle;
+        this.#ctx.stroke(this.#knobPath[this.#onKnob.referenceName]);
+        this.#ctx.lineWidth = this.#default.lineWidth;
+        this.#ctx.strokeStyle = this.#default.strokeStyle;
+      }
     }
   }
 
@@ -672,10 +672,8 @@ class LogicalCircuitCanvas {
     this.#canvas.setAttribute('title', dist < this.#trash.radius2 ? "To trash an element move and release it here" : "");
 
     if (this.#onSymbol.pressed) {
-//      this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;
-//      this.#jsonUI[this.#onMouse.name].left = event.offsetX - this.#onSymbol.offsetLeft;
-//
-//      this.#onChangeUIListener.forEach(listener => listener());
+      this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;
+      this.#jsonUI[this.#onMouse.name].left = event.offsetX - this.#onSymbol.offsetLeft;
     } else if (this.#onKnob.pressed) {
       this.#findKnob(event);
     } else {
@@ -848,7 +846,47 @@ class LogicalCircuitCanvas {
   }
 
   #onMouseUp(event) {
+    if (this.#onMouse.name && this.#onSymbol.pressed) {
+      if (this.#intersects(this.#canvas.width, this.#canvas.height, this.#trash.lineWidth, this.#jsonUI[this.#onMouse.name].left, this.#jsonUI[this.#onMouse.name].top, this.#symbolSize[this.#onMouse.name].width, this.#symbolSize[this.#onMouse.name].height)) {
+        this.#core.remove(this.#onMouse.name);
+        delete this.#jsonUI[this.#onMouse.name];
+        this.#onMouse.name = "";
+      }
 
+      this.#incHistory();
+      this.#toolbar.resetButtons();
+      this.draw();
+      this.#onChangeListener.forEach(listener => listener());
+      this.#onChangeUIListener.forEach(listener => listener());
+    } else if (this.#onKnob.pressed && this.#onKnob.name &&
+            this.#isConnectionValid(this.#onMouse.name, this.#onMouse.index, this.#onKnob.name, this.#onKnob.index)) {
+      var startType = this.#core.getType(this.#onMouse.name);
+      var endType = this.#core.getType(this.#onKnob.name);
+
+      if (startType === "IN") {
+        this.#core.addConnection(this.#onMouse.name, this.#onKnob.name, this.#onKnob.index);
+      } else if (endType === "IN") {
+        this.#core.addConnection(this.#onKnob.name, this.#onMouse.name, this.#onMouse.index);
+      } else if (startType === "OUT") {
+        this.#core.addConnection(this.#onKnob.name, this.#onMouse.name, 0);
+      } else if (endType === "OUT") {
+        this.#core.addConnection(this.#onMouse.name, this.#onKnob.name, 0);
+      } else if (this.#onMouse.index === -1) {
+        this.#core.addConnection(this.#onMouse.name, this.#onKnob.name, this.#onKnob.index);
+      } else if (this.#onKnob.index === -1) {
+        this.#core.addConnection(this.#onKnob.name, this.#onMouse.name, this.#onMouse.index);
+      }
+
+      this.#incHistory();
+      this.#toolbar.resetButtons();
+      this.draw();
+      this.#onChangeListener.forEach(listener => listener());
+      this.#onChangeUIListener.forEach(listener => listener());
+    }
+
+    this.#onKnob.pressed = false;
+    this.#onSymbol.pressed = false;
+    this.#onArrow.selected = false;
   }
 
   #incHistory() {
@@ -859,5 +897,38 @@ class LogicalCircuitCanvas {
       "json": JSON.stringify(this.#core.getJSON()),
       "jsonUI": JSON.stringify(this.#jsonUI)
     });
+  }
+
+  #isConnectionValid(startName, startIndex, endName, endIndex) {
+    var startType = this.#core.getType(startName);
+    var endType = this.#core.getType(endName);
+
+    if (startType === "IN" && endType === "IN") {
+      return false;
+    } else if (startType === "IN" && endType === "OUT") {
+      return this.#core.isConnectionValid(startName, endName);
+    } else if (startType === "IN") {
+      return endIndex === -1 ? false : this.#core.isConnectionValid(startName, endName);
+    } else if (startType === "OUT" && endType === "IN") {
+      return this.#core.isConnectionValid(endName, startName);
+    } else if (startType === "OUT" && endType === "OUT") {
+      return false;
+    } else if (startType === "OUT") {
+      return endIndex !== -1 ? false : this.#core.isConnectionValid(endName, startName);
+    } else if (endType === "IN") {
+      return startIndex === -1 ? false : this.#core.isConnectionValid(endName, startName);
+    } else if (endType === "OUT") {
+      return startIndex !== -1 ? false : this.#core.isConnectionValid(startName, endName);
+    } else if (startIndex === -1 && endIndex === -1) {
+      return false;
+    } else if (startIndex !== -1 && endIndex !== -1) {
+      return false;
+    } else if (startIndex === -1) {
+      return this.#core.isConnectionValid(startName, endName);
+    } else if (endIndex === -1) {
+      return this.#core.isConnectionValid(endName, startName);
+    } else {
+      return false;
+    }
   }
 }
