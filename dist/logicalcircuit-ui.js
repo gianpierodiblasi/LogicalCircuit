@@ -45,9 +45,12 @@ class LogicalCircuitUI {
     container.classList.add(this.#uniqueClass);
     container.style.width = (this.#default.width + 2) + "px";
 
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener);
     this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener);
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener, this.#canvas);
-
+    
+    this.#toolbar.setCanvas(this.#canvas);
+    this.#canvas.setToolbar(this.#toolbar);
+    
     this.setBezierConnector(options.bezierConnector);
     this.setShowOperatorType(options.showOperatorType);
     this.setInteractive(options.interactive);

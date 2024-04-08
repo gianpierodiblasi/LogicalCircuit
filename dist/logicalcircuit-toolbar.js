@@ -6,7 +6,6 @@ class LogicalCircuitToolbar {
   #history;
   #onChangeListener = [];
   #onChangeUIListener = [];
-
   #canvas
   #reorganizer;
 
@@ -15,7 +14,7 @@ class LogicalCircuitToolbar {
     "left": 15
   };
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
@@ -23,12 +22,11 @@ class LogicalCircuitToolbar {
     this.#history = history;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
-    this.#canvas = canvas;
 
     var toolbar = document.createElement("div");
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
     toolbar.style.width = (this.#default.width + 2) + "px";
-    container.prepend(toolbar);
+    container.append(toolbar);
 
     this.#addButtons(toolbar, "\u{21B6}", null, "UNDO", null, () => this.#undo(), null, null, "small", true, true);
     this.#addButtons(toolbar, "\u{21B7}", null, "REDO", null, () => this.#redo(), null, null, "small", true, true);
@@ -146,13 +144,10 @@ class LogicalCircuitToolbar {
   #addInput(name) {
     this.#core.addInput(name);
     this.#addPosition(name);
+
     this.#incHistory();
-
-    this.#resetText();
-    this.#resetButtons();
-
+    this.setJSONUI();
     this.#canvas.setInteractiveValue(name, false);
-
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
   }
@@ -160,11 +155,9 @@ class LogicalCircuitToolbar {
   #addOutput(name) {
     this.#core.addOutput(name);
     this.#addPosition(name);
+
     this.#incHistory();
-
-    this.#resetText();
-    this.#resetButtons();
-
+    this.setJSONUI();
     this.#canvas.draw();
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
@@ -173,11 +166,9 @@ class LogicalCircuitToolbar {
   #add(type) {
     var name = this.#core["add" + type]();
     this.#addPosition(name);
-    this.#incHistory();
-    
-    this.#resetText();
-    this.#resetButtons();
 
+    this.#incHistory();
+    this.setJSONUI();
     this.#canvas.draw();
     this.#onChangeListener.forEach(listener => listener());
     this.#onChangeUIListener.forEach(listener => listener());
@@ -213,8 +204,7 @@ class LogicalCircuitToolbar {
       }
 
       this.#incHistory();
-      this.#resetButtons();
-      
+      this.resetButtons();
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     }
@@ -231,9 +221,8 @@ class LogicalCircuitToolbar {
         Object.assign(this.#jsonUI, jsonUI);
 
         this.#incHistory();
-        this.#resetButtons();
+        this.resetButtons();
         this.#canvas.draw();
-
         this.#onChangeListener.forEach(listener => listener());
         this.#onChangeUIListener.forEach(listener => listener());
       } catch (exception) {
@@ -251,12 +240,16 @@ class LogicalCircuitToolbar {
     });
   }
 
+  setCanvas(canvas) {
+    this.#canvas = canvas;
+  }
+
   setJSONUI() {
-    this.#resetButtons();
+    this.resetButtons();
     this.#resetText();
   }
 
-  #resetButtons() {
+  resetButtons() {
     var disabled = this.#core.isEmpty() || !this.#core.isValid();
 
     document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = this.#history.index === 0;

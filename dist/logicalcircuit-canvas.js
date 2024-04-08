@@ -6,7 +6,7 @@ class LogicalCircuitCanvas {
   #history;
   #onChangeListener = [];
   #onChangeUIListener = [];
-
+  #toolbar;
   #canvas;
   #ctx;
 
@@ -128,6 +128,10 @@ class LogicalCircuitCanvas {
     this.#ctx.lineWidth = this.#default.lineWidth;
     this.#ctx.lineJoin = "round";
     this.draw();
+  }
+
+  setToolbar(toolbar) {
+    this.#toolbar = toolbar;
   }
 
   setJSONUI() {
@@ -629,7 +633,7 @@ class LogicalCircuitCanvas {
   }
 
   #drawOnKnob() {
-//    if (this.#onKnob.pressed) {
+    if (this.#onKnob.pressed) {
 //      this.#ctx.beginPath();
 //      this.#ctx.moveTo(this.#onKnob.event.offsetX, this.#onKnob.event.offsetY);
 //
@@ -658,7 +662,7 @@ class LogicalCircuitCanvas {
 //        this.#ctx.lineWidth = this.#default.lineWidth;
 //        this.#ctx.strokeStyle = this.#default.strokeStyle;
 //      }
-//    }
+    }
   }
 
   #onMouseMove(event) {
@@ -782,10 +786,75 @@ class LogicalCircuitCanvas {
   }
 
   #onMouseDown(event) {
+    if (!this.#onMouse.name) {
+      return;
+    }
 
+    switch (this.#onMouse.referencePath) {
+      case "knobPath":
+        this.#onKnob.pressed = true;
+        this.#onKnob.event = event;
+        break;
+      case "symbolPath":
+//        if (this.#onArrow.selected) {
+//          var fromLength = this.#core.getFrom(this.#onArrow.name).length;
+//
+//          switch (this.#onArrow.direction) {
+//            case "UP":
+//              if (fromLength > 2) {
+//                this.#core.decConnector(this.#onArrow.name);
+//                this.#jsonUI[this.#onArrow.name].top += this.#operator.oneHeight / 2;
+//
+//                this.#onChangeListener.forEach(listener => listener());
+//                this.#onChangeUIListener.forEach(listener => listener());
+//              }
+//              break;
+//            case "DOWN":
+//              if (fromLength < this.#onArrow.max) {
+//                this.#core.incConnector(this.#onArrow.name);
+//                this.#jsonUI[this.#onArrow.name].top -= this.#operator.oneHeight / 2;
+//
+//                this.#onChangeListener.forEach(listener => listener());
+//                this.#onChangeUIListener.forEach(listener => listener());
+//              }
+//              break;
+//          }
+//
+//          this.#draw();
+//        } else if (this.#onInteractive.selected) {
+//          this.#interactive[this.#onMouse.name] = !this.#interactive[this.#onMouse.name];
+//          this.#draw();
+//        } else {
+//          this.#onSymbol.pressed = true;
+//          this.#onSymbol.offsetLeft = event.offsetX - this.#jsonUI[this.#onMouse.name].left;
+//          this.#onSymbol.offsetTop = event.offsetY - this.#jsonUI[this.#onMouse.name].top;
+//          this.#canvas.style.cursor = this.#cursor.grabbing;
+//        }
+        break;
+      case "connectorPath":
+        this.#core.removeConnection(this.#onMouse.name, this.#onMouse.index);
+        this.#onMouse.name = "";
+
+        this.#incHistory();
+        this.#toolbar.resetButtons();
+        this.draw();
+        this.#onChangeListener.forEach(listener => listener());
+        this.#onChangeUIListener.forEach(listener => listener());
+        break;
+    }
   }
 
   #onMouseUp(event) {
 
+  }
+
+  #incHistory() {
+    this.#history.array.splice(this.#history.index + 1);
+
+    this.#history.index++;
+    this.#history.array.push({
+      "json": JSON.stringify(this.#core.getJSON()),
+      "jsonUI": JSON.stringify(this.#jsonUI)
+    });
   }
 }
