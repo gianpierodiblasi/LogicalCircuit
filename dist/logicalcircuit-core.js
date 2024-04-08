@@ -194,6 +194,10 @@ class LogicalCircuitCore {
     return !!connected;
   }
 
+  isEmpty() {
+    return !Object.keys(this.#json).length;
+  }
+
   addInput(name) {
     return this.#add(name, {"type": "IN"});
   }

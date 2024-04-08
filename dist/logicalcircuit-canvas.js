@@ -3,15 +3,19 @@ class LogicalCircuitCanvas {
   #core;
   #jsonUI;
   #default;
+  #onChangeListener = [];
+  #onChangeUIListener = [];
 
   #canvas;
   #ctx;
 
-  constructor(container, uniqueClass, core, jsonUI, def, options) {
+  constructor(container, uniqueClass, core, jsonUI, def, onChangeListener, onChangeUIListener, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
+    this.#onChangeListener = onChangeListener;
+    this.#onChangeUIListener = onChangeUIListener;
 
     this.#canvas = document.createElement("canvas");
     this.#canvas.classList.add("LogicalCircuitUI_Canvas");
@@ -29,7 +33,12 @@ class LogicalCircuitCanvas {
     this.#ctx.lineJoin = "round";
 //    this.#draw();
   }
-  
+
+  setJSONUI() {
+    this.setInteractive(this.#default.interactive);
+//    this.#draw();
+  }
+
   setBezierConnector(bezierConnector) {
     this.#default.bezierConnector = bezierConnector;
 //    this.#draw();
@@ -39,9 +48,9 @@ class LogicalCircuitCanvas {
     this.#default.showOperatorType = showOperatorType;
 //    this.#draw();
   }
-  
+
   setInteractive(interactive) {
-//    this.#default.interactive = !!interactive;
+    this.#default.interactive = !!interactive;
 //    this.#onInteractive.selected = false;
 //
 //    this.#interactive = {};

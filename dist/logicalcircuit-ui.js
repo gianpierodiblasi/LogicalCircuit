@@ -16,6 +16,9 @@ class LogicalCircuitUI {
     "interactive": false
   };
 
+  #onChangeListener = [];
+  #onChangeUIListener = [];
+
   #toolbar;
   #canvas;
 
@@ -34,12 +37,24 @@ class LogicalCircuitUI {
     container.classList.add(this.#uniqueClass);
     container.style.width = (options.width + 2) + "px";
 
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, options);
-    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, options);
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#onChangeListener, this.#onChangeUIListener, options);
+    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#onChangeListener, this.#onChangeUIListener, options);
 
     this.setBezierConnector(options.bezierConnector);
     this.setShowOperatorType(options.showOperatorType);
     this.setInteractive(options.interactive);
+  }
+
+  setJSONs(json, jsonUI) {
+    this.#core.setJSON(json);
+    Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+    Object.assign(this.#jsonUI, jsonUI);
+
+    this.#toolbar.setJSONUI();
+    this.#canvas.setJSONUI();
+
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   getJSON() {

@@ -70,6 +70,9 @@ var logicalCircuit = new LogicalCircuit();
 - *isValid()*: checks if this object represents a set of valid logical circuits
   - input: NOTHING
   - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
+- *isEmpty()*: checks if this object is empty
+  - input: NOTHING
+  - output: true if this object is empty, false otherwise (BOOLEAN)
 - *addInput(name)*: adds an input node
   - input:
     - name: the node name (STRING)

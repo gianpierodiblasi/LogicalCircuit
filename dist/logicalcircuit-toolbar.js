@@ -3,12 +3,16 @@ class LogicalCircuitToolbar {
   #core;
   #jsonUI;
   #default;
+  #onChangeListener = [];
+  #onChangeUIListener = [];
 
-  constructor(container, uniqueClass, core, jsonUI, def, options) {
+  constructor(container, uniqueClass, core, jsonUI, def, onChangeListener, onChangeUIListener, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
+    this.#onChangeListener = onChangeListener;
+    this.#onChangeUIListener = onChangeUIListener;
 
     var toolbar = document.createElement("div");
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
@@ -107,6 +111,27 @@ class LogicalCircuitToolbar {
 
   #tidyUp(doNotAsk) {
 
+  }
+
+  setJSONUI() {
+    this.#resetButtons();
+    this.#resetText();
+  }
+
+  #resetButtons() {
+    var disabled = this.#core.isEmpty() || !this.#core.isValid();
+    
+    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.SIMPLIFY").disabled = disabled;
+    document.querySelector("." + this.#uniqueClass + " button.TIDY-UP").disabled = disabled;
+  }
+
+  #resetText() {
+    document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value = "";
+    document.querySelector("." + this.#uniqueClass + " button.IN").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.OUT").disabled = true;
   }
 
   setSimplifierVisible(visible) {
