@@ -149,22 +149,20 @@ class LogicalCircuitCanvas {
           break;
       }
     });
-//
-//    for (var property in this.#jsonUI) {
-//      var type = this.#core.getType(property);
-//
-//      switch (type) {
-//        case "IN":
-//          break;
-//        case "OUT":
-//          this.#drawConnector(this.#core.getFrom(property)[0], property, 0);
-//          break;
-//        default:
-//          this.#core.getFrom(property).forEach((name, index) => this.#drawConnector(name, property, index));
-//          break;
-//      }
-//    }
-//
+
+    Object.keys(this.#jsonUI).forEach(property => {
+      switch (this.#core.getType(property)) {
+        case "IN":
+          break;
+        case "OUT":
+          this.#drawConnector(this.#core.getFrom(property)[0], property, 0);
+          break;
+        default:
+          this.#core.getFrom(property).forEach((name, index) => this.#drawConnector(name, property, index));
+          break;
+      }
+    });
+
 //    this.#drawOnMouse();
 //    this.#drawOnKnob();
   }
@@ -366,7 +364,8 @@ class LogicalCircuitCanvas {
       case "NOR":
         this.#symbolPath[name].ellipse(this.#jsonUI[name].left, centerTop, this.#operator.radiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
         this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
-        this.#symbolPath[name].ellipse(width, centerTop, this.#operator.radiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+        this.#symbolPath[name].quadraticCurveTo(width + 3 * this.#operator.radiusLeft / 5, this.#jsonUI[name].top, width + this.#operator.radiusLeft, centerTop);
+        this.#symbolPath[name].quadraticCurveTo(width + 3 * this.#operator.radiusLeft / 5, height, width, height);
         break;
       case "AND":
       case "NAND":
@@ -433,5 +432,30 @@ class LogicalCircuitCanvas {
     this.#knobPath[name].lineTo(this.#knobCenter[name].left - this.#onKnob.radius, this.#knobCenter[name].top);
     this.#knobPath[name].closePath();
     this.#ctx.stroke(this.#knobPath[name]);
+  }
+
+  #drawConnector(startName, endName, endIndex) {
+    if (startName) {
+      this.#connectorPath[endName + "*" + endIndex] = new Path2D();
+      this.#connectorPath[endName + "*" + endIndex].moveTo(this.#knobCenter[startName + "*exit"].left, this.#knobCenter[startName + "*exit"].top);
+
+      if (this.#default.bezierConnector) {
+        var cp1 = {
+          "left": this.#knobCenter[startName + "*exit"].left + (this.#knobCenter[endName + "*" + endIndex].left - this.#knobCenter[startName + "*exit"].left) / 2,
+          "top": this.#knobCenter[startName + "*exit"].top
+        };
+
+        var cp2 = {
+          "left": cp1.left,
+          "top": this.#knobCenter[endName + "*" + endIndex].top
+        };
+
+        this.#connectorPath[endName + "*" + endIndex].bezierCurveTo(cp1.left, cp1.top, cp2.left, cp2.top, this.#knobCenter[endName + "*" + endIndex].left, this.#knobCenter[endName + "*" + endIndex].top);
+      } else {
+        this.#connectorPath[endName + "*" + endIndex].lineTo(this.#knobCenter[endName + "*" + endIndex].left, this.#knobCenter[endName + "*" + endIndex].top);
+      }
+
+      this.#ctx.stroke(this.#connectorPath[endName + "*" + endIndex]);
+    }
   }
 }
