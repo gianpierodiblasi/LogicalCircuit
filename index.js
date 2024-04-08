@@ -117,8 +117,8 @@ window.onload = (event) => {
   document.querySelector("#load1").onclick = () => logicalCircuitUI.setJSONs(json1, jsonUI1);
   document.querySelector("#load2").onclick = () => logicalCircuitUI.setJSONs(json2, jsonUI2);
   document.querySelector("#load3").onclick = () => logicalCircuitUI.setJSONs(json3, jsonUI3);
-//  document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
-//  document.querySelector("#type").onchange = (event) => logicalCircuitUI.setShowOperatorType(event.srcElement.checked);
+  document.querySelector("#bezier").onchange = (event) => logicalCircuitUI.setBezierConnector(event.srcElement.checked);
+  document.querySelector("#type").onchange = (event) => logicalCircuitUI.setShowOperatorType(event.srcElement.checked);
   document.querySelector("#interactive").onchange = (event) => logicalCircuitUI.setInteractive(event.srcElement.checked);
   logicalCircuitUI.addOnChangeListener(() => {
     var div = document.querySelector("#expressions");

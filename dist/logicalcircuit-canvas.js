@@ -46,6 +46,15 @@ class LogicalCircuitCanvas {
     "circleStyle": "white"
   };
 
+  #operator = {
+    "radiusLeft": 20,
+    "lineWidth": 30,
+    "oneHeight": 20,
+    "xorGap": 12,
+    "notRadius": 7,
+    "font": "9px sans-serif"
+  };
+
   #onKnob = {
     "pressed": false,
     "name": "",
@@ -136,7 +145,7 @@ class LogicalCircuitCanvas {
           this.#drawText(property, "0");
           break;
         default:
-//          this.#drawOperator(property, type);
+          this.#drawOperator(property, type);
           break;
       }
     });
@@ -224,6 +233,196 @@ class LogicalCircuitCanvas {
     }
 
     this.#ctx.fillText(name, this.#jsonUI[name].left + this.#text.gap / 2, this.#knobCenter[name + "*" + suffix].top);
+  }
+
+  #drawOperator(name, type) {
+    this.#symbolPath[name] = new Path2D();
+    var from = this.#core.getFrom(name);
+
+    var radiusTop = this.#operator.oneHeight * from.length / 2;
+    var width = this.#jsonUI[name].left + this.#operator.lineWidth + (type === "NOT" ? this.#operator.radiusLeft : 0);
+    var height = this.#jsonUI[name].top + this.#operator.oneHeight * (type === "NOT" ? 2 : from.length);
+    var centerTop = this.#jsonUI[name].top + (type === "NOT" ? this.#operator.oneHeight : radiusTop);
+
+    this.#setExitKnobCenter(name, type, width, centerTop);
+    this.#setKnobCenter(name, type, from, centerTop, radiusTop);
+    this.#setSymbolSize(name, type, from, width, centerTop);
+    this.#setSymbolPath(name, type, width, height, centerTop, radiusTop);
+
+    this.#drawOperatorType(name, type);
+  }
+
+  #setExitKnobCenter(name, type, width, centerTop) {
+    switch (type) {
+      case "OR":
+      case "AND":
+      case "XOR":
+        this.#knobCenter[name + "*exit"] = {
+          "left": width + this.#operator.radiusLeft + this.#onKnob.radius,
+          "top": centerTop
+        };
+        break;
+      case "NOR":
+      case "NAND":
+      case "NXOR":
+        this.#knobCenter[name + "*exit"] = {
+          "left": width + this.#operator.radiusLeft + 2 * this.#operator.notRadius + this.#onKnob.radius,
+          "top": centerTop
+        };
+        break;
+      case "NOT":
+        this.#knobCenter[name + "*exit"] = {
+          "left": width + 2 * this.#operator.notRadius + this.#onKnob.radius,
+          "top": centerTop
+        };
+        break;
+    }
+
+    this.#drawKnob(name + "*exit");
+  }
+
+  #setKnobCenter(name, type, from, centerTop, radiusTop) {
+    var incAngle = Math.PI / (from.length + 1);
+    for (var index = 0; index < from.length; index++) {
+      switch (type) {
+        case "OR":
+        case "NOR":
+          var angle = incAngle * (index + 1) - Math.PI / 2;
+          this.#knobCenter[name + "*" + index] = {
+            "left": this.#jsonUI[name].left + (this.#operator.radiusLeft - this.#onKnob.radius) * Math.cos(angle),
+            "top": centerTop + (radiusTop - this.#onKnob.radius) * Math.sin(angle)
+          };
+          break;
+        case "AND":
+        case "NAND":
+          this.#knobCenter[name + "*" + index] = {
+            "left": this.#jsonUI[name].left - this.#onKnob.radius,
+            "top": this.#jsonUI[name].top + this.#operator.oneHeight / 2 + this.#operator.oneHeight * index
+          };
+          break;
+        case "XOR":
+        case "NXOR":
+          var angle = incAngle * (index + 1) - Math.PI / 2;
+          this.#knobCenter[name + "*" + index] = {
+            "left": this.#jsonUI[name].left + (this.#operator.radiusLeft - this.#onKnob.radius) * Math.cos(angle) - this.#operator.xorGap,
+            "top": centerTop + (radiusTop - this.#onKnob.radius) * Math.sin(angle)
+          };
+          break;
+        case "NOT":
+          this.#knobCenter[name + "*" + index] = {
+            "left": this.#jsonUI[name].left - this.#onKnob.radius,
+            "top": centerTop
+          };
+          break;
+      }
+
+      this.#drawKnob(name + "*" + index);
+    }
+  }
+
+  #setSymbolSize(name, type, from, width, centerTop) {
+    switch (type) {
+      case "OR":
+      case "AND":
+      case "XOR":
+        this.#symbolSize[name] = {
+          "width": this.#operator.lineWidth + this.#operator.radiusLeft,
+          "height": this.#operator.oneHeight * from.length
+        };
+        break;
+      case "NOR":
+      case "NAND":
+      case "NXOR":
+        var arc = new Path2D();
+        arc.arc(width + this.#operator.radiusLeft + this.#operator.notRadius, centerTop, this.#operator.notRadius, 0, 2 * Math.PI);
+        this.#symbolPath[name].addPath(arc);
+
+        this.#symbolSize[name] = {
+          "width": this.#operator.lineWidth + this.#operator.radiusLeft + 2 * this.#operator.notRadius,
+          "height": this.#operator.oneHeight * from.length
+        };
+        break;
+      case "NOT":
+        var arc = new Path2D();
+        arc.arc(width + this.#operator.notRadius, centerTop, this.#operator.notRadius, 0, 2 * Math.PI);
+        this.#symbolPath[name].addPath(arc);
+
+        this.#symbolSize[name] = {
+          "width": this.#operator.lineWidth + this.#operator.radiusLeft + 2 * this.#operator.notRadius,
+          "height": 2 * this.#operator.oneHeight
+        };
+        break;
+    }
+  }
+
+  #setSymbolPath(name, type, width, height, centerTop, radiusTop) {
+    if (type !== "NOT") {
+      this.#symbolPath[name].moveTo(width, height);
+      this.#symbolPath[name].lineTo(this.#jsonUI[name].left, height);
+    }
+
+    switch (type) {
+      case "OR":
+      case "NOR":
+        this.#symbolPath[name].ellipse(this.#jsonUI[name].left, centerTop, this.#operator.radiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+        this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+        this.#symbolPath[name].ellipse(width, centerTop, this.#operator.radiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+        break;
+      case "AND":
+      case "NAND":
+        this.#symbolPath[name].lineTo(this.#jsonUI[name].left, this.#jsonUI[name].top);
+        this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+        this.#symbolPath[name].ellipse(width, centerTop, this.#operator.radiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+        break;
+      case "XOR":
+      case "NXOR":
+        this.#symbolPath[name].ellipse(this.#jsonUI[name].left, centerTop, this.#operator.radiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+        this.#symbolPath[name].lineTo(width, this.#jsonUI[name].top);
+        this.#symbolPath[name].ellipse(width, centerTop, this.#operator.radiusLeft, radiusTop, 0, -Math.PI / 2, Math.PI / 2);
+
+        var ellipse = new Path2D();
+        ellipse.ellipse(this.#jsonUI[name].left - this.#operator.xorGap, centerTop, this.#operator.radiusLeft, radiusTop, 0, Math.PI / 2, -Math.PI / 2, true);
+        this.#symbolPath[name].addPath(ellipse);
+        break;
+      case "NOT":
+        this.#symbolPath[name].moveTo(this.#jsonUI[name].left, this.#jsonUI[name].top);
+        this.#symbolPath[name].lineTo(width, centerTop);
+        this.#symbolPath[name].lineTo(this.#jsonUI[name].left, height);
+        this.#symbolPath[name].closePath();
+        break;
+    }
+
+    this.#ctx.stroke(this.#symbolPath[name]);
+  }
+
+  #drawOperatorType(name, type) {
+    if (this.#default.showOperatorType) {
+      this.#ctx.font = this.#operator.font;
+
+      var left;
+      switch (type) {
+        case "OR":
+        case "XOR":
+          left = this.#operator.radiusLeft + (this.#symbolSize[name].width - this.#operator.radiusLeft - this.#ctx.measureText(type).width) / 2;
+          break;
+        case "AND":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 2;
+          break;
+        case "NOR":
+        case "NXOR":
+          left = this.#operator.radiusLeft + (this.#symbolSize[name].width - this.#operator.radiusLeft - this.#ctx.measureText(type).width) / 2 - this.#operator.notRadius;
+          break;
+        case "NAND":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 2 - this.#operator.notRadius;
+          break;
+        case "NOT":
+          left = (this.#symbolSize[name].width - this.#ctx.measureText(type).width) / 4;
+          break;
+      }
+
+      this.#ctx.fillText(type, this.#jsonUI[name].left + left, this.#jsonUI[name].top + this.#symbolSize[name].height / 2);
+      this.#ctx.font = this.#default.font;
+    }
   }
 
   #drawKnob(name) {
