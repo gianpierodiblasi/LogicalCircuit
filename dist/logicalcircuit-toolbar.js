@@ -7,7 +7,9 @@ class LogicalCircuitToolbar {
   #onChangeListener = [];
   #onChangeUIListener = [];
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, options) {
+  #canvas
+
+  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas, options) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
@@ -15,6 +17,7 @@ class LogicalCircuitToolbar {
     this.#history = history;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
+    this.#canvas = canvas;
 
     var toolbar = document.createElement("div");
     toolbar.classList.add("LogicalCircuitUI_Toolbar");
@@ -96,7 +99,18 @@ class LogicalCircuitToolbar {
   }
 
   #clear() {
+    if (confirm("Do you really want to clear the current logical circuit?")) {
+      this.#core.clear();
+      Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
 
+      this.setJSONUI();
+      this.#canvas.setJSONUI();
+
+      this.#history.index = -1;
+      this.#history.array = [];
+      this.#onChangeListener.forEach(listener => listener());
+      this.#onChangeUIListener.forEach(listener => listener());
+    }
   }
 
   #addInput(name) {
