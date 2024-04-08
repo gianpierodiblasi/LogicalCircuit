@@ -131,6 +131,13 @@ class LogicalCircuitCanvas {
     return JSON.parse(JSON.stringify(this.#symbolSize));
   }
 
+  assignPosition(name, index, array, offset) {
+    this.#jsonUI[name] = {
+      "top": (index + 1) * this.#canvas.height / (array.length + 1) - this.#text.height,
+      "left": offset
+    };
+  }
+
   draw() {
     this.#canvas.style.cursor = this.#default.cursor;
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);

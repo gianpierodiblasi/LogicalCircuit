@@ -38,7 +38,7 @@ class LogicalCircuitToolbar {
     this.#addButtons(toolbar, "AND", null, null, null, () => this.#add("AND"), () => this.#add("NAND"), null, "medium", false, true);
     this.#addButtons(toolbar, "XOR", null, null, null, () => this.#add("XOR"), () => this.#add("NXOR"), null, "medium", false, true);
     this.#addButtons(toolbar, "NOT", null, null, null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true);
-    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(false), null, "large", true, false);
+    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(), null, "large", true, false);
   }
 
   #addButtons(toolbar, label1, label2, tooltip1, tooltip2, listener1, listener2, otherClass, size, disabled, visible) {
@@ -106,14 +106,15 @@ class LogicalCircuitToolbar {
 
   #clear() {
     if (confirm("Do you really want to clear the current logical circuit?")) {
+      this.#history.index = -1;
+      this.#history.array = [];
+
       this.#core.clear();
       Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
 
       this.setJSONUI();
       this.#canvas.setJSONUI();
 
-      this.#history.index = -1;
-      this.#history.array = [];
       this.#onChangeListener.forEach(listener => listener());
       this.#onChangeUIListener.forEach(listener => listener());
     }
@@ -124,8 +125,10 @@ class LogicalCircuitToolbar {
 
     this.#core.addInput(name);
     this.#addPosition(name);
-    //
+
     this.#resetText();
+    this.#resetButtons();
+
     this.#canvas.setInteractiveValue(name, false);
 
     this.#onChangeListener.forEach(listener => listener());
@@ -148,38 +151,41 @@ class LogicalCircuitToolbar {
   }
 
   #simplify() {
-    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
-//      Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
-//      this.#resetButtons();
-//      this.#resetText();
+    var history = {
+      "json": this.#core.getJSON(),
+      "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
+    };
 
-//      try {
-//        var g = new dagre.graphlib.Graph();
-//        Object.keys(this.getJSON()).forEach(name => this.#addPosition(name));
-//
-//        this.setInteractive(this.#default.interactive);
-//        this.#onChangeListener.forEach(listener => listener());
-//
-//        this.#reorganize(true);
-//      } catch (exception) {
-//        var json = this.getJSON();
-//
-//        Object.keys(json).filter(name => this.#core.getType(name) === "IN").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#addedElementPosition.left));
-//        Object.keys(json).filter(name => this.#core.getType(name) === "NOT").forEach((name, index, array) => this.#assignPosition(name, index, array, this.#canvas.width / 5));
-//        Object.keys(json).filter(name => this.#core.getType(name) === "AND").forEach((name, index, array) => this.#assignPosition(name, index, array, 2 * this.#canvas.width / 5));
-//        Object.keys(json).filter(name => this.#core.getType(name) === "OR").forEach((name, index, array) => this.#assignPosition(name, index, array, 3 * this.#canvas.width / 5));
-//        Object.keys(json).filter(name => this.#core.getType(name) === "OUT").forEach((name, index, array) => this.#assignPosition(name, index, array, 4 * this.#canvas.width / 5));
-//
-//        this.setInteractive(this.#default.interactive);
-//        this.#onChangeListener.forEach(listener => listener());
-//        this.#onChangeUIListener.forEach(listener => listener());
-//        this.#draw();
-//      }
+    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
+      this.#incHistory(history);
+      this.#resetButtons();
+
+      var json = this.#core.getJSON();
+      Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
+      Object.keys(json).filter(name => this.#core.getType(name) === "IN").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, this.#addedElementPosition.left));
+      Object.keys(json).filter(name => this.#core.getType(name) === "NOT").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, this.#default.width / 5));
+      Object.keys(json).filter(name => this.#core.getType(name) === "AND").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, 2 * this.#default.width / 5));
+      Object.keys(json).filter(name => this.#core.getType(name) === "OR").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, 3 * this.#default.width / 5));
+      Object.keys(json).filter(name => this.#core.getType(name) === "OUT").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, 4 * this.#default.width / 5));
+
+      try {
+        this.#canvas.draw();
+
+        var edges = [];
+        Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
+        var jsonUI = this.#reorganizer(this.#canvas.getSymbolSize(), edges, this.#default.width, this.#default.height);
+
+        Object.assign(this.#jsonUI, jsonUI);
+      } catch (exception) {
+      }
+
+      this.#onChangeListener.forEach(listener => listener());
+      this.#onChangeUIListener.forEach(listener => listener());
     }
   }
 
-  #reorganize(doNotAsk) {
-    if (doNotAsk || confirm("Do you really want to reorganize the current logical circuit?")) {
+  #reorganize() {
+    if (confirm("Do you really want to reorganize the current logical circuit?")) {
       try {
         var edges = [];
         Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
@@ -190,6 +196,7 @@ class LogicalCircuitToolbar {
         Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
         Object.assign(this.#jsonUI, jsonUI);
 
+        this.#resetButtons();
         this.#canvas.draw();
 
         this.#onChangeListener.forEach(listener => listener());
@@ -199,19 +206,18 @@ class LogicalCircuitToolbar {
     }
   }
 
-  #incHistory() {
+  #incHistory(history) {
     if (this.#history.index > -1) {
       this.#history.array.splice(this.#history.index + 1);
     }
 
-    this.#history.index++;
-    this.#history.array.push({
+    history = history ? history : {
       "json": this.#core.getJSON(),
       "jsonUI": JSON.parse(JSON.stringify(this.#jsonUI))
-    });
+    };
 
-    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = false;
-    document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
+    this.#history.index++;
+    this.#history.array.push(history);
   }
 
   setJSONUI() {
@@ -222,9 +228,9 @@ class LogicalCircuitToolbar {
   #resetButtons() {
     var disabled = this.#core.isEmpty() || !this.#core.isValid();
 
-    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = this.#history.index === -1;
     document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
-    document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = true;
+    document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = this.#core.isEmpty();
     document.querySelector("." + this.#uniqueClass + " button.SIMPLIFY").disabled = disabled;
     document.querySelector("." + this.#uniqueClass + " button.REORGANIZE").disabled = disabled;
   }
