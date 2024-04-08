@@ -284,8 +284,7 @@ The API has no dependencies, so in order to use the API it is necessary only to 
 - reference only the bundled and minified file logicalcircuit-bundle-min-\<version\>.js
 
 In order to show the behavior of:
-- the simplify method an implementation of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm) is provided
-  - the bundled (logicalcircuit_with_qmc-bundle-\<version\>.js) and minified (logicalcircuit_with_qmc-bundle-min-\<version\>.js) versions are also available
+- the simplify method an implementation of the [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine-McCluskey_algorithm) is provided (the bundled (logicalcircuit_with_qmc-bundle-\<version\>.js) and minified (logicalcircuit_with_qmc-bundle-min-\<version\>.js) versions are also available)
 - the reorganize functionality a reference to the [dagre](https://github.com/dagrejs/dagre) library is provided
 
 Open the demo [here](https://gianpierodiblasi.github.io/LogicalCircuit/) and its source code for an example.
