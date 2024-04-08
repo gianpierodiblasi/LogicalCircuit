@@ -42,7 +42,9 @@ class LogicalCircuitToolbar {
       this.#createButton(div, label1, tooltip1, size, disabled, visible).onclick = (event) => listener1();
     }
     if (listener2) {
-      this.#createButton(div, label2 ? label2 : "N" + label1, tooltip2 ? tooltip2 : "N" + tooltip1, size, disabled, visible).onclick = (event) => listener2();
+      var label = label2 ? label2 : label1 ? "N" + label1 : null;
+      var tooltip = tooltip2 ? tooltip2 : tooltip1 ? "N" + tooltip1 : null;
+      this.#createButton(div, label, tooltip, size, disabled, visible).onclick = (event) => listener2();
     }
   }
 
@@ -72,8 +74,10 @@ class LogicalCircuitToolbar {
   #createButton(div, label, tooltip, size, disabled, visible) {
     var button = document.createElement("button");
     button.textContent = label;
-    button.title = tooltip;
-    button.classList.add(label.replace(" ", "-"));
+    if (tooltip) {
+      button.title = tooltip;
+    }
+    button.classList.add(tooltip ? tooltip.replace(" ", "-") : label.replace(" ", "-"));
     button.classList.add(size);
     button.disabled = disabled;
     button.style.visibility = visible ? "visible" : "hidden";
@@ -120,7 +124,7 @@ class LogicalCircuitToolbar {
 
   #resetButtons() {
     var disabled = this.#core.isEmpty() || !this.#core.isValid();
-    
+
     document.querySelector("." + this.#uniqueClass + " button.UNDO").disabled = true;
     document.querySelector("." + this.#uniqueClass + " button.REDO").disabled = true;
     document.querySelector("." + this.#uniqueClass + " button.CLEAR").disabled = true;

@@ -70,6 +70,26 @@ class LogicalCircuitUI {
     this.#toolbar.setSimplifierVisible(!!simplifier);
   }
 
+  computeExpressions(parameters) {
+    return this.#core.computeExpressions(parameters);
+  }
+
+  computeExpression(name, parameters) {
+    return this.#core.computeExpression(name, parameters);
+  }
+
+  getJavaScriptExpressions() {
+    return this.#core.getJavaScriptExpressions();
+  }
+
+  getJavaScriptExpression(name) {
+    return this.#core.getJavaScriptExpression(name);
+  }
+
+  isValid() {
+    return this.#core.isValid();
+  }
+
   setBezierConnector(bezierConnector) {
     this.#canvas.setBezierConnector(!!bezierConnector);
   }
@@ -80,5 +100,17 @@ class LogicalCircuitUI {
 
   setInteractive(interactive) {
     this.#canvas.setInteractive(!!interactive);
+  }
+
+  addOnChangeListener(listener) {
+    this.#onChangeListener.push(listener);
+  }
+
+  addOnChangeUIListener(listener) {
+    this.#onChangeUIListener.push(listener);
+  }
+
+  addBlackListWord(name) {
+    this.#core.addBlackListWord(name);
   }
 }

@@ -201,6 +201,25 @@ where:
   - input:
     - simplifier: the simplifier (FUNCTION)
   - output: NOTHING
+- *computeExpressions(parameters)*: returns a JSON object representing the computation of the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - parameters: the input parameters (JSON)
+  - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *computeExpression(name, parameters)*: returns a boolean representing the computation of the JavaScript expression of a logical circuits; the boolean is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+    - parameters: the input parameters (JSON)
+  - output: the boolean representing the computation of the JavaScript expression of a logical circuits, an empty value if this object does not represent a set of valid logical circuits (BOOLEAN)
+- *getJavaScriptExpressions()*: returns a JSON object representing the JavaScript expressions of the logical circuits; the JSON is returned if and only if this object represents a set of valid logical circuits
+  - input: NOTHING
+  - output: the JSON object representing the JavaScript expressions of the logical circuits, an empty JSON if this object does not represent a set of valid logical circuits (JSON)
+- *getJavaScriptExpression(name)*: returns a string representing the JavaScript expression of a logical circuit; the expression is returned if and only if this object represents a set of valid logical circuits
+  - input:
+    - name: the output node (STRING)
+  - output: the string representing the JavaScript expression of a logical circuit, an empty string if this object does not represent a set of valid logical circuits (JSON)
+- *isValid()*: checks if this object represents a set of valid logical circuits
+  - input: NOTHING
+  - output: true if this object represents a set of valid logical circuits, false otherwise (BOOLEAN)
 - *setBezierConnector(bezierConnector)*: sets the bezier connector
   - input:
     - bezierConnector: true to connect the object by means of a bezier curve, false otherwise (BOOLEAN)
@@ -213,6 +232,18 @@ where:
   - input:
     - interactive: true to set the interactive mode (it is possibile to test in real time the logical circuits), false otherwise (BOOLEAN)
   - output: NOTHING
+- *addOnChangeListener(listener)*: adds a function listener for the change events
+  - input:
+    - listener: the listener (FUNCTION)
+  - output: NOTHING
+- *addOnChangeUIListener(listener)*: adds a function listener for the UI change events
+  - input:
+    - listener: the listener (FUNCTION)
+  - output: NOTHING
+- *addBlackListWord(name)*: add a new word in the blacklist
+  - input:
+    - name: the name (STRING)
+  - output: (NOTHING)
 
 ## How To Use
 The API has no dependencies, so in order to use the API it is necessary only to reference the JS and CSS files available in the dist folder; for the JS files it is possible:
