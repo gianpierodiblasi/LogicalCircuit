@@ -10,6 +10,11 @@ class LogicalCircuitToolbar {
   #canvas
   #reorganizer;
 
+  #addedElementPosition = {
+    "top": 15,
+    "left": 15
+  };
+
   constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener, canvas) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
@@ -115,7 +120,16 @@ class LogicalCircuitToolbar {
   }
 
   #addInput(name) {
+    this.#incHistory();
 
+    this.#core.addInput(name);
+    this.#addPosition(name);
+    //
+    this.#resetText();
+    this.#canvas.setInteractiveValue(name, false);
+
+    this.#onChangeListener.forEach(listener => listener());
+    this.#onChangeUIListener.forEach(listener => listener());
   }
 
   #addOutput(name) {
@@ -124,6 +138,13 @@ class LogicalCircuitToolbar {
 
   #add(type) {
 
+  }
+
+  #addPosition(name) {
+    this.#jsonUI[name] = {
+      "top": this.#addedElementPosition.top,
+      "left": this.#addedElementPosition.left
+    };
   }
 
   #simplify() {
@@ -169,7 +190,7 @@ class LogicalCircuitToolbar {
         Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
         Object.assign(this.#jsonUI, jsonUI);
 
-        this.#canvas.setJSONUI();
+        this.#canvas.draw();
 
         this.#onChangeListener.forEach(listener => listener());
         this.#onChangeUIListener.forEach(listener => listener());

@@ -90,7 +90,7 @@ class LogicalCircuitCanvas {
     this.#ctx.textBaseline = "middle";
     this.#ctx.lineWidth = this.#default.lineWidth;
     this.#ctx.lineJoin = "round";
-    this.#draw();
+    this.draw();
   }
 
   setJSONUI() {
@@ -99,12 +99,12 @@ class LogicalCircuitCanvas {
 
   setBezierConnector(bezierConnector) {
     this.#default.bezierConnector = bezierConnector;
-    this.#draw();
+    this.draw();
   }
 
   setShowOperatorType(showOperatorType) {
     this.#default.showOperatorType = showOperatorType;
-    this.#draw();
+    this.draw();
   }
 
   setInteractive(interactive) {
@@ -112,23 +112,25 @@ class LogicalCircuitCanvas {
     this.#onInteractive.selected = false;
 
     this.#interactive = {};
-
     if (interactive) {
-      Object.keys(this.#jsonUI).forEach(property => {
-        if (this.#core.getType(property) === "IN") {
-          this.#interactive[property] = false;
-        }
-      });
+      Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) === "IN").forEach(property => this.#interactive[property] = false);
     }
 
-    this.#draw();
+    this.draw();
+  }
+
+  setInteractiveValue(name, value) {
+    if (this.#default.interactive) {
+      this.#interactive[name] = value;
+    }
+    this.draw();
   }
 
   getSymbolSize() {
     return JSON.parse(JSON.stringify(this.#symbolSize));
   }
 
-  #draw() {
+  draw() {
     this.#canvas.style.cursor = this.#default.cursor;
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
 
@@ -155,8 +157,6 @@ class LogicalCircuitCanvas {
         case "IN":
           break;
         case "OUT":
-          this.#drawConnector(this.#core.getFrom(property)[0], property, 0);
-          break;
         default:
           this.#core.getFrom(property).forEach((name, index) => this.#drawConnector(name, property, index));
           break;
