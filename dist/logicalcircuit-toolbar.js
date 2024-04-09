@@ -32,14 +32,14 @@ class LogicalCircuitToolbar {
     this.#addButtons(toolbar, "\u{21B7}", null, "REDO", null, () => this.#redo(), null, null, "small", true, true);
     this.#addButtons(toolbar, "\u{1F5D1}", null, "CLEAR", null, () => this.#clear(), null, "Divide_On_Right", "small", true, true);
     this.#addButtonsAndText(toolbar);
-    this.#addButtons(toolbar, "OR", null, null, null, () => this.#add("OR"), () => this.#add("NOR"), null, "medium", false, true);
-    this.#addButtons(toolbar, "AND", null, null, null, () => this.#add("AND"), () => this.#add("NAND"), null, "medium", false, true);
-    this.#addButtons(toolbar, "XOR", null, null, null, () => this.#add("XOR"), () => this.#add("NXOR"), null, "medium", false, true);
-    this.#addButtons(toolbar, "NOT", null, null, null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true);
-    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(), null, "large", true, false);
+    this.#addButtons(toolbar, "OR", null, null, null, () => this.#add("OR"), () => this.#add("NOR"), null, "medium", false, true, true);
+    this.#addButtons(toolbar, "AND", null, null, null, () => this.#add("AND"), () => this.#add("NAND"), null, "medium", false, true, true);
+    this.#addButtons(toolbar, "XOR", null, null, null, () => this.#add("XOR"), () => this.#add("NXOR"), null, "medium", false, true, true);
+    this.#addButtons(toolbar, "NOT", null, null, null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true, true);
+    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(), null, "large", true, false, false);
   }
 
-  #addButtons(toolbar, label1, label2, tooltip1, tooltip2, listener1, listener2, otherClass, size, disabled, visible) {
+  #addButtons(toolbar, label1, label2, tooltip1, tooltip2, listener1, listener2, otherClass, size, disabled, visible, draggable) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_Toolbar_ButtonContainer");
     if (otherClass) {
@@ -48,12 +48,12 @@ class LogicalCircuitToolbar {
     toolbar.append(div);
 
     if (listener1) {
-      this.#createButton(div, label1, tooltip1, size, disabled, visible).onclick = (event) => listener1();
+      this.#createButton(div, label1, tooltip1, size, disabled, visible, draggable).onclick = (event) => listener1();
     }
     if (listener2) {
       var label = label2 ? label2 : label1 ? "N" + label1 : null;
       var tooltip = tooltip2 ? tooltip2 : tooltip1 ? "N" + tooltip1 : null;
-      this.#createButton(div, label, tooltip, size, disabled, visible).onclick = (event) => listener2();
+      this.#createButton(div, label, tooltip, size, disabled, visible, draggable).onclick = (event) => listener2();
     }
   }
 
@@ -69,18 +69,20 @@ class LogicalCircuitToolbar {
     text.oninput = (event) => {
       var disabled = !this.#core.isNameValid(text.value) || this.#core.isNameAlreadyUsed(text.value);
       buttonIN.disabled = disabled;
+      buttonIN.setAttribute("draggable", !disabled);
       buttonOUT.disabled = disabled;
+      buttonOUT.setAttribute("draggable", !disabled);
     };
     div.append(text);
 
-    var buttonIN = this.#createButton(div, "IN", null, "medium", true, true);
-    var buttonOUT = this.#createButton(div, "OUT", null, "medium", true, true);
+    var buttonIN = this.#createButton(div, "IN", null, "medium", true, true, false);
+    var buttonOUT = this.#createButton(div, "OUT", null, "medium", true, true, false);
 
     buttonIN.onclick = (event) => this.#addInput(text.value);
     buttonOUT.onclick = (event) => this.#addOutput(text.value);
   }
 
-  #createButton(div, label, tooltip, size, disabled, visible) {
+  #createButton(div, label, tooltip, size, disabled, visible, draggable) {
     var button = document.createElement("button");
     button.textContent = label;
     if (tooltip) {
@@ -90,6 +92,7 @@ class LogicalCircuitToolbar {
     button.classList.add(size);
     button.disabled = disabled;
     button.style.visibility = visible ? "visible" : "hidden";
+    button.setAttribute("draggable", draggable);
     div.append(button);
     return button;
   }
