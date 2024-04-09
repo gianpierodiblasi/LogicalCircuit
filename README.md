@@ -175,7 +175,11 @@ where:
   "interactive": false,
   "//": "true to set the interactive mode"
   "//": "(it is possibile to test in real time the logical circuits),"
-  "//": "false otherwise (default: false)"
+  "//": "false otherwise (default: false)",
+  "lang": "en",
+  "//": "the language to use, if selected and available it will be used,",
+  "//": "otherwise if the browser language is available it will be used, otherwise English language will be used;",
+  "//": "current available languages are 'en' and 'it'"
 }
 ```
 

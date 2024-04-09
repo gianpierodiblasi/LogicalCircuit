@@ -70,8 +70,8 @@ class LogicalCircuitUI {
 
     if (options.lang && this.#messages[options.lang]) {
       this.#messages = this.#messages[options.lang];
-    } else if (this.#messages[navigator.language]) {
-      this.#messages = this.#messages[navigator.language];
+    } else if (this.#messages[navigator.language.substring(0, 2)]) {
+      this.#messages = this.#messages[navigator.language.substring(0, 2)];
     } else {
       this.#messages = this.#messages["en"];
     }
