@@ -178,7 +178,8 @@ where:
   "//": "false otherwise (default: false)",
   "lang": "en",
   "//": "the language to use, if selected and available it will be used,",
-  "//": "otherwise if the browser language is available it will be used, otherwise English language will be used;",
+  "//": "otherwise if the browser language is available it will be used,",
+  "//": "otherwise English language will be used;",
   "//": "current available languages are 'en' and 'it'"
 }
 ```
