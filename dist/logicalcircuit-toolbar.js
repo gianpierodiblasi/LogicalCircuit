@@ -98,32 +98,38 @@ class LogicalCircuitToolbar {
     button.style.visibility = visible ? "visible" : "hidden";
     button.setAttribute("draggable", draggable);
 
-    button.ondragstart = (event) => {
-      uniqueDragAndDropKeyLogicalCircuitUI = this.#uniqueClass;
-      this.#DnD.classId = classId;
-      this.#DnD.droppable = false;
-      event.dataTransfer.effectAllowed = "move";
-    };
-
-    button.ondragend = (event) => {
-      if (this.#DnD.droppable && !this.#DnD.inTrash) {
-        switch (this.#DnD.classId) {
-          case "IN":
-            break;
-          case "OUT":
-            break;
-          default:
-            break;
-        }
-      }
-
-      uniqueDragAndDropKeyLogicalCircuitUI = "";
-      this.#DnD.classId = "";
-      this.#DnD.droppable = false;
-    };
+    button.ondragstart = (event) => this.#ondragstart(event, classId);
+    button.ondragend = (event) => this.#ondragend(event);
 
     div.append(button);
     return button;
+  }
+
+  #ondragstart(event, classId) {
+    uniqueDragAndDropKeyLogicalCircuitUI = this.#uniqueClass;
+    this.#DnD.classId = classId;
+    this.#DnD.droppable = false;
+    event.dataTransfer.effectAllowed = "move";
+  }
+
+  #ondragend(event) {
+    if (this.#DnD.droppable && !this.#DnD.inTrash) {
+      switch (this.#DnD.classId) {
+        case "IN":
+          this.#addInput(document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value, this.#DnD.left, this.#DnD.top);
+          break;
+        case "OUT":
+          this.#addOutput(document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value, this.#DnD.left, this.#DnD.top);
+          break;
+        default:
+          this.#add(this.#DnD.classId, this.#DnD.left, this.#DnD.top);
+          break;
+      }
+    }
+
+    uniqueDragAndDropKeyLogicalCircuitUI = "";
+    this.#DnD.classId = "";
+    this.#DnD.droppable = false;
   }
 
   #undo() {
@@ -173,9 +179,9 @@ class LogicalCircuitToolbar {
     }
   }
 
-  #addInput(name) {
+  #addInput(name, left, top) {
     this.#core.addInput(name);
-    this.#addPosition(name);
+    this.#addPosition(name, left, top);
 
     this.#incHistory();
     this.setJSONUI();
@@ -184,9 +190,9 @@ class LogicalCircuitToolbar {
     this.#onChangeUIListener.forEach(listener => listener());
   }
 
-  #addOutput(name) {
+  #addOutput(name, left, top) {
     this.#core.addOutput(name);
-    this.#addPosition(name);
+    this.#addPosition(name, left, top);
 
     this.#incHistory();
     this.setJSONUI();
@@ -195,9 +201,9 @@ class LogicalCircuitToolbar {
     this.#onChangeUIListener.forEach(listener => listener());
   }
 
-  #add(type) {
+  #add(type, left, top) {
     var name = this.#core["add" + type]();
-    this.#addPosition(name);
+    this.#addPosition(name, left, top);
 
     this.#incHistory();
     this.setJSONUI();
@@ -206,10 +212,10 @@ class LogicalCircuitToolbar {
     this.#onChangeUIListener.forEach(listener => listener());
   }
 
-  #addPosition(name) {
+  #addPosition(name, left, top) {
     this.#jsonUI[name] = {
-      "top": this.#addedElementPosition.top,
-      "left": this.#addedElementPosition.left
+      "top": top ? top : this.#addedElementPosition.top,
+      "left": left ? left : this.#addedElementPosition.left
     };
   }
 
