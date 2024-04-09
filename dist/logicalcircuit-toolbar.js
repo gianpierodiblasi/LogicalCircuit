@@ -110,7 +110,7 @@ class LogicalCircuitToolbar {
     this.#DnD.classId = classId;
     this.#DnD.droppable = false;
     event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setDragImage(this.#canvas.getCanvasForDnD(classId, document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value), 0, 0);
+    event.dataTransfer.setDragImage(this.#canvas.getCanvasForDnD(classId, document.querySelector("." + this.#uniqueClass + " input.IN-OUT").value), 5, 5);
   }
 
   #ondragend(event) {

@@ -12,7 +12,6 @@ class LogicalCircuitCanvas {
   #canvas;
   #canvasDnD;
   #ctx;
-  #ctxDnD;
 
   #onInteractive = {
     "selected": false
@@ -141,12 +140,6 @@ class LogicalCircuitCanvas {
     this.#canvasDnD = document.createElement("canvas");
     this.#canvasDnD.classList.add("LogicalCircuitUI_CanvasDnD");
     container.append(this.#canvasDnD);
-
-    this.#ctxDnD = this.#canvasDnD.getContext('2d');
-    this.#ctxDnD.font = this.#default.font;
-    this.#ctxDnD.textBaseline = "middle";
-    this.#ctxDnD.lineWidth = this.#default.lineWidth;
-    this.#ctxDnD.lineJoin = "round";
   }
 
   setToolbar(toolbar) {
@@ -980,8 +973,9 @@ class LogicalCircuitCanvas {
   }
 
   getCanvasForDnD(type, label) {
-    var path = new Path2D();
     var size;
+    var path = new Path2D();
+    var ctxDnD = this.#canvasDnD.getContext('2d');
 
     switch (type) {
       case "IN":
@@ -994,26 +988,16 @@ class LogicalCircuitCanvas {
 
         this.#canvasDnD.width = size.width + 10;
         this.#canvasDnD.height = size.height + 10;
-        this.#ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
-        this.#ctxDnD.stroke(path);
+        ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
+        
+        ctxDnD.translate(5, 5);
+        ctxDnD.lineWidth = this.#default.lineWidth;
+        ctxDnD.lineJoin = "round";
+        ctxDnD.stroke(path);
 
-        if (this.#default.interactive) {
-          var radius = this.#text.gap / 2 - 2;
-          var arcTop = this.#text.height - 2 - radius - 2;
-
-          path = new Path2D();
-          path.roundRect(size.width - this.#text.gap - 2, 2, this.#text.gap, this.#text.height - 4, this.#text.gap / 2);
-
-          this.#ctxDnD.fillStyle = this.#text.OFFStyle;
-          this.#ctxDnD.fill(path);
-          this.#ctxDnD.fillStyle = this.#text.circleStyle;
-          this.#ctxDnD.beginPath();
-          this.#ctxDnD.arc(width - this.#text.gap / 2 - 2, arcTop, radius, 0, 2 * Math.PI);
-          this.#ctxDnD.fill();
-          this.#ctxDnD.fillStyle = this.#default.fillStyle;
-        }
-
-        this.#ctxDnD.fillText(label, this.#text.gap / 2, this.#text.height / 2);
+        ctxDnD.font = this.#default.font;
+        ctxDnD.textBaseline = "middle";
+        ctxDnD.fillText(label, this.#text.gap / 2, this.#text.height / 2);
         break;
       default:
         var width = this.#operator.lineWidth + (type === "NOT" ? this.#operator.radiusLeft : 0);
@@ -1085,8 +1069,12 @@ class LogicalCircuitCanvas {
 
         this.#canvasDnD.width = size.width + 10;
         this.#canvasDnD.height = size.height + 10;
-        this.#ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
-        this.#ctxDnD.stroke(path);
+        ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
+
+        ctxDnD.lineWidth = this.#default.lineWidth;
+        ctxDnD.lineJoin = "round";
+        ctxDnD.translate(5, 5);
+        ctxDnD.stroke(path);
         break;
     }
 
