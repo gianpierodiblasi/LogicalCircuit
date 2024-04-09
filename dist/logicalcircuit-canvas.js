@@ -10,7 +10,9 @@ class LogicalCircuitCanvas {
   #onChangeUIListener = [];
   #toolbar;
   #canvas;
+  #canvasDnD;
   #ctx;
+  #ctxDnD;
 
   #onInteractive = {
     "selected": false
@@ -127,7 +129,6 @@ class LogicalCircuitCanvas {
     this.#canvas.ondragenter = (event) => this.#ondragenter(event);
     this.#canvas.ondragover = (event) => this.#ondragover(event);
     this.#canvas.ondragleave = (event) => this.#ondragleave(event);
-
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
@@ -136,6 +137,16 @@ class LogicalCircuitCanvas {
     this.#ctx.lineWidth = this.#default.lineWidth;
     this.#ctx.lineJoin = "round";
     this.draw();
+
+    this.#canvasDnD = document.createElement("canvas");
+    this.#canvasDnD.classList.add("LogicalCircuitUI_CanvasDnD");
+    container.append(this.#canvasDnD);
+
+    this.#ctxDnD = this.#canvasDnD.getContext('2d');
+    this.#ctxDnD.font = this.#default.font;
+    this.#ctxDnD.textBaseline = "middle";
+    this.#ctxDnD.lineWidth = this.#default.lineWidth;
+    this.#ctxDnD.lineJoin = "round";
   }
 
   setToolbar(toolbar) {
@@ -284,7 +295,7 @@ class LogicalCircuitCanvas {
       this.#ctx.beginPath();
       this.#ctx.arc(this.#jsonUI[name].left + width - this.#text.gap / 2 - 2, arcTop, radius, 0, 2 * Math.PI);
       this.#ctx.fill();
-      this.#ctx.fillStyle = this.#default.strokeStyle;
+      this.#ctx.fillStyle = this.#default.fillStyle;
     }
 
     this.#ctx.fillText(name, this.#jsonUI[name].left + this.#text.gap / 2, this.#knobCenter[name + "*" + suffix].top);
@@ -966,5 +977,119 @@ class LogicalCircuitCanvas {
   #ondragleave(event) {
     event.preventDefault();
     this.#DnD.droppable = false;
+  }
+
+  getCanvasForDnD(type, label) {
+    var path = new Path2D();
+    var size;
+
+    switch (type) {
+      case "IN":
+      case "OUT":
+        size = {
+          "width": this.#ctx.measureText(label).width + this.#text.gap + (this.#default.interactive ? this.#text.gap : 0),
+          "height": this.#text.height
+        };
+        path.rect(0, 0, size.width, this.#text.height);
+
+        this.#canvasDnD.width = size.width + 10;
+        this.#canvasDnD.height = size.height + 10;
+        this.#ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
+        this.#ctxDnD.stroke(path);
+
+        if (this.#default.interactive) {
+          var radius = this.#text.gap / 2 - 2;
+          var arcTop = this.#text.height - 2 - radius - 2;
+
+          path = new Path2D();
+          path.roundRect(size.width - this.#text.gap - 2, 2, this.#text.gap, this.#text.height - 4, this.#text.gap / 2);
+
+          this.#ctxDnD.fillStyle = this.#text.OFFStyle;
+          this.#ctxDnD.fill(path);
+          this.#ctxDnD.fillStyle = this.#text.circleStyle;
+          this.#ctxDnD.beginPath();
+          this.#ctxDnD.arc(width - this.#text.gap / 2 - 2, arcTop, radius, 0, 2 * Math.PI);
+          this.#ctxDnD.fill();
+          this.#ctxDnD.fillStyle = this.#default.fillStyle;
+        }
+
+        this.#ctxDnD.fillText(label, this.#text.gap / 2, this.#text.height / 2);
+        break;
+      default:
+        var width = this.#operator.lineWidth + (type === "NOT" ? this.#operator.radiusLeft : 0);
+
+        size = {
+          "height": 2 * this.#operator.oneHeight
+        };
+
+        switch (type) {
+          case "OR":
+          case "AND":
+          case "XOR":
+            size.width = this.#operator.lineWidth + this.#operator.radiusLeft;
+            break;
+          case "NOR":
+          case "NAND":
+          case "NXOR":
+            var arc = new Path2D();
+            arc.arc(width + this.#operator.radiusLeft + this.#operator.notRadius, this.#operator.oneHeight, this.#operator.notRadius, 0, 2 * Math.PI);
+            path.addPath(arc);
+
+            size.width = this.#operator.lineWidth + this.#operator.radiusLeft + 2 * this.#operator.notRadius;
+            break;
+          case "NOT":
+            var arc = new Path2D();
+            arc.arc(width + this.#operator.notRadius, this.#operator.oneHeight, this.#operator.notRadius, 0, 2 * Math.PI);
+            path.addPath(arc);
+
+            size.width = this.#operator.lineWidth + this.#operator.radiusLeft + 2 * this.#operator.notRadius;
+            break;
+        }
+
+        if (type !== "NOT") {
+          path.moveTo(width, size.height);
+          path.lineTo(0, size.height);
+        }
+
+        switch (type) {
+          case "OR":
+          case "NOR":
+            path.ellipse(0, this.#operator.oneHeight, this.#operator.radiusLeft, this.#operator.oneHeight, 0, Math.PI / 2, -Math.PI / 2, true);
+            path.lineTo(width, 0);
+            path.quadraticCurveTo(width + 3 * this.#operator.radiusLeft / 5, 0, width + this.#operator.radiusLeft, this.#operator.oneHeight);
+            path.quadraticCurveTo(width + 3 * this.#operator.radiusLeft / 5, size.height, width, size.height);
+            break;
+          case "AND":
+          case "NAND":
+            path.lineTo(0, 0);
+            path.lineTo(width, 0);
+            path.ellipse(width, this.#operator.oneHeight, this.#operator.radiusLeft, this.#operator.oneHeight, 0, -Math.PI / 2, Math.PI / 2);
+            break;
+          case "XOR":
+          case "NXOR":
+            path.ellipse(0, this.#operator.oneHeight, this.#operator.radiusLeft, this.#operator.oneHeight, 0, Math.PI / 2, -Math.PI / 2, true);
+            path.lineTo(width, 0);
+            path.ellipse(width, this.#operator.oneHeight, this.#operator.radiusLeft, this.#operator.oneHeight, 0, -Math.PI / 2, Math.PI / 2);
+
+            var ellipse = new Path2D();
+            ellipse.ellipse(0 - this.#operator.xorGap, this.#operator.oneHeight, this.#operator.radiusLeft, this.#operator.oneHeight, 0, Math.PI / 2, -Math.PI / 2, true);
+            path.addPath(ellipse);
+            break;
+          case "NOT":
+            path.moveTo(0, 0);
+            path.lineTo(width, this.#operator.oneHeight);
+            path.lineTo(0, size.height);
+            path.closePath();
+            break;
+        }
+
+        this.#canvasDnD.width = size.width + 10;
+        this.#canvasDnD.height = size.height + 10;
+        this.#ctxDnD.clearRect(0, 0, this.#canvasDnD.width, this.#canvasDnD.height);
+        this.#ctxDnD.stroke(path);
+        break;
+    }
+
+    return this.#canvasDnD;
   }
 }

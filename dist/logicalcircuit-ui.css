@@ -40,3 +40,8 @@
 .LogicalCircuitUI_Canvas {
   border: 1px solid black;
 }
+
+.LogicalCircuitUI_CanvasDnD {
+  position: absolute;
+  left: -2000px;
+}
