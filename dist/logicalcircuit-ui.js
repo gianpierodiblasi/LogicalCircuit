@@ -24,12 +24,6 @@ class LogicalCircuitUI {
       }]
   };
 
-  #onChangeListener = [];
-  #onChangeUIListener = [];
-
-  #canvas;
-  #toolbar;
-
   #messages = {
     "en": {
       "simplifyLabel": "Simplify",
@@ -57,6 +51,16 @@ class LogicalCircuitUI {
     }
   };
 
+  #DnD = {
+
+  };
+
+  #onChangeListener = [];
+  #onChangeUIListener = [];
+
+  #canvas;
+  #toolbar;
+
   constructor(container, options) {
     this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
 
@@ -80,8 +84,8 @@ class LogicalCircuitUI {
     container.classList.add(this.#uniqueClass);
     container.style.width = (this.#default.width + 2) + "px";
 
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#onChangeListener, this.#onChangeUIListener);
-    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#onChangeListener, this.#onChangeUIListener);
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#DnD, this.#onChangeListener, this.#onChangeUIListener);
+    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#DnD, this.#onChangeListener, this.#onChangeUIListener);
 
     this.#toolbar.setCanvas(this.#canvas);
     this.#canvas.setToolbar(this.#toolbar);

@@ -5,6 +5,7 @@ class LogicalCircuitCanvas {
   #default;
   #history;
   #messages;
+  #DnD;
   #onChangeListener = [];
   #onChangeUIListener = [];
   #toolbar;
@@ -105,13 +106,14 @@ class LogicalCircuitCanvas {
     "cannotDoFillStyle": "gray"
   };
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, messages, onChangeListener, onChangeUIListener) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, messages, DnD, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
     this.#history = history;
     this.#messages = messages;
+    this.#DnD = DnD;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
