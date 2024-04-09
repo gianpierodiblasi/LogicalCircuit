@@ -124,6 +124,10 @@ class LogicalCircuitCanvas {
     this.#canvas.onmousemove = (event) => this.#onMouseMove(event);
     this.#canvas.onmousedown = (event) => this.#onMouseDown(event);
     this.#canvas.onmouseup = (event) => this.#onMouseUp(event);
+    this.#canvas.ondragenter = (event) => this.#ondragenter(event);
+    this.#canvas.ondragover = (event) => this.#ondragover(event);
+    this.#canvas.ondragleave = (event) => this.#ondragleave(event);
+
     container.append(this.#canvas);
 
     this.#ctx = this.#canvas.getContext('2d');
@@ -938,5 +942,29 @@ class LogicalCircuitCanvas {
     } else {
       return false;
     }
+  }
+
+  #ondragenter(event) {
+    this.#checkDroppable(event);
+  }
+
+  #ondragover(event) {
+    this.#checkDroppable(event);
+  }
+
+  #checkDroppable(event) {
+    event.preventDefault();
+
+    var dist = Math.sqrt(Math.pow(event.offsetX - this.#canvas.width, 2) + Math.pow(event.offsetY - this.#canvas.height, 2));
+    this.#DnD.droppable = uniqueDragAndDropKeyLogicalCircuitUI === this.#uniqueClass;
+    this.#DnD.inTrash = dist < this.#trash.radius2;
+    this.#DnD.left = event.offsetX;
+    this.#DnD.top = event.offsetY;
+    event.dataTransfer.dropEffect = this.#DnD.droppable && !this.#DnD.inTrash ? "move" : "none";
+  }
+
+  #ondragleave(event) {
+    event.preventDefault();
+    this.#DnD.droppable = false;
   }
 }

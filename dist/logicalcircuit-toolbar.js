@@ -16,14 +16,14 @@ class LogicalCircuitToolbar {
     "left": 15
   };
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, messages,DnD,  onChangeListener, onChangeUIListener) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, messages, DnD, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
     this.#history = history;
     this.#messages = messages;
-    this.#DnD= DnD;
+    this.#DnD = DnD;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
@@ -97,6 +97,31 @@ class LogicalCircuitToolbar {
     button.disabled = disabled;
     button.style.visibility = visible ? "visible" : "hidden";
     button.setAttribute("draggable", draggable);
+
+    button.ondragstart = (event) => {
+      uniqueDragAndDropKeyLogicalCircuitUI = this.#uniqueClass;
+      this.#DnD.classId = classId;
+      this.#DnD.droppable = false;
+      event.dataTransfer.effectAllowed = "move";
+    };
+
+    button.ondragend = (event) => {
+      if (this.#DnD.droppable && !this.#DnD.inTrash) {
+        switch (this.#DnD.classId) {
+          case "IN":
+            break;
+          case "OUT":
+            break;
+          default:
+            break;
+        }
+      }
+
+      uniqueDragAndDropKeyLogicalCircuitUI = "";
+      this.#DnD.classId = "";
+      this.#DnD.droppable = false;
+    };
+
     div.append(button);
     return button;
   }

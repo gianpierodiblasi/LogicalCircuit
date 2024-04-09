@@ -1,3 +1,5 @@
+var uniqueDragAndDropKeyLogicalCircuitUI = "";
+
 class LogicalCircuitUI {
   #uniqueClass;
   #core = new LogicalCircuitCore();
@@ -52,7 +54,11 @@ class LogicalCircuitUI {
   };
 
   #DnD = {
-
+    "classId": "",
+    "droppable": false,
+    "inTrash": false,
+    "left": 0,
+    "top": 0
   };
 
   #onChangeListener = [];
