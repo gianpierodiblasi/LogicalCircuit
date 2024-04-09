@@ -4,6 +4,7 @@ class LogicalCircuitCanvas {
   #jsonUI;
   #default;
   #history;
+  #messages;
   #onChangeListener = [];
   #onChangeUIListener = [];
   #toolbar;
@@ -104,12 +105,13 @@ class LogicalCircuitCanvas {
     "cannotDoFillStyle": "gray"
   };
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, messages, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
     this.#history = history;
+    this.#messages = messages;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
@@ -669,7 +671,7 @@ class LogicalCircuitCanvas {
     this.#currentEvent = event;
 
     var dist = Math.sqrt(Math.pow(event.offsetX - this.#canvas.width, 2) + Math.pow(event.offsetY - this.#canvas.height, 2));
-    this.#canvas.setAttribute('title', dist < this.#trash.radius2 ? "To trash an element move and release it here" : "");
+    this.#canvas.setAttribute('title', dist < this.#trash.radius2 ? this.#messages.trashTooltip : "");
 
     if (this.#onSymbol.pressed) {
       this.#jsonUI[this.#onMouse.name].top = event.offsetY - this.#onSymbol.offsetTop;

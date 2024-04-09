@@ -4,6 +4,7 @@ class LogicalCircuitToolbar {
   #jsonUI;
   #default;
   #history;
+  #messages;
   #onChangeListener = [];
   #onChangeUIListener = [];
   #canvas
@@ -14,12 +15,13 @@ class LogicalCircuitToolbar {
     "left": 15
   };
 
-  constructor(container, uniqueClass, core, jsonUI, def, history, onChangeListener, onChangeUIListener) {
+  constructor(container, uniqueClass, core, jsonUI, def, history, messages, onChangeListener, onChangeUIListener) {
     this.#uniqueClass = uniqueClass;
     this.#core = core;
     this.#jsonUI = jsonUI;
     this.#default = def;
     this.#history = history;
+    this.#messages = messages;
     this.#onChangeListener = onChangeListener;
     this.#onChangeUIListener = onChangeUIListener;
 
@@ -28,18 +30,22 @@ class LogicalCircuitToolbar {
     toolbar.style.width = (this.#default.width + 2) + "px";
     container.append(toolbar);
 
-    this.#addButtons(toolbar, "\u{21B6}", null, "UNDO", null, () => this.#undo(), null, null, "small", true, true);
-    this.#addButtons(toolbar, "\u{21B7}", null, "REDO", null, () => this.#redo(), null, null, "small", true, true);
-    this.#addButtons(toolbar, "\u{1F5D1}", null, "CLEAR", null, () => this.#clear(), null, "Divide_On_Right", "small", true, true);
+    this.#addButtons(toolbar, "\u{21B6}", null, this.#messages.undoTooltip, null, "UNDO", null, () => this.#undo(), null, null, "small", true, true, false);
+    this.#addButtons(toolbar, "\u{21B7}", null, this.#messages.redoTooltip, null, "REDO", null, () => this.#redo(), null, null, "small", true, true, false);
+    this.#addButtons(toolbar, "\u{1F5D1}", null, this.#messages.clearTooltip, null, "CLEAR", null, () => this.#clear(), null, "Divide_On_Right", "small", true, true, false);
     this.#addButtonsAndText(toolbar);
-    this.#addButtons(toolbar, "OR", null, null, null, () => this.#add("OR"), () => this.#add("NOR"), null, "medium", false, true, true);
-    this.#addButtons(toolbar, "AND", null, null, null, () => this.#add("AND"), () => this.#add("NAND"), null, "medium", false, true, true);
-    this.#addButtons(toolbar, "XOR", null, null, null, () => this.#add("XOR"), () => this.#add("NXOR"), null, "medium", false, true, true);
-    this.#addButtons(toolbar, "NOT", null, null, null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true, true);
-    this.#addButtons(toolbar, "SIMPLIFY", "REORGANIZE", null, null, () => this.#simplify(), () => this.#reorganize(), null, "large", true, false, false);
+    this.#addTwinButtons(toolbar, "OR");
+    this.#addTwinButtons(toolbar, "AND");
+    this.#addTwinButtons(toolbar, "XOR");
+    this.#addButtons(toolbar, "NOT", null, this.#messages.dndTooltip, null, "NOT", null, () => this.#add("NOT"), null, "Divide_On_Right", "medium", false, true, true);
+    this.#addButtons(toolbar, this.#messages.simplifyLabel, this.#messages.reorganizeLabel, null, null, "SIMPLIFY", "REORGANIZE", () => this.#simplify(), () => this.#reorganize(), null, "large", true, false, false);
   }
 
-  #addButtons(toolbar, label1, label2, tooltip1, tooltip2, listener1, listener2, otherClass, size, disabled, visible, draggable) {
+  #addTwinButtons(toolbar, label) {
+    this.#addButtons(toolbar, label, "N" + label, this.#messages.dndTooltip, this.#messages.dndTooltip, label, "N" + label, () => this.#add(label), () => this.#add("N" + label), null, "medium", false, true, true);
+  }
+
+  #addButtons(toolbar, label1, label2, tooltip1, tooltip2, classId1, classId2, listener1, listener2, otherClass, size, disabled, visible, draggable) {
     var div = document.createElement("div");
     div.classList.add("LogicalCircuitUI_Toolbar_ButtonContainer");
     if (otherClass) {
@@ -48,12 +54,10 @@ class LogicalCircuitToolbar {
     toolbar.append(div);
 
     if (listener1) {
-      this.#createButton(div, label1, tooltip1, size, disabled, visible, draggable).onclick = (event) => listener1();
+      this.#createButton(div, label1, tooltip1, classId1, size, disabled, visible, draggable).onclick = (event) => listener1();
     }
     if (listener2) {
-      var label = label2 ? label2 : label1 ? "N" + label1 : null;
-      var tooltip = tooltip2 ? tooltip2 : tooltip1 ? "N" + tooltip1 : null;
-      this.#createButton(div, label, tooltip, size, disabled, visible, draggable).onclick = (event) => listener2();
+      this.#createButton(div, label2, tooltip2, classId2, size, disabled, visible, draggable).onclick = (event) => listener2();
     }
   }
 
@@ -75,20 +79,18 @@ class LogicalCircuitToolbar {
     };
     div.append(text);
 
-    var buttonIN = this.#createButton(div, "IN", null, "medium", true, true, false);
-    var buttonOUT = this.#createButton(div, "OUT", null, "medium", true, true, false);
+    var buttonIN = this.#createButton(div, "IN", this.#messages.dndTooltip, "IN", "medium", true, true, false);
+    var buttonOUT = this.#createButton(div, "OUT", this.#messages.dndTooltip, "OUT", "medium", true, true, false);
 
     buttonIN.onclick = (event) => this.#addInput(text.value);
     buttonOUT.onclick = (event) => this.#addOutput(text.value);
   }
 
-  #createButton(div, label, tooltip, size, disabled, visible, draggable) {
+  #createButton(div, label, tooltip, classId, size, disabled, visible, draggable) {
     var button = document.createElement("button");
     button.textContent = label;
-    if (tooltip) {
-      button.title = tooltip;
-    }
-    button.classList.add(tooltip ? tooltip.replace(" ", "-") : label.replace(" ", "-"));
+    button.title = tooltip ? tooltip : "";
+    button.classList.add(classId);
     button.classList.add(size);
     button.disabled = disabled;
     button.style.visibility = visible ? "visible" : "hidden";
@@ -126,7 +128,7 @@ class LogicalCircuitToolbar {
   }
 
   #clear() {
-    if (confirm("Do you really want to clear the current logical circuit?")) {
+    if (confirm(this.#messages.clearMessage)) {
       this.#history.index = 0;
       this.#history.array = [{
           "json": "{}",
@@ -185,7 +187,7 @@ class LogicalCircuitToolbar {
   }
 
   #simplify() {
-    if (confirm("Do you really want to simplify the current logical circuit?") && this.#core.simplify()) {
+    if (confirm(this.#messages.simplifyMessage) && this.#core.simplify()) {
       var json = this.#core.getJSON();
       Object.keys(this.#jsonUI).forEach(property => delete this.#jsonUI[property]);
       Object.keys(json).filter(name => this.#core.getType(name) === "IN").forEach((name, index, array) => this.#canvas.assignPosition(name, index, array, this.#addedElementPosition.left));
@@ -214,7 +216,7 @@ class LogicalCircuitToolbar {
   }
 
   #reorganize() {
-    if (confirm("Do you really want to reorganize the current logical circuit?")) {
+    if (confirm(this.#messages.reorganizeMessage)) {
       try {
         var edges = [];
         Object.keys(this.#jsonUI).filter(property => this.#core.getType(property) !== "IN").forEach(property => this.#core.getFrom(property).forEach(name => edges.push({"from": name, "to": property})));
@@ -268,11 +270,11 @@ class LogicalCircuitToolbar {
   }
 
   setSimplifierVisible(visible) {
-    document.querySelector("." + this.#uniqueClass + " .SIMPLIFY").style.visibility = visible ? "visible" : "hidden";
+    document.querySelector("." + this.#uniqueClass + " button.SIMPLIFY").style.visibility = visible ? "visible" : "hidden";
   }
 
   setReorganizer(reorganizer) {
     this.#reorganizer = reorganizer;
-    document.querySelector("." + this.#uniqueClass + " .REORGANIZE").style.visibility = !!reorganizer ? "visible" : "hidden";
+    document.querySelector("." + this.#uniqueClass + " button.REORGANIZE").style.visibility = !!reorganizer ? "visible" : "hidden";
   }
 }

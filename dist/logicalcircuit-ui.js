@@ -30,6 +30,33 @@ class LogicalCircuitUI {
   #canvas;
   #toolbar;
 
+  #messages = {
+    "en": {
+      "simplifyLabel": "Simplify",
+      "reorganizeLabel": "Reorganize",
+      "dndTooltip": "Click or Drag&Drop to add a new element",
+      "trashTooltip": "To trash an element move and release it here",
+      "undoTooltip": "Undo",
+      "redoTooltip": "Redo",
+      "clearTooltip": "Clear",
+      "clearMessage": "Do you really want to clear the current logical circuit?",
+      "simplifyMessage": "Do you really want to simplify the current logical circuit?",
+      "reorganizeMessage": "Do you really want to reorganize the current logical circuit?"
+    },
+    "it": {
+      "simplifyLabel": "Semplifica",
+      "reorganizeLabel": "Riorganizza",
+      "dndTooltip": "Clicca o Trascina&Rilascia per aggiungere un nuovo elemento",
+      "trashTooltip": "Per eliminare un elemento muovilo e rilascialo qui",
+      "undoTooltip": "Annulla",
+      "redoTooltip": "Ripeti",
+      "clearTooltip": "Cancella",
+      "clearMessage": "Vuoi realmente cancellare il circuito logico corrente?",
+      "simplifyMessage": "Vuoi realmente semplificare il circuito logico corrente?",
+      "reorganizeMessage": "Vuoi realmente riorganizzare il circuito logico corrente?"
+    }
+  };
+
   constructor(container, options) {
     this.#uniqueClass = "LogicalCircuitUI_Container_" + new Date().getTime() + "_" + parseInt(Math.random() * 1000);
 
@@ -41,16 +68,24 @@ class LogicalCircuitUI {
     this.#default.width = isNaN(options.width) || options.width < 0 ? this.#default.width : options.width;
     this.#default.height = isNaN(options.height) || options.height < 0 ? this.#default.height : options.height;
 
+    if (options.lang && this.#messages[options.lang]) {
+      this.#messages = this.#messages[options.lang];
+    } else if (this.#messages[navigator.language]) {
+      this.#messages = this.#messages[navigator.language];
+    } else {
+      this.#messages = this.#messages["en"];
+    }
+
     container.classList.add("LogicalCircuitUI_Container");
     container.classList.add(this.#uniqueClass);
     container.style.width = (this.#default.width + 2) + "px";
 
-    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener);
-    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#onChangeListener, this.#onChangeUIListener);
-    
+    this.#toolbar = new LogicalCircuitToolbar(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#onChangeListener, this.#onChangeUIListener);
+    this.#canvas = new LogicalCircuitCanvas(container, this.#uniqueClass, this.#core, this.#jsonUI, this.#default, this.#history, this.#messages, this.#onChangeListener, this.#onChangeUIListener);
+
     this.#toolbar.setCanvas(this.#canvas);
     this.#canvas.setToolbar(this.#toolbar);
-    
+
     this.setBezierConnector(options.bezierConnector);
     this.setShowOperatorType(options.showOperatorType);
     this.setInteractive(options.interactive);
